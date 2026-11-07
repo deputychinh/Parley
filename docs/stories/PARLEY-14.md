@@ -17,5 +17,7 @@ Diff changes without a mistake card are not explained; changing the level resets
 - Round 2 (fresh): 8.0/10 — timeout not tested inside `turn`; caller cancellation reported as a timeout; session possibly busy after a timeout; "I did a good job…" treated as praise.
   Fixed: `ModelCoach(responder:timeout:)` injectable (`ModelCoachTimeoutTests.turnTimesOutWithItsOwnError`, `fastResponderPassesThrough`); `TimeoutError` vs `CancellationError` (`callerCancellationIsNotATimeout`); the session is recreated after a timeout; first-person sentences are never praise.
 
+- Round 3 (fresh, last allowed): 8.0/10 — requirements fit 0.5: the timeout still waited for work that ignores cancellation (both helpers). **Blocked** under the round-3 rule → continued as PARLEY-17.
+
 ## Score
-Pending review.
+Blocked after round 3 (requirements fit 0.5); continued in PARLEY-17.

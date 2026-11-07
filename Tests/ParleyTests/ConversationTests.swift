@@ -163,8 +163,8 @@ import Testing
     }
 
     @Test func mainActorTimeoutFailsSlowWorkAndPassesFastWork() async throws {
-        await #expect(throws: TimeoutError.self) { try await mainActorTimeout(0.05) { try await Task.sleep(for: .seconds(5)); return 1 } }
-        #expect(try await mainActorTimeout(1) { 7 } == 7)
+        await #expect(throws: TimeoutError.self) { try await modelTimeout(0.05) { try await Task.sleep(for: .seconds(5)); return 1 } }
+        #expect(try await modelTimeout(1) { 7 } == 7)
         #expect(ModelCoach.timeout == 30)
     }
 }
@@ -187,7 +187,7 @@ import Testing
     }
 
     @Test func callerCancellationIsNotATimeout() async {
-        let t = Task { @MainActor in try await mainActorTimeout(5) { try await Task.sleep(for: .seconds(5)); return 1 } }
+        let t = Task { @MainActor in try await modelTimeout(5) { try await Task.sleep(for: .seconds(5)); return 1 } }
         try? await Task.sleep(for: .milliseconds(50))
         t.cancel()
         await #expect(throws: CancellationError.self) { try await t.value }
@@ -196,5 +196,31 @@ import Testing
     @Test func firstPersonSentencesAreNotPraise() {
         #expect(!Coach.isPraise("I did a good job on the release"))
         #expect(Coach.isPraise("Good job on the release!"))
+    }
+}
+
+
+/// PARLEY-17: the timeout returns on time even when the work ignores cancellation; the session is reset.
+@MainActor @Suite struct ModelTimeoutTests {
+    @Test func workThatIgnoresCancellationStillTimesOutOnTime() async {
+        let clock = ContinuousClock()
+        let start = clock.now
+        await #expect(throws: TimeoutError.self) {
+            try await modelTimeout(0.1) { () async throws -> Int in
+                let until = ContinuousClock.now + .seconds(2)
+                while ContinuousClock.now < until { try? await Task.sleep(for: .milliseconds(20)) } // swallows cancellation
+                return 1
+            }
+        }
+        #expect(clock.now - start < .seconds(1)) // did not wait the 2 s
+    }
+
+    @Test func coachResetsItsSessionAfterATimeout() async {
+        let slow = ModelCoach(instructions: "x", timeout: 0.05) { _ in
+            try? await Task.sleep(for: .seconds(2))
+            return CoachReply(reply: "late", corrected: "", natural: "", tipVi: "")
+        }
+        _ = try? await slow.turn(after: "Hi", learner: "Hello")
+        #expect(slow.sessionResets == 1)
     }
 }

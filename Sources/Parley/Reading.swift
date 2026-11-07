@@ -149,7 +149,7 @@ struct ModelPassageWriter: PassageWriter {
         let ask = "Write a reading passage for a Vietnamese adult learner at CEFR \(level.rawValue) (\(level.hint)) about: \(topic). "
             + "Use \(target.lowerBound) to \(target.upperBound) words in 3 or 4 paragraphs and American spelling. "
             + "Write exactly 3 questions whose answers are stated in the text; only one option may be correct; explanations in Vietnamese."
-        let g = try await withTimeout(Self.timeout) {
+        let g = try await modelTimeout(Self.timeout) {
             try await LanguageModelSession(instructions: "You write clear, accurate graded reading texts and fair comprehension questions.")
                 .respond(to: ask, generating: GeneratedPassage.self).content
         }

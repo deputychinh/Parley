@@ -191,7 +191,7 @@ final class WritingStore {
     /// Asks the on-device model for feedback (at most `timeout` seconds) and turns it into a clean entry.
     static func review(_ text: String, prompt: String, timeout: Double = 45) async throws -> WritingEntry {
         let ask = "Task: \(prompt)\nList every mistake you find (up to 8).\nLearner's text:\n\"\"\"\n\(text)\n\"\"\""
-        let c = try await withTimeout(timeout) {
+        let c = try await modelTimeout(timeout) {
             try await LanguageModelSession(instructions: WritingRules.instructions).respond(to: ask, generating: GeneratedCritique.self).content
         }
         let mistakes = WritingRules.clean(c.mistakes.map { ($0.original, $0.fix, $0.explanationVi) }, in: text)
@@ -219,24 +219,7 @@ final class WritingStore {
     }()
 }
 
-/// The on-device model did not answer in time (Vietnamese message; distinct from the caller cancelling).
-struct TimeoutError: LocalizedError, Equatable {
-    let seconds: Double
-    var errorDescription: String? { "AI trên máy không trả lời sau \(Int(seconds)) giây." }
-}
 
-/// Runs `work`, failing with `TimeoutError` after `seconds` (the on-device model has no timeout of its own).
-func withTimeout<T: Sendable>(_ seconds: Double, _ work: @escaping @Sendable () async throws -> T) async throws -> T {
-    try await withThrowingTaskGroup(of: T.self) { group in
-        group.addTask { try await work() }
-        group.addTask {
-            try await Task.sleep(for: .seconds(seconds))
-            throw TimeoutError(seconds: seconds)
-        }
-        defer { group.cancelAll() }
-        return try await group.next()!
-    }
-}
 
 // MARK: - "Luyện viết" screen
 

@@ -76,9 +76,9 @@ import Testing
         #expect(WritingRules.occurrences(of: "is", in: "This is it, is it") == 2)
     }
 
-    @Test func timeoutFailsSlowWork() async throws {
-        await #expect(throws: TimeoutError.self) { try await withTimeout(0.05) { try await Task.sleep(for: .seconds(5)); return 1 } }
-        #expect(try await withTimeout(1) { 7 } == 7)
+    @MainActor @Test func timeoutFailsSlowWork() async throws {
+        await #expect(throws: TimeoutError.self) { try await modelTimeout(0.05) { try await Task.sleep(for: .seconds(5)); return 1 } }
+        #expect(try await modelTimeout(1) { 7 } == 7)
     }
 
     @Test func vietnameseDetection() {

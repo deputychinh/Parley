@@ -133,7 +133,7 @@ enum Coach {
 
 // MARK: - Engine (injectable so the conversation logic is testable without the model)
 
-struct CoachReply: Equatable {
+struct CoachReply: Equatable, Sendable {
     var reply: String
     var corrected: String
     var natural: String
@@ -151,6 +151,7 @@ struct CoachReply: Equatable {
     private let timeout: Double
     private let responder: Responder?           // tests inject one; nil = the on-device model
     private var session: LanguageModelSession?  // recreated after a timeout (it may still be busy)
+    private(set) var sessionResets = 0
 
     init(instructions: String, timeout: Double = ModelCoach.timeout, responder: Responder? = nil) {
         self.instructions = instructions
@@ -162,9 +163,10 @@ struct CoachReply: Equatable {
     func turn(after ai: String, learner: String) async throws -> CoachReply {
         let prompt = "You said: \"\(ai)\"\nLearner: \"\(learner)\""
         do {
-            return try await mainActorTimeout(timeout) { [self] in try await respond(prompt) }
+            return try await modelTimeout(timeout) { [self] in try await respond(prompt) }
         } catch let e as TimeoutError {
-            session = nil
+            session = nil // the timed-out session may still be generating: the next turn starts a fresh one
+            sessionResets += 1
             throw e
         }
     }
@@ -190,27 +192,6 @@ struct CoachReply: Equatable {
     }
 }
 
-@MainActor private final class TimeoutFlag { var fired = false }
-
-/// Runs main-actor work (non-Sendable model sessions). After `seconds` it throws `TimeoutError`; when the caller is
-/// cancelled the work is cancelled too and `CancellationError` is rethrown (not reported as a timeout).
-@MainActor func mainActorTimeout<T>(_ seconds: Double, _ work: @escaping @MainActor () async throws -> T) async throws -> T {
-    let flag = TimeoutFlag()
-    let task = Task { @MainActor in try await work() }
-    let timer = Task { @MainActor in
-        try? await Task.sleep(for: .seconds(seconds))
-        guard !Task.isCancelled else { return }
-        flag.fired = true
-        task.cancel()
-    }
-    defer { timer.cancel() }
-    return try await withTaskCancellationHandler {
-        do { return try await task.value } catch is CancellationError {
-            if flag.fired { throw TimeoutError(seconds: seconds) }
-            throw CancellationError()
-        }
-    } onCancel: { task.cancel() }
-}
 
 // MARK: - Session state
 
