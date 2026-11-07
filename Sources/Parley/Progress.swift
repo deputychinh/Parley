@@ -201,7 +201,6 @@ struct ProgressScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                if let p = activity.problem { Label(p, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange) }
                 header
                 if activity.data.days.isEmpty {
                     Card {
@@ -221,6 +220,7 @@ struct ProgressScreen: View {
             .frame(maxWidth: .infinity)
         }
         .navigationTitle("Tiến độ")
+        .problemBanner(activity.problem)
     }
 
     private var header: some View {

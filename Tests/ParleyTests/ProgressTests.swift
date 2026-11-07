@@ -76,6 +76,14 @@ import Testing
         #expect(TestData.asideFiles(of: url).count == 1)
     }
 
+    @Test func loweringTheGoalBelowTodaysXPMeetsToday() {
+        let s = ActivityStore(file: TestData.file("activity.json"))
+        s.add(.grammar, xp: 30)               // goal 50: not met
+        #expect(!s.metToday)
+        s.goal = 30
+        #expect(s.metToday && s.streak == 1)  // met at once, no extra XP needed
+    }
+
     @Test func xpRules() {
         #expect(XP.answer(true) == 10 && XP.answer(false) == 2)
     }
@@ -93,12 +101,15 @@ import Testing
             met.insert(d)
         }
         let clock = ContinuousClock()
-        let elapsed = clock.measure {
-            _ = ActivityStore.streak(met: met, today: now)
-            _ = ActivityStore.heatmap(days, weeks: 12, today: now)
-            _ = ActivityStore.totals(days)
-            _ = ActivityStore.totals(days, since: StudyStore.day(now.addingTimeInterval(-6 * 86_400)))
-        }
+        // best of 3: a busy machine (parallel builds, other tests) must not fail the guard by noise
+        let elapsed = (0..<3).map { _ in
+            clock.measure {
+                _ = ActivityStore.streak(met: met, today: now)
+                _ = ActivityStore.heatmap(days, weeks: 12, today: now)
+                _ = ActivityStore.totals(days)
+                _ = ActivityStore.totals(days, since: StudyStore.day(now.addingTimeInterval(-6 * 86_400)))
+            }
+        }.min()!
         print("BenchProgress: \(elapsed)")
         #expect(elapsed < .milliseconds(20))
     }
