@@ -29,7 +29,7 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 | Architect | done | [design.md](design.md), [ADR 0001](../../adr/0001-offline-only-ai.md) |
 | Plan | done | [plan.md](plan.md), [backlog](../../backlog.md) |
 | Build | doing | PARLEY-1 8.5, PARLEY-2 8.0, PARLEY-3 7.5 shipped (round-3 rule, debt filed); PARLEY-9 blocked → PARLEY-10; PARLEY-4/5/7/8/10/11/12 in review; PARLEY-6 todo |
-| Verify | todo | |
+| Verify | done | [verification.md](verification.md) — gates green, ACs traced, known gaps listed |
 | Demo | todo | |
 | Release | todo | local only |
 | Operate | n.a. | local desktop app, no deploy target |
