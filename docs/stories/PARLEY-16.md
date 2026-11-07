@@ -19,5 +19,21 @@
 Screenshot capture failed in this run because the display was locked ("could not create image from window"); the
 instances still started and stopped cleanly.
 
+## Review rounds
+- Round 1 (independent): **9.0/10 — ship gate passed.** Notes (launch-path refusal untested, cfprefsd may rewrite an empty plist until the next sandboxed launch, more `defaults-guard` bypasses) → PARLEY-15.
+
 ## Score
-Pending review.
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Test depth | 0.5 |
+| 3 | Reliability | 0.5 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 1 |
+| 6 | UX | 1 |
+| 7 | Accessibility | 1 |
+| 8 | Performance | 1 |
+| 9 | Docs | 1 |
+| 10 | Delivery | 1 |
+| | **Total** | **9.0 / 10** (round 1) |

@@ -45,6 +45,7 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 
 ## Progress log (one line per item or slice)
 
+- 2026-11-08 PARLEY-16 shipped 9.0, PARLEY-17 shipped 9.0; PARLEY-13, PARLEY-14 and PARLEY-6 blocked after round 3 (continued as 16, 17, 18)
 - 2026-11-08 PARLEY-7 shipped 8.0, PARLEY-8 8.5, PARLEY-12 8.5 (round-3 rule; debt PARLEY-15); PARLEY-10 9.5, PARLEY-11 9.5
 - 2026-11-08 Correction: an earlier "owner defaults unchanged" check filtered NSWindow Frame lines; shot runs did write the main window frame to com.david.parley. Fixed by the sandbox app (PARLEY-13); verified byte-identical since.
 - 2026-11-08 PARLEY-5 — shipped 9.0/10 (r1 7.0, r2 9.0)

@@ -15,5 +15,21 @@
 | session reset | `coachResetsItsSessionAfterATimeout` |
 | writing / reading use it | `timeoutFailsSlowWork`, `noRetryAfterATimeout` |
 
+## Review rounds
+- Round 1 (independent): **9.0/10 — ship gate passed.** Notes (session reset not observable in tests, no reset after caller cancellation, duplicate timeout test) → PARLEY-15.
+
 ## Score
-Pending review.
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Test depth | 0.5 |
+| 3 | Reliability | 0.5 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 1 |
+| 6 | UX | 1 |
+| 7 | Accessibility | 1 |
+| 8 | Performance | 1 |
+| 9 | Docs | 1 |
+| 10 | Delivery | 1 |
+| | **Total** | **9.0 / 10** (round 1) |
