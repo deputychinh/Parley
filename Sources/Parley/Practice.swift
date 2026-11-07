@@ -855,8 +855,10 @@ struct Feedback: View {
 @Observable @MainActor
 final class MicCheck {
     var listening = false
+    var stopping = false   // between "stop" and the recognizer's last result: buttons wait
     var heard: String?
     var error: String?
+    @ObservationIgnored private var failure: String?
     @ObservationIgnored private var engine: AVAudioEngine?
     @ObservationIgnored private var transcriber: Transcriber?
     @ObservationIgnored private var collector: Task<String, Never>?
@@ -868,7 +870,12 @@ final class MicCheck {
             let t = try await Transcriber.start(locale: Locale(identifier: language))
             collector = Task {
                 var out: [String] = []
-                do { for try await r in t.module.results where r.isFinal { out.append(String(r.text.characters)) } } catch {}
+                do {
+                    for try await r in t.module.results where r.isFinal { out.append(String(r.text.characters)) }
+                } catch {
+                    await MainActor.run { self.failure = "Nhận dạng giọng nói bị lỗi — thử nói lại." }
+                    print("mic:", error)
+                }
                 return out.joined(separator: " ")
             }
             let engine = AVAudioEngine()
@@ -884,7 +891,9 @@ final class MicCheck {
     }
 
     func stop() async -> String {
-        guard listening else { return heard ?? "" }
+        guard listening, !stopping else { return heard ?? "" }
+        stopping = true
+        defer { stopping = false }
         engine?.inputNode.removeTap(onBus: 0)
         engine?.stop()
         engine = nil
@@ -894,6 +903,7 @@ final class MicCheck {
         let text = await collector?.value ?? ""
         collector = nil
         heard = text
+        if let failure { error = failure; self.failure = nil }
         return text
     }
 

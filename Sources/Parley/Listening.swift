@@ -14,6 +14,12 @@ struct Clip: Hashable, Identifiable {
     let origin: String // session title or topic name
 
     var duration: Double { end - start }
+
+    /// Where playback should stop in a file of `fileDuration` seconds; nil when the clip starts past the end.
+    static func playEnd(start: Double, end: Double, fileDuration: Double) -> Double? {
+        guard start < fileDuration else { return nil }
+        return min(end, fileDuration)
+    }
 }
 
 enum Clips {
@@ -182,6 +188,10 @@ final class ClipPlayer {
         }
         do {
             let p = try (player?.url == url ? player : nil) ?? AVAudioPlayer(contentsOf: url)
+            guard let stopAt = Clip.playEnd(start: clip.start, end: clip.end, fileDuration: p.duration) else {
+                error = "Bản ghi âm ngắn hơn câu này — có thể phiên bị dừng giữa chừng."
+                return
+            }
             p.enableRate = true
             p.prepareToPlay()
             p.rate = Float(speed)
@@ -189,7 +199,7 @@ final class ClipPlayer {
             p.play()
             player = p
             playing = true
-            let wait = (min(clip.end, p.duration) - clip.start) / speed // the last line may claim 15 s past the end
+            let wait = (stopAt - clip.start) / speed // the last line may claim 15 s past the end
             stopTask = Task { [weak self] in
                 try? await Task.sleep(for: .seconds(wait))
                 if !Task.isCancelled { self?.stop() }
@@ -456,10 +466,13 @@ struct ListeningSession: View {
                 .buttonStyle(.glassProminent)
                 .tint(mic.listening ? .red : .parley)
                 .keyboardShortcut(.defaultAction)
+                .disabled(mic.stopping)
                 if mic.listening { Text("Đang nghe…").foregroundStyle(.secondary) }
+                if mic.stopping { ProgressView().controlSize(.small) }
                 Spacer()
                 Button("Bỏ qua câu này") { next() }
-                    .buttonStyle(.glass)
+                    .buttonStyle(.borderless)
+                    .disabled(mic.stopping)
                     .help("Chuyển sang câu tiếp mà không chấm (khi micro không dùng được)")
             } else {
                 Button("Nói lại") { autoStop?.cancel(); result = nil; mic.heard = nil }
@@ -516,7 +529,9 @@ struct ListeningSession: View {
     private func toggleMic(_ clip: Clip) async {
         if mic.listening {
             autoStop?.cancel()
+            let at = index
             let heard = await mic.stop()
+            guard at == index, clips.indices.contains(at), clips[at] == clip else { return } // moved on meanwhile
             if heard.trimmingCharacters(in: .whitespaces).isEmpty {
                 mic.error = "Chưa nghe thấy gì — kiểm tra micro (System Settings → Privacy & Security → Microphone) rồi thử lại."
             } else {
