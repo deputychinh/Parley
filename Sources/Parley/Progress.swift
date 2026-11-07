@@ -41,6 +41,35 @@ enum Skill: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+/// Everything that earns XP, mapped to a skill and an amount in one tested place (design.md).
+enum XPEvent: Equatable {
+    case review(ok: Bool, spoken: Bool)        // a vocabulary practice card; spoken = "Luyện phát âm" card
+    case grammar(ok: Bool)
+    case pronunciation(ok: Bool)               // re-reading a word from "Phát âm của tôi"
+    case newWord                               // "Học từ này" in the daily list
+    case listening(dictation: Bool, pass: Bool) // dictation → listening, shadowing → speaking
+    case turn(spoken: Bool)                    // one conversation turn: voice → speaking, typed → writing
+
+    var skill: Skill {
+        switch self {
+        case .review(_, let spoken): spoken ? .speaking : .vocabulary
+        case .grammar: .grammar
+        case .pronunciation: .speaking
+        case .newWord: .vocabulary
+        case .listening(let dictation, _): dictation ? .listening : .speaking
+        case .turn(let spoken): spoken ? .speaking : .writing
+        }
+    }
+    var xp: Int {
+        switch self {
+        case .review(let ok, _), .grammar(let ok), .pronunciation(let ok): XP.answer(ok)
+        case .newWord: XP.newWord
+        case .listening(_, let pass): XP.answer(pass)
+        case .turn: XP.turn
+        }
+    }
+}
+
 /// XP rules (design.md): effort counts, correct answers count more.
 enum XP {
     static let correct = 10
@@ -61,16 +90,19 @@ struct ActivityData: Codable, Equatable {
 final class ActivityStore {
     static let goalRange = 10...200
     private(set) var data = ActivityData()
+    private(set) var problem: String?           // unreadable file or failed save, shown on the progress screen
     @ObservationIgnored private let url: URL
+    @ObservationIgnored private var writable = true
 
     init(file: URL = Model.dataDir.appending(path: "activity.json")) {
         url = file
-        guard let raw = try? Data(contentsOf: url) else { return }
-        do { data = try JSONDecoder().decode(ActivityData.self, from: raw) } catch {
-            // Never overwrite a file we couldn't read.
-            try? FileManager.default.moveItem(at: url, to: url.deletingPathExtension().appendingPathExtension("unreadable.json"))
-        }
+        let loaded = StoreFile.load(ActivityData.self, from: url)
+        data = loaded.value ?? ActivityData()
+        writable = loaded.writable
+        problem = loaded.problem
     }
+
+    func log(_ event: XPEvent, now: Date = .now) { add(event.skill, xp: event.xp, now: now) }
 
     var goal: Int {
         get { data.goal }
@@ -90,6 +122,8 @@ final class ActivityStore {
     }
 
     func xp(on day: String) -> Int { Self.total(data.days[day]) }
+    /// Today reached the goal at some point (stays true if the goal is raised later — same rule as the streak).
+    var metToday: Bool { data.met.contains(StudyStore.day(.now)) }
     var todayXP: Int { xp(on: StudyStore.day(.now)) }
     var streak: Int { Self.streak(met: Set(data.met), today: .now) }
 
@@ -98,10 +132,10 @@ final class ActivityStore {
     }
 
     private func save() {
-        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        guard writable else { return }
         let e = JSONEncoder()
         e.outputFormatting = [.prettyPrinted, .sortedKeys]
-        try? e.encode(data).write(to: url, options: .atomic)
+        do { try StoreFile.save(data, to: url, encoder: e) } catch { problem = "Không lưu được tiến độ: \(error.localizedDescription)" }
     }
 
     // MARK: Pure aggregation (tested, benchmarked)
@@ -158,6 +192,7 @@ struct ProgressScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
+                if let p = activity.problem { Label(p, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange) }
                 header
                 if activity.data.days.isEmpty {
                     Card {
@@ -187,11 +222,11 @@ struct ProgressScreen: View {
         // Side by side when there is room; stacked in a narrow window.
         return ViewThatFits(in: .horizontal) {
             HStack(spacing: 14) {
-                TodayRing(xp: activity.todayXP, goal: activity.goal).frame(minWidth: 380)
+                TodayRing(xp: activity.todayXP, goal: activity.goal, met: activity.metToday).frame(minWidth: 380)
                 VStack(spacing: 14) { tiles }.frame(minWidth: 260)
             }
             VStack(spacing: 14) {
-                TodayRing(xp: activity.todayXP, goal: activity.goal)
+                TodayRing(xp: activity.todayXP, goal: activity.goal, met: activity.metToday)
                 HStack(spacing: 14) { tiles }
             }
         }
@@ -205,7 +240,8 @@ struct ProgressScreen: View {
                     Spacer()
                     HeatLegend(goal: activity.goal)
                 }
-                Heatmap(cells: ActivityStore.heatmap(activity.data.days, weeks: 12, today: .now), goal: activity.goal)
+                Heatmap(cells: ActivityStore.heatmap(activity.data.days, weeks: 12, today: .now), goal: activity.goal,
+                        met: Set(activity.data.met))
             }
         }
     }
@@ -221,7 +257,8 @@ struct ProgressScreen: View {
                     Spacer()
                     Text("Tổng: \(all.values.reduce(0, +)) XP").foregroundStyle(.secondary).monospacedDigit()
                 }
-                ForEach(Skill.allCases) { s in
+                // Skills without any XP yet (e.g. reading before that feature exists) stay hidden.
+                ForEach(Skill.allCases.filter { (all[$0] ?? 0) > 0 }) { s in
                     SkillBar(skill: s, xp: week[s] ?? 0, total: all[s] ?? 0, fraction: Double(week[s] ?? 0) / Double(top))
                 }
             }
@@ -233,9 +270,10 @@ struct TodayRing: View {
     @Environment(ActivityStore.self) private var activity
     let xp: Int
     let goal: Int
+    var met = false
 
     var body: some View {
-        let f = min(Double(xp) / Double(max(goal, 1)), 1)
+        let f = met ? 1 : min(Double(xp) / Double(max(goal, 1)), 1)
         HStack(spacing: 18) {
             ZStack {
                 Circle().stroke(Color.parley.opacity(0.15), lineWidth: 12)
@@ -251,7 +289,7 @@ struct TodayRing: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Hôm nay").font(.callout).foregroundStyle(.secondary)
                 Text("\(xp)/\(goal) XP").font(.title.weight(.bold)).monospacedDigit().contentTransition(.numericText())
-                Text(f >= 1 ? "Đã đạt mục tiêu 🎉" : "Còn \(goal - xp) XP nữa").font(.callout).foregroundStyle(.secondary)
+                Text(f >= 1 ? "Đã đạt mục tiêu 🎉" : "Còn \(max(goal - xp, 0)) XP nữa").font(.callout).foregroundStyle(.secondary)
                 Stepper("Mục tiêu: \(goal) XP/ngày", value: Binding(get: { activity.goal }, set: { activity.goal = $0 }),
                         in: ActivityStore.goalRange, step: 10)
                     .font(.callout)
@@ -269,13 +307,15 @@ struct TodayRing: View {
 struct Heatmap: View {
     let cells: [[ActivityStore.Cell]]
     let goal: Int
+    var met: Set<String> = []
+    private let side: CGFloat = 16
     private let labels = ["T2", "", "T4", "", "T6", "", "CN"]
 
     var body: some View {
         HStack(alignment: .top, spacing: 4) {
             VStack(spacing: 4) {
                 ForEach(labels.indices, id: \.self) { i in
-                    Text(labels[i]).font(.caption2).foregroundStyle(.secondary).frame(width: 22, height: 18, alignment: .leading)
+                    Text(labels[i]).font(.caption2).foregroundStyle(.secondary).frame(width: 22, height: side, alignment: .leading)
                 }
             }
             .accessibilityHidden(true)
@@ -286,14 +326,21 @@ struct Heatmap: View {
                             .fill(c.future ? Color.clear : Heatmap.color(xp: c.xp, goal: goal))
                             .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous)
                                 .strokeBorder(Color.primary.opacity(c.future ? 0 : 0.06)))
-                            .frame(maxWidth: .infinity, minHeight: 18, maxHeight: 18)
+                            .frame(width: side, height: side)
                             .help(c.future ? "" : "\(c.date.formatted(date: .abbreviated, time: .omitted)): \(c.xp) XP")
-                            .accessibilityHidden(c.future)
-                            .accessibilityLabel("\(c.date.formatted(date: .abbreviated, time: .omitted)), \(c.xp) XP")
                     }
                 }
             }
+            Spacer(minLength: 0)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Self.summary(cells, met: met))
+    }
+
+    /// One VoiceOver sentence instead of 84 cells.
+    static func summary(_ cells: [[ActivityStore.Cell]], met: Set<String>) -> String {
+        let past = cells.joined().filter { !$0.future }
+        return "12 tuần gần đây: học \(past.count { $0.xp > 0 }) ngày, đạt mục tiêu \(past.count { met.contains($0.day) }) ngày"
     }
 
     static func color(xp: Int, goal: Int) -> Color {

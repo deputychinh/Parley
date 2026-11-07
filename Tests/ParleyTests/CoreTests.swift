@@ -127,7 +127,7 @@ import Testing
         try Data("not json".utf8).write(to: url)
         let s = VocabStore(file: url)
         #expect(s.items.isEmpty)
-        #expect(FileManager.default.fileExists(atPath: url.deletingPathExtension().appendingPathExtension("unreadable.json").path))
+        #expect(TestData.asideFiles(of: url).count == 1)
         s.add(VocabItem(term: "leak", meaning: "rò rỉ", termLanguage: "en-US", meaningLanguage: "vi", example: "", exampleTranslation: ""))
         #expect(VocabStore(file: url).items.map(\.term) == ["leak"])
     }
@@ -140,7 +140,7 @@ import Testing
         return url
     }
     func movedAside(_ url: URL) -> Bool {
-        FileManager.default.fileExists(atPath: url.deletingPathExtension().appendingPathExtension("unreadable.json").path)
+        TestData.asideFiles(of: url).count == 1
     }
 
     @Test func studyStoreMovesAnUnreadableFileAside() throws {
@@ -157,6 +157,13 @@ import Testing
 }
 
 enum TestData {
+    /// Files a store moved aside next to `url` (`<name>.unreadable-<stamp>-<id>.json`).
+    static func asideFiles(of url: URL) -> [URL] {
+        let stem = url.deletingPathExtension().lastPathComponent + ".unreadable"
+        return ((try? FileManager.default.contentsOfDirectory(at: url.deletingLastPathComponent(), includingPropertiesForKeys: nil)) ?? [])
+            .filter { $0.lastPathComponent.hasPrefix(stem) }
+    }
+
     /// A fresh file path in a unique temp folder (never the user's ~/Documents/Parley).
     static func file(_ name: String) -> URL {
         let dir = FileManager.default.temporaryDirectory.appending(path: "parley-tests-\(UUID().uuidString)")
@@ -225,6 +232,26 @@ enum TestData {
         #expect(Model.dataDir.path == URL(fileURLWithPath: env).path)
         #expect(Model.dataDir.standardizedFileURL != Model.defaultDataDir.standardizedFileURL)
         #expect(Seed.realFolder == Model.defaultDataDir)
+    }
+
+    /// The real executable honours `--data-dir` over the environment (kills "ignore CommandLine.arguments" mutants).
+    @Test func executableHonoursDataDirArgument() throws {
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let exe = try #require(["out/Products/Debug/Parley", "debug/Parley"].map { root.appending(path: ".build/\($0)") }
+            .first { FileManager.default.isExecutableFile(atPath: $0.path) }, "build the Parley product first (make test does)")
+        func run(_ args: [String], env: [String: String]) throws -> String {
+            let p = Process()
+            p.executableURL = exe
+            p.arguments = args + ["--print-data-dir"]
+            p.environment = env
+            let pipe = Pipe()
+            p.standardOutput = pipe
+            try p.run()
+            p.waitUntilExit()
+            return String(decoding: pipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        #expect(try run(["--data-dir", "/tmp/parley-arg"], env: ["PARLEY_DATA_DIR": "/tmp/parley-env"]) == "/tmp/parley-arg")
+        #expect(try run([], env: ["PARLEY_DATA_DIR": "/tmp/parley-env"]) == "/tmp/parley-env")
     }
 
     @Test func dataDirResolution() {

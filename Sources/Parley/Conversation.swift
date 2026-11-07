@@ -142,10 +142,12 @@ final class ConversationModel {
     var thinking = false
     var error: String?
     @ObservationIgnored private var session: LanguageModelSession
+    @ObservationIgnored private let activity: ActivityStore?
 
-    init(scenario: Scenario, level: CEFR) {
+    init(scenario: Scenario, level: CEFR, activity: ActivityStore? = nil) {
         self.scenario = scenario
         self.level = level
+        self.activity = activity
         session = LanguageModelSession(instructions: Coach.instructions(scenario, level))
         lines = [ChatLine(who: .ai, text: scenario.opener)]
     }
@@ -170,6 +172,7 @@ final class ConversationModel {
             let reply = turn.reply.trimmingCharacters(in: .whitespacesAndNewlines)
             let shown = reply.isEmpty ? "Sorry, could you say that again?" : reply
             lines.append(ChatLine(who: .ai, text: shown))
+            activity?.log(.turn(spoken: spoken))
             return shown
         } catch let e as LanguageModelSession.GenerationError {
             if case .exceededContextWindowSize = e {
@@ -189,6 +192,7 @@ final class ConversationModel {
 
 struct ConversationView: View {
     let vocab: VocabStore
+    @Environment(ActivityStore.self) private var activity
     @State private var level = CEFR.b1
     @State private var model: ConversationModel?
 
@@ -258,7 +262,7 @@ struct ConversationView: View {
     }
 
     private func start(_ s: Scenario) {
-        withAnimation(.smooth) { model = ConversationModel(scenario: s, level: level) }
+        withAnimation(.smooth) { model = ConversationModel(scenario: s, level: level, activity: activity) }
     }
 }
 
@@ -282,7 +286,6 @@ struct ConversationSession: View {
     let model: ConversationModel
     let vocab: VocabStore
     let onExit: () -> Void
-    @Environment(ActivityStore.self) private var activity
     @AppStorage("conversationSpeak") private var speakReplies = true
     @State private var draft = ""
     @State private var mic = MicCheck()
@@ -484,7 +487,6 @@ struct ConversationSession: View {
         guard Coach.clean(text) != nil, !model.thinking else { return }
         draft = ""
         if let reply = await model.send(text, spoken: spoken) {
-            activity.add(spoken ? .speaking : .writing, xp: XP.turn)
             if speakReplies { say(reply) }
         } else {
             draft = text // keep what the learner wrote so it can be resent

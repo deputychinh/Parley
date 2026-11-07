@@ -51,7 +51,11 @@ final class Model {
     private(set) var targetOptions: [Locale.Language] = []
 
     @ObservationIgnored private let audio = SystemAudio()
-    @ObservationIgnored let pronunciation = PronunciationStore()
+    @ObservationIgnored let pronunciation: PronunciationStore
+
+    init(activity: ActivityStore? = nil) {
+        pronunciation = PronunciationStore(activity: activity)
+    }
     @ObservationIgnored private var transcribers: [Source: Transcriber] = [:]
     @ObservationIgnored private var translator: TranslationSession?
     @ObservationIgnored private var pending: [Int] = []

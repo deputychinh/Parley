@@ -45,14 +45,15 @@ enum Clips {
     }
 
     /// Curated example sentences (read by the system voice) — always available.
-    nonisolated static func curated() -> [Clip] {
+    nonisolated static func curated() -> [Clip] { curatedClips }
+    private nonisolated static let curatedClips: [Clip] = {
         Library.topics.flatMap { t in
             t.words.map { w in
                 Clip(id: "topic:\(t.id):\(w.term)", text: w.example, translation: w.exampleTranslation, audio: nil,
                      start: 0, end: 0, origin: t.title)
             }
         }
-    }
+    }()
 }
 
 // MARK: - Word diff (dictation and shadowing feedback)
@@ -116,6 +117,30 @@ enum WordDiff {
     }
 }
 
+// MARK: - One practice run (pure, tested)
+
+/// Scores per sentence for one run of 10 clips. A retry replaces the sentence's score and earns no extra XP.
+struct ListeningRun: Equatable {
+    let dictation: Bool
+    private(set) var scores: [Int: Double] = [:]   // clip index → best-so-far is not kept: the latest attempt counts
+
+    /// Grades an answer for clip `index`; returns the diff and the XP event (nil when this sentence already earned XP).
+    mutating func grade(index: Int, expected: String, answer: String) -> (tokens: [WordDiff.Token], event: XPEvent?) {
+        let tokens = WordDiff.diff(expected: expected, typed: answer)
+        let s = WordDiff.score(tokens)
+        let first = scores[index] == nil
+        scores[index] = s
+        return (tokens, first ? .listening(dictation: dictation, pass: s >= WordDiff.pass) : nil)
+    }
+
+    var answered: Int { scores.count }
+    var passed: Int { scores.values.count { $0 >= WordDiff.pass } }
+    var average: Double { scores.isEmpty ? 0 : scores.values.reduce(0, +) / Double(scores.count) }
+
+    /// How long shadowing listens before stopping by itself: the clip (or ~0.45 s a word) × 1.6 + 2 s to start.
+    static func listenLimit(clipDuration: Double, words: Int) -> Double { max(clipDuration, Double(words) * 0.45) * 1.6 + 2 }
+}
+
 // MARK: - Playback
 
 @Observable @MainActor
@@ -170,7 +195,6 @@ enum ListeningMode: String, CaseIterable, Identifiable {
             : "Nghe một câu rồi nói lại y như vậy; máy nghe và chấm từng từ."
     }
     var symbol: String { self == .dictation ? "keyboard" : "waveform.and.mic" }
-    var skill: Skill { self == .dictation ? .listening : .speaking }
 }
 
 struct ListeningView: View {
@@ -230,7 +254,7 @@ struct ListeningView: View {
                         ListeningModeCard(mode: mode, count: min(pool.count, 10)) { start(mode) }
                     }
                 }
-                Label("Mỗi lượt 10 câu; đúng từ 80% số từ trở lên là đạt. Phím tắt: Space nghe lại, ↩ kiểm tra / câu tiếp, Esc kết thúc.",
+                Label("Mỗi lượt 10 câu; đúng từ 80% số từ trở lên là đạt. Phím tắt: ⌥R nghe lại, ↩ kiểm tra / câu tiếp, Esc kết thúc.",
                       systemImage: "keyboard")
                     .font(.callout).foregroundStyle(.secondary)
             }
@@ -301,9 +325,18 @@ struct ListeningSession: View {
     let onExit: () -> Void
     @Environment(ActivityStore.self) private var activity
     @State private var index = 0
+
+    init(mode: ListeningMode, clips: [Clip], speed: Binding<Double>, onExit: @escaping () -> Void) {
+        self.mode = mode
+        self.clips = clips
+        _speed = speed
+        self.onExit = onExit
+        _run = State(initialValue: ListeningRun(dictation: mode == .dictation))
+    }
     @State private var typed = ""
     @State private var result: [WordDiff.Token]?
-    @State private var scores: [Double] = []
+    @State private var run: ListeningRun
+    @State private var autoStop: Task<Void, Never>?
     @State private var player = ClipPlayer()
     @State private var mic = MicCheck()
     @FocusState private var focused: Bool
@@ -334,6 +367,7 @@ struct ListeningSession: View {
         }
         .onDisappear {
             player.stop()
+            autoStop?.cancel()
             Task { _ = await mic.stop() }
         }
     }
@@ -350,8 +384,8 @@ struct ListeningSession: View {
                     }
                     .buttonStyle(.glassProminent)
                     .buttonBorderShape(.circle)
-                    .keyboardShortcut(.space, modifiers: [])
-                    .help("Nghe lại (Space)")
+                    .keyboardShortcut("r", modifiers: .option) // not Space: that must type into the answer field
+                    .help("Nghe lại (⌥R)")
                     .accessibilityLabel("Nghe lại")
                     VStack(alignment: .leading, spacing: 4) {
                         Text(mode == .dictation ? "Nghe rồi gõ lại câu" : "Nghe rồi nói lại câu").font(.title3.weight(.semibold))
@@ -400,7 +434,7 @@ struct ListeningSession: View {
                 .keyboardShortcut(.defaultAction)
                 if mic.listening { Text("Đang nghe…").foregroundStyle(.secondary) }
             } else {
-                Button("Nói lại") { result = nil; mic.heard = nil }
+                Button("Nói lại") { autoStop?.cancel(); result = nil; mic.heard = nil }
                     .buttonStyle(.glass)
                 Button("Câu tiếp") { next() }
                     .buttonStyle(.glassProminent)
@@ -432,13 +466,12 @@ struct ListeningSession: View {
     }
 
     private var summary: some View {
-        let passed = scores.count { $0 >= WordDiff.pass }
-        let avg = scores.isEmpty ? 0 : scores.reduce(0, +) / Double(scores.count)
+        let passed = run.passed, answered = run.answered, avg = run.average
         return VStack(spacing: 16) {
-            Image(systemName: !scores.isEmpty && passed == scores.count ? "trophy.fill" : "checkmark.seal.fill")
+            Image(systemName: answered > 0 && passed == answered ? "trophy.fill" : "checkmark.seal.fill")
                 .font(.system(size: 64)).foregroundStyle(Color.parley.gradient).symbolEffect(.bounce, options: .repeat(2))
             Text("Hoàn thành!").font(.largeTitle.weight(.bold))
-            Text("Đạt \(passed)/\(scores.count) câu · trung bình \(Int((avg * 100).rounded()))% từ đúng").foregroundStyle(.secondary)
+            Text("Đạt \(passed)/\(answered) câu · trung bình \(Int((avg * 100).rounded()))% từ đúng").foregroundStyle(.secondary)
             Button { onExit() } label: { Label("Xong", systemImage: "checkmark") }
                 .buttonStyle(.glassProminent).controlSize(.large).keyboardShortcut(.defaultAction)
         }
@@ -448,15 +481,14 @@ struct ListeningSession: View {
 
     private func check(_ clip: Clip, _ answer: String) {
         guard result == nil, !answer.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        let tokens = WordDiff.diff(expected: clip.text, typed: answer)
-        let s = WordDiff.score(tokens)
-        withAnimation(.snappy) { result = tokens }
-        scores.append(s)
-        activity.add(mode.skill, xp: XP.answer(s >= WordDiff.pass))
+        let graded = run.grade(index: index, expected: clip.text, answer: answer)
+        withAnimation(.snappy) { result = graded.tokens }
+        if let e = graded.event { activity.log(e) }
     }
 
     private func toggleMic(_ clip: Clip) async {
         if mic.listening {
+            autoStop?.cancel()
             let heard = await mic.stop()
             if heard.trimmingCharacters(in: .whitespaces).isEmpty {
                 mic.error = "Chưa nghe thấy gì — kiểm tra micro (System Settings → Privacy & Security → Microphone) rồi thử lại."
@@ -468,13 +500,19 @@ struct ListeningSession: View {
         player.stop()
         await mic.start(language: "en_US")
         guard mic.listening else { return }
-        // Auto-stop after the sentence's length plus thinking time.
-        let limit = max(clip.duration, Double(clip.text.split(separator: " ").count) * 0.45) * 1.6 + 2
-        try? await Task.sleep(for: .seconds(limit))
-        if mic.listening, result == nil, index < clips.count, clips[index] == clip { await toggleMic(clip) }
+        // Auto-stop after the sentence's length plus thinking time; cancelled by a manual stop, retry or next.
+        let limit = ListeningRun.listenLimit(clipDuration: clip.duration, words: clip.text.split(separator: " ").count)
+        autoStop?.cancel()
+        autoStop = Task {
+            try? await Task.sleep(for: .seconds(limit))
+            guard !Task.isCancelled, mic.listening else { return }
+            await toggleMic(clip)
+        }
     }
 
     private func next() {
+        autoStop?.cancel()
+        Task { _ = await mic.stop() }
         index += 1
         typed = ""
         result = nil

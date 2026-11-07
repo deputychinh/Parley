@@ -27,15 +27,17 @@ final class PronunciationStore {
     /// Even clean synthetic speech scores ~0.65 on some words, so only clearly uncertain words count.
     static let unclearBelow = 0.5
     @ObservationIgnored private let url: URL
+    private(set) var problem: String?
+    @ObservationIgnored private var writable = true
+    @ObservationIgnored private let activity: ActivityStore?
 
-    init(file: URL = Model.dataDir.appending(path: "pronunciation.json")) {
+    init(file: URL = Model.dataDir.appending(path: "pronunciation.json"), activity: ActivityStore? = nil) {
         url = file
-        guard let data = try? Data(contentsOf: url) else { return }
-        do {
-            words = try Self.decoder.decode([String: SpokenWord].self, from: data)
-        } catch {
-            try? FileManager.default.moveItem(at: url, to: url.deletingPathExtension().appendingPathExtension("unreadable.json"))
-        }
+        self.activity = activity
+        let loaded = StoreFile.load([String: SpokenWord].self, from: url, decoder: Self.decoder)
+        words = loaded.value ?? [:]
+        writable = loaded.writable
+        problem = loaded.problem
     }
 
     func record(_ text: AttributedString, language: String) {
@@ -82,6 +84,7 @@ final class PronunciationStore {
         }
         words[word] = s
         save()
+        activity?.log(.pronunciation(ok: correct))
         return s.streak ?? 0
     }
 
@@ -91,8 +94,8 @@ final class PronunciationStore {
     }
 
     private func save() {
-        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-        try? Self.encoder.encode(words).write(to: url, options: .atomic)
+        guard writable else { return }
+        do { try StoreFile.save(words, to: url, encoder: Self.encoder) } catch { problem = "Không lưu được phát âm: \(error.localizedDescription)" }
     }
 
     private static let encoder: JSONEncoder = {
@@ -132,7 +135,6 @@ struct PronunciationView: View {
     @State private var mic = MicCheck()
     @State private var active: String?
     @State private var results: [String: Bool] = [:]
-    @Environment(ActivityStore.self) private var activity
 
     var body: some View {
         Group {
@@ -242,7 +244,6 @@ struct PronunciationView: View {
     private func finish(_ w: SpokenWord) async {
         let heard = await mic.stop()
         let ok = Answer.score(heard: heard, expected: w.word) >= 1
-        activity.add(.speaking, xp: XP.answer(ok))
         if ok, (w.streak ?? 0) + 1 >= PronunciationStore.streakToClear {
             results[w.word] = true
             Speaker.speak(w.word, language: Locale(identifier: w.language).language)

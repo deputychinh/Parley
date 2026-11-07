@@ -73,7 +73,7 @@ import Testing
         try Data("{ broken".utf8).write(to: url)
         let s = ActivityStore(file: url)
         #expect(s.data == ActivityData())
-        #expect(FileManager.default.fileExists(atPath: url.deletingPathExtension().appendingPathExtension("unreadable.json").path))
+        #expect(TestData.asideFiles(of: url).count == 1)
     }
 
     @Test func xpRules() {

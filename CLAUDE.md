@@ -7,11 +7,12 @@ Offline interpreter + English learning app for macOS 26+ (SwiftUI, SwiftPM execu
 | Command | What |
 | --- | --- |
 | `make ci` | offline guard + release build (warnings = errors) + `swift test` — the gate for every commit |
-| `make test` | Swift Testing suite in `Tests/ParleyTests` |
+| `make test` | Swift Testing suite in `Tests/ParleyTests` — run it via make: it sets `PARLEY_DATA_DIR` to a temp folder and a test fails on purpose without it |
 | `make app` / `make run` / `make install` | `build/Parley.app` / open it / copy to /Applications |
 | `make pipeline` | real speech recognition + translation on a `say` file |
 | `make ai-eval` | on-device model checks (needs Apple Intelligence; not in CI) |
 | `make shot ROUTE=<route> NAME=<file> [ARGS="--open x"]` | screenshot with seeded sample data → `docs/screenshots/` |
+| `make shot-test` | checks shot.sh never stops another Parley and leaves nothing running |
 
 ## Rules
 

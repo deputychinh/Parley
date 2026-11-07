@@ -2,10 +2,12 @@
 export DEVELOPER_DIR ?= /Applications/Xcode.app/Contents/Developer
 SWIFT_FLAGS := -Xswiftc -warnings-as-errors
 
-.PHONY: build test ci offline-guard app run install pipeline ai-eval bench shot
+.PHONY: build test ci offline-guard app run install pipeline ai-eval bench shot shot-test
 
-build:            ## release build of the executable, warnings are errors
-	swift build -c release $(SWIFT_FLAGS)
+SHELL := /bin/bash
+build:            ## release build; warnings are errors (also concurrency warnings the flag lets through)
+	set -o pipefail; swift build -c release $(SWIFT_FLAGS) 2>&1 | tee .build/build.log
+	@! grep -n 'warning:' .build/build.log || (echo "build warnings (see above) — fix them"; exit 1)
 
 test:             ## unit tests (Swift Testing); default stores point at a temp folder, never ~/Documents/Parley
 	PARLEY_DATA_DIR="$$(mktemp -d "$${TMPDIR:-/tmp}/parley-test.XXXXXX")" swift test $(SWIFT_FLAGS)
@@ -33,6 +35,9 @@ ai-eval: build    ## on-device model checks (needs Apple Intelligence; not in CI
 
 bench:            ## performance workloads (benchmarks/plan.md)
 	PARLEY_DATA_DIR="$$(mktemp -d "$${TMPDIR:-/tmp}/parley-test.XXXXXX")" swift test -c release --filter Bench
+
+shot-test: app    ## shot.sh leaves other Parley instances alone and cleans up its own (needs a GUI session)
+	scripts/shot-test.sh
 
 shot: app         ## make shot ROUTE=progress NAME=progress [ARGS="--open x"]
 	scripts/shot.sh $(ROUTE) $(NAME) $(ARGS)

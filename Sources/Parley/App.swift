@@ -13,6 +13,10 @@ enum Main {
             }
             dispatchMain()
         }
+        if args.contains("--print-data-dir") { // tests: proves `--data-dir` / PARLEY_DATA_DIR reach the app
+            print(Model.dataDir.path)
+            exit(0)
+        }
         if args.contains("--ai-eval") { // `make ai-eval`: on-device model quality + latency (needs Apple Intelligence)
             Task { @MainActor in exit(await AIEval.run() ? 0 : 1) }
             dispatchMain()
@@ -127,10 +131,19 @@ struct ParleyApp: App {
 }
 
 @MainActor final class AppDelegate: NSObject, NSApplicationDelegate {
-    let model = Model()
-    let vocab = VocabStore()
-    let study = StudyStore()
-    let activity = ActivityStore()
+    let activity: ActivityStore
+    let model: Model
+    let vocab: VocabStore
+    let study: StudyStore
+
+    override init() {
+        let activity = ActivityStore() // every store logs XP into it
+        self.activity = activity
+        model = Model(activity: activity)
+        vocab = VocabStore(activity: activity)
+        study = StudyStore(activity: activity)
+        super.init()
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Task.detached(priority: .utility) { _ = Pronunciation.ipa("a") } // warm the 135k-word dictionary off the main thread

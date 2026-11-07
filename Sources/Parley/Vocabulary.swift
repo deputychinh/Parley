@@ -43,26 +43,29 @@ struct VocabItem: Codable, Identifiable, Hashable {
 @Observable @MainActor
 final class VocabStore {
     private(set) var items: [VocabItem] = []
+    private(set) var problem: String?
     @ObservationIgnored private let url: URL
+    @ObservationIgnored private var writable = true
+    @ObservationIgnored private let activity: ActivityStore?
 
-    init(file: URL = Model.dataDir.appending(path: "vocabulary.json")) {
+    init(file: URL = Model.dataDir.appending(path: "vocabulary.json"), activity: ActivityStore? = nil) {
         url = file
-        guard let data = try? Data(contentsOf: url) else { return }
-        do {
-            items = try Self.decoder.decode([VocabItem].self, from: data)
-        } catch {
-            // Never overwrite a file we couldn't read: keep it aside so no words are lost.
-            try? FileManager.default.moveItem(at: url, to: url.deletingPathExtension().appendingPathExtension("unreadable.json"))
-        }
+        self.activity = activity
+        let loaded = StoreFile.load([VocabItem].self, from: url, decoder: Self.decoder)
+        items = loaded.value ?? []
+        writable = loaded.writable
+        problem = loaded.problem
     }
 
     var learning: Int { items.count { !$0.mastered } }
     var dueCount: Int { items.count { $0.isDue } }
 
-    func review(_ id: UUID, correct: Bool) {
+    /// Spaced-repetition step for one card; also logs XP (`spoken` = a pronunciation card).
+    func review(_ id: UUID, correct: Bool, spoken: Bool = false) {
         guard let i = items.firstIndex(where: { $0.id == id }) else { return }
         items[i].review(correct: correct)
         save()
+        activity?.log(.review(ok: correct, spoken: spoken))
     }
 
     func contains(_ term: String) -> Bool {
@@ -90,8 +93,8 @@ final class VocabStore {
     }
 
     private func save() {
-        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-        try? Self.encoder.encode(items).write(to: url, options: .atomic)
+        guard writable else { return }
+        do { try StoreFile.save(items, to: url, encoder: Self.encoder) } catch { problem = "Không lưu được từ vựng: \(error.localizedDescription)" }
     }
 
     private static let encoder: JSONEncoder = {

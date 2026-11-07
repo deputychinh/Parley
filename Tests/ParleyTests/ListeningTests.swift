@@ -127,3 +127,36 @@ import Testing
         #expect(elapsed < .milliseconds(300))
     }
 }
+
+/// Review findings on PARLEY-3: one XP event per sentence, retries replace the score, pass boundary, skill per mode.
+@Suite struct ListeningRunTests {
+    @Test func firstAnswerEarnsXPRetryReplacesScore() {
+        var run = ListeningRun(dictation: true)
+        let first = run.grade(index: 0, expected: "one two three four five", answer: "one two")
+        #expect(first.event == .listening(dictation: true, pass: false))
+        let retry = run.grade(index: 0, expected: "one two three four five", answer: "one two three four five")
+        #expect(retry.event == nil)                      // no second XP for the same sentence
+        #expect(run.answered == 1 && run.passed == 1)    // the latest attempt counts, never 2 of 1
+        _ = run.grade(index: 1, expected: "a b c d e", answer: "a b c d")
+        #expect(run.answered == 2 && run.passed == 2 && abs(run.average - 0.9) < 1e-9)
+    }
+
+    @Test func passIsAtEightyPercentAndSkillFollowsMode() {
+        var shadow = ListeningRun(dictation: false)
+        #expect(shadow.grade(index: 0, expected: "one two three four five", answer: "one two three four").event
+                == .listening(dictation: false, pass: true))   // exactly 80 %
+        #expect(XPEvent.listening(dictation: false, pass: true).skill == .speaking)
+        var dict = ListeningRun(dictation: true)
+        #expect(dict.grade(index: 0, expected: "one two three four five", answer: "one two three").event
+                == .listening(dictation: true, pass: false))   // 60 %
+    }
+
+    @Test func listenLimitGrowsWithTheSentence() {
+        #expect(ListeningRun.listenLimit(clipDuration: 0, words: 10) == 4.5 * 1.6 + 2)
+        #expect(ListeningRun.listenLimit(clipDuration: 6, words: 3) == 6 * 1.6 + 2)
+    }
+
+    @Test func emptyHistoryMeansCuratedOnly() {
+        #expect(Clips.fromHistory([]).isEmpty && !Clips.curated().isEmpty)
+    }
+}

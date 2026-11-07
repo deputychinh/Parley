@@ -331,7 +331,7 @@ struct SessionRow: View {
         .padding(.vertical, 3)
     }
 
-    static func title(_ url: URL) -> String {
+    nonisolated static func title(_ url: URL) -> String {
         guard let d = Model.date(of: url) else { return url.deletingPathExtension().lastPathComponent }
         let time = d.formatted(date: .omitted, time: .shortened)
         if Calendar.current.isDateInToday(d) { return "Hôm nay, \(time)" }

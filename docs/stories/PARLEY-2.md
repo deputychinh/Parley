@@ -22,12 +22,16 @@ As a learner I want to see how much I studied each day, per skill, so that I kee
 
 | AC | Evidence |
 | --- | --- |
-| AC2.1 | `ActivityStoreTests.addsXPPerSkillAndDayAndPersists`, `xpRules`; call sites listed above (`grep -n "activity.add" Sources`) |
+| AC2.1 | `XPWiringTests` (event → skill/XP table; VocabStore, StudyStore, PronunciationStore log XP), `ActivityStoreTests.addsXPPerSkillAndDayAndPersists`; listening/conversation in PARLEY-3/4 |
 | AC2.2 | `ActivityStoreTests.streak` (5 cases: running, today open, gap, broken, empty), `goalIsClampedAndMetDaysAreKept`, `SeedActivityTests` |
 | AC2.3 | `heatmapIsTwelveMondayFirstWeeksEndingThisWeek`, `totalsPerSkillWithOptionalWindow`, goal clamp test; screenshot `docs/screenshots/progress.png` |
-| AC2.4 | `unreadableFileIsMovedAsideNotOverwritten`; empty state in `ProgressScreen` (no days) |
+| AC2.4 | `StoreFileTests` (second corrupt file, unmovable file, save error), `unreadableFileIsMovedAsideNotOverwritten`; screenshot `progress-empty.png` |
 | AC2.5 | sidebar row `Tiến độ` with `MiniRing` + badge (screenshot) |
 | Perf W1 | `BenchProgress.threeYearsAggregateUnder20ms` → 3.4 ms (target < 20 ms) |
+
+## Review rounds
+- Round 1 (independent): 5.0/10 — data loss when an `.unreadable.json` already existed (shared by all stores), save errors swallowed, XP call sites untested (deleting them kept tests green), `met` reload untested, design.md stale, heatmap bars / 84 VoiceOver cells, empty skill rows, ring "not met" after raising the goal, branch unpushed.
+  Fixed: `StoreFile` (unique aside name, read-only when the move fails, `problem` shown) for all four stores; `XPEvent` mapping + stores log XP themselves (`XPWiringTests` per store); `metSurvivesARestart`; square 16 px heatmap cells with one VoiceOver summary; zero-XP skills hidden; ring uses `metToday`; design.md updated; branch pushed.
 
 ## Score
 Pending review.

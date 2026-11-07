@@ -158,12 +158,17 @@ final class StudyStore {
     var filling = false // meanings / example sentences being prepared
     @ObservationIgnored private let url: URL
 
-    init(file: URL = Model.dataDir.appending(path: "study.json")) {
+    private(set) var problem: String?
+    @ObservationIgnored private var writable = true
+    @ObservationIgnored private let activity: ActivityStore?
+
+    init(file: URL = Model.dataDir.appending(path: "study.json"), activity: ActivityStore? = nil) {
         url = file
-        guard let raw = try? Data(contentsOf: url) else { return }
-        do { data = try JSONDecoder().decode(StudyData.self, from: raw) } catch {
-            try? FileManager.default.moveItem(at: url, to: url.deletingPathExtension().appendingPathExtension("unreadable.json"))
-        }
+        self.activity = activity
+        let loaded = StoreFile.load(StudyData.self, from: url)
+        data = loaded.value ?? StudyData()
+        writable = loaded.writable
+        problem = loaded.problem
     }
 
     var goal: Int { UserDefaults.standard.object(forKey: "dailyGoal") as? Int ?? 20 }
@@ -236,6 +241,7 @@ final class StudyStore {
             data.known.append(term)
         }
         data.done[term] = learned
+        if learned { activity?.log(.newWord) }
         if completedToday, data.lastCompleted != data.day {
             let yesterday = Self.day(.now.addingTimeInterval(-86_400))
             data.streak = data.lastCompleted == yesterday ? data.streak + 1 : 1
@@ -302,6 +308,9 @@ final class StudyStore {
         return t
     }
 
+    /// One answered grammar exercise (XP); the lesson's best score is saved by `recordGrammar` at the end.
+    func answerGrammar(correct: Bool) { activity?.log(.grammar(ok: correct)) }
+
     func recordGrammar(_ id: String, score: Int) {
         data.grammarBest[id] = max(data.grammarBest[id] ?? 0, score)
         save()
@@ -318,10 +327,10 @@ final class StudyStore {
     }
 
     private func save() {
-        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        guard writable else { return }
         let e = JSONEncoder()
         e.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
-        try? e.encode(data).write(to: url, options: .atomic)
+        do { try StoreFile.save(data, to: url, encoder: e) } catch { problem = "Không lưu được kế hoạch học: \(error.localizedDescription)" }
     }
 }
 
@@ -364,7 +373,6 @@ struct DailyView: View {
     let study: StudyStore
     let vocab: VocabStore
     @AppStorage("dailyGoal") private var goal = 20
-    @Environment(ActivityStore.self) private var activity
     @AppStorage("startRank") private var startRank = 0
 
     var body: some View {
@@ -395,7 +403,6 @@ struct DailyView: View {
                 if study.completedToday { completeBanner }
                 ForEach(study.data.batch, id: \.self) { term in
                     DailyWordCard(term: term, card: study.data.cards[term], state: study.data.done[term]) { learned in
-                        if learned, study.data.done[term] == nil { activity.add(.vocabulary, xp: XP.newWord) }
                         withAnimation(.smooth) { study.resolve(term, learned: learned, vocab: vocab) }
                     }
                 }
@@ -966,7 +973,7 @@ struct LessonView: View {
                 }
                 Text(lesson.summary).font(.title3).foregroundStyle(.secondary)
                 if quiz {
-                    GrammarQuiz(lesson: lesson) { score in study.recordGrammar(lesson.id, score: score) } onClose: { withAnimation { quiz = false } }
+                    GrammarQuiz(lesson: lesson, onAnswer: { study.answerGrammar(correct: $0) }) { score in study.recordGrammar(lesson.id, score: score) } onClose: { withAnimation { quiz = false } }
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 } else {
                     section("Khi nào dùng", "lightbulb.fill") { Text(lesson.when) }
@@ -1019,13 +1026,13 @@ struct LessonView: View {
 
 struct GrammarQuiz: View {
     let lesson: GrammarLesson
+    var onAnswer: (Bool) -> Void = { _ in }
     let onFinish: (Int) -> Void
     let onClose: () -> Void
     @State private var index = 0
     @State private var chosen: String?
     @State private var score = 0
     @State private var shakes = 0
-    @Environment(ActivityStore.self) private var activity
 
     var body: some View {
         Card(padding: 24) {
@@ -1102,7 +1109,7 @@ struct GrammarQuiz: View {
     private func choose(_ option: String, _ ex: GrammarExercise) {
         guard chosen == nil else { return }
         chosen = option
-        activity.add(.grammar, xp: XP.answer(option == ex.answer))
+        onAnswer(option == ex.answer)
         if option == ex.answer { withAnimation { score += 1 } } else { withAnimation(.linear(duration: 0.4)) { shakes += 1 } }
     }
 
