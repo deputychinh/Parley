@@ -78,6 +78,15 @@ final class VocabStore {
         save()
     }
 
+    /// Adds many words with one save (import); words already present are skipped.
+    func addMany(_ new: [VocabItem]) {
+        var known = Set(items.map { $0.term.lowercased() })
+        let fresh = new.filter { known.insert($0.term.lowercased()).inserted }
+        guard !fresh.isEmpty else { return }
+        items.insert(contentsOf: fresh, at: 0)
+        save()
+    }
+
     func remove(_ ids: Set<UUID>) {
         items.removeAll { ids.contains($0.id) }
         save()

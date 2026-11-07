@@ -885,6 +885,8 @@ struct VocabularyView: View {
     @State private var filter = 0 // 0 all · 1 learning · 2 mastered
     @State private var selection = Set<UUID>()
     @State private var sort = [KeyPathComparator(\VocabItem.added, order: .reverse)]
+    @State private var transferMessage: String?
+    @State private var transferErrors: [String] = []
 
     var body: some View {
         let rows = store.items.filter { item in
@@ -922,6 +924,20 @@ struct VocabularyView: View {
         .searchable(text: $search, placement: .toolbar, prompt: "Tìm từ")
         .toolbar {
             ToolbarItem {
+                Menu {
+                    Button("Nhập từ tệp CSV / TSV (Anki, Excel)…", systemImage: "square.and.arrow.down") {
+                        if let r = VocabFiles.importPanel(store) { transferErrors = r.errors; transferMessage = r.summary }
+                    }
+                    Button("Xuất ra tệp CSV…", systemImage: "square.and.arrow.up") {
+                        if let m = VocabFiles.exportPanel(store) { transferErrors = []; transferMessage = m }
+                    }
+                    .disabled(store.items.isEmpty)
+                } label: {
+                    Label("Nhập / Xuất", systemImage: "arrow.up.arrow.down.square")
+                }
+                .help("Nhập hoặc xuất danh sách từ (CSV, mở được bằng Anki/Excel)")
+            }
+            ToolbarItem {
                 Picker("Lọc", selection: $filter) {
                     Text("Tất cả").tag(0)
                     Text("Đang học").tag(1)
@@ -932,6 +948,20 @@ struct VocabularyView: View {
         }
         .navigationTitle("Từ vựng")
         .problemBanner(store.problem)
+        .task { // debug/screenshots: `--import <file>` runs an import without the open panel
+            if let path = DebugArgs.value("--import") {
+                let r = VocabFiles.importFile(URL(fileURLWithPath: path), into: store)
+                transferErrors = r.errors
+                transferMessage = r.summary
+            }
+        }
+        .alert(transferMessage ?? "", isPresented: Binding(get: { transferMessage != nil }, set: { if !$0 { transferMessage = nil } })) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            if !transferErrors.isEmpty {
+                Text(transferErrors.prefix(8).joined(separator: "\n") + (transferErrors.count > 8 ? "\n… và \(transferErrors.count - 8) dòng khác" : ""))
+            }
+        }
     }
 
     private func vocabTable(_ rows: [VocabItem]) -> some View {
