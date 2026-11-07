@@ -31,20 +31,27 @@ final class Model {
     nonisolated static let defaultDataDir = URL.documentsDirectory.appending(path: "Parley")
     nonisolated static let dataDir = resolveDataDir(args: CommandLine.arguments, env: ProcessInfo.processInfo.environment)
 
-    /// A `--data-dir` flag without a usable folder would silently fall back to the owner's real data — refuse instead.
-    nonisolated static func dataDirArgumentError(_ args: [String]) -> String? {
+    /// The one parser for `--data-dir`: nil = flag absent, `.success(path)`, or `.failure` for a flag that would
+    /// otherwise silently fall back to the owner's real data (no value, a flag as value, or the `--data-dir=x` form).
+    nonisolated static func dataDirFlag(_ args: [String]) -> Result<String, Err>? {
+        if args.contains(where: { $0.hasPrefix("--data-dir=") }) { return .failure(Err("use --data-dir <folder>, not --data-dir=<folder>")) }
         guard let i = args.firstIndex(of: "--data-dir") else { return nil }
         guard args.indices.contains(i + 1), !args[i + 1].isEmpty, !args[i + 1].hasPrefix("-") else {
-            return "--data-dir needs a folder path"
+            return .failure(Err("--data-dir needs a folder path"))
         }
+        return .success(args[i + 1])
+    }
+
+    nonisolated static func dataDirArgumentError(_ args: [String]) -> String? {
+        if case .failure(let e) = dataDirFlag(args) { return e.localizedDescription }
         return nil
     }
 
     /// `--data-dir <path>` wins over `PARLEY_DATA_DIR`, which wins over the default; empty values are ignored.
     nonisolated static func resolveDataDir(args: [String], env: [String: String],
                                            fallback: URL = defaultDataDir) -> URL {
-        let arg = args.firstIndex(of: "--data-dir").flatMap { args.indices.contains($0 + 1) ? args[$0 + 1] : nil }
-        let chosen = [arg, env["PARLEY_DATA_DIR"]].compactMap { $0 }.first { !$0.isEmpty && !$0.hasPrefix("--") }
+        let arg: String? = if case .success(let path) = dataDirFlag(args) { path } else { nil }
+        let chosen = [arg, env["PARLEY_DATA_DIR"]].compactMap { $0 }.first { !$0.isEmpty }
         return chosen.map { URL(fileURLWithPath: $0) } ?? fallback
     }
     /// Language being heard (speech recognition needs a region, e.g. en_US vs en_GB).

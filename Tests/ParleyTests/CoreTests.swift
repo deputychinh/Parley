@@ -252,6 +252,16 @@ enum TestData {
         }
         #expect(try run(["--data-dir", "/tmp/parley-arg"], env: ["PARLEY_DATA_DIR": "/tmp/parley-env"]) == "/tmp/parley-arg")
         #expect(try run([], env: ["PARLEY_DATA_DIR": "/tmp/parley-env"]) == "/tmp/parley-env")
+        // a malformed flag stops the app (exit 2) instead of falling back to the real folder
+        for bad in [["--data-dir"], ["--data-dir=/tmp/y"]] {
+            let p = Process()
+            p.executableURL = exe
+            p.arguments = bad + ["--print-data-dir"]
+            p.standardOutput = Pipe()
+            try p.run()
+            p.waitUntilExit()
+            #expect(p.terminationStatus == 2, "\(bad)")
+        }
     }
 
     @Test func malformedDataDirFlagIsRefused() {
@@ -260,6 +270,8 @@ enum TestData {
         #expect(Model.dataDirArgumentError(["app", "--data-dir", ""]) != nil)
         #expect(Model.dataDirArgumentError(["app", "--data-dir", "/tmp/x"]) == nil)
         #expect(Model.dataDirArgumentError(["app"]) == nil)
+        #expect(Model.dataDirArgumentError(["app", "--data-dir=/tmp/y"]) != nil)              // `=` form refused
+        #expect(Model.resolveDataDir(args: ["app", "--data-dir=/tmp/y"], env: [:], fallback: URL(fileURLWithPath: "/d")).path == "/d")
     }
 
     @Test func dataDirResolution() {
