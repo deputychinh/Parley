@@ -27,11 +27,13 @@ final class Model {
     var prepareConfig: TranslationSession.Configuration? // set → SwiftUI downloads the EN→VI pack
 
     /// `~/Documents/Parley`; `--data-dir <path>` (or `PARLEY_DATA_DIR`) points screenshots and tests at a scratch folder instead.
+    /// The owner's real data folder (the default, and what `Seed` refuses).
+    nonisolated static let defaultDataDir = URL.documentsDirectory.appending(path: "Parley")
     nonisolated static let dataDir = resolveDataDir(args: CommandLine.arguments, env: ProcessInfo.processInfo.environment)
 
     /// `--data-dir <path>` wins over `PARLEY_DATA_DIR`, which wins over the default; empty values are ignored.
     nonisolated static func resolveDataDir(args: [String], env: [String: String],
-                                           fallback: URL = URL.documentsDirectory.appending(path: "Parley")) -> URL {
+                                           fallback: URL = defaultDataDir) -> URL {
         let arg = args.firstIndex(of: "--data-dir").flatMap { args.indices.contains($0 + 1) ? args[$0 + 1] : nil }
         let chosen = [arg, env["PARLEY_DATA_DIR"]].compactMap { $0 }.first { !$0.isEmpty && !$0.hasPrefix("--") }
         return chosen.map { URL(fileURLWithPath: $0) } ?? fallback

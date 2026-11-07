@@ -133,6 +133,29 @@ import Testing
     }
 }
 
+@MainActor @Suite struct StoreRecoveryTests {
+    func corrupt(_ name: String) throws -> URL {
+        let url = TestData.file(name)
+        try Data("{ not json".utf8).write(to: url)
+        return url
+    }
+    func movedAside(_ url: URL) -> Bool {
+        FileManager.default.fileExists(atPath: url.deletingPathExtension().appendingPathExtension("unreadable.json").path)
+    }
+
+    @Test func studyStoreMovesAnUnreadableFileAside() throws {
+        let url = try corrupt("study.json")
+        let s = StudyStore(file: url)
+        #expect(s.data.batch.isEmpty && movedAside(url))
+    }
+
+    @Test func pronunciationStoreMovesAnUnreadableFileAside() throws {
+        let url = try corrupt("pronunciation.json")
+        let s = PronunciationStore(file: url)
+        #expect(s.words.isEmpty && movedAside(url))
+    }
+}
+
 enum TestData {
     /// A fresh file path in a unique temp folder (never the user's ~/Documents/Parley).
     static func file(_ name: String) -> URL {
@@ -188,12 +211,20 @@ enum TestData {
         #expect(!Seed.isAllowed(fresh, real: real))                // someone's data → refuse
     }
 
-    @Test func seedWritesSampleDataAtomically() throws {
+    @Test func seedWritesSampleDataThenRefusesToWriteAgain() throws {
         let dir = home.appending(path: "seed")
         try Seed.write(to: dir, audio: false)
         #expect(VocabStoreTests.load(dir.appending(path: "vocabulary.json")).count == 12)
         #expect(!Model.parse(try String(contentsOf: dir.appending(path: "\(Seed.sessionStamp).md"), encoding: .utf8)).isEmpty)
         #expect(throws: Err.self) { try Seed.write(to: dir) } // now non-empty → refused
+    }
+
+    /// `make test` sets PARLEY_DATA_DIR to a temp folder: the app's real `dataDir` must follow it (no hard-coded path).
+    @Test func dataDirFollowsTheEnvironmentInTests() throws {
+        let env = try #require(ProcessInfo.processInfo.environment["PARLEY_DATA_DIR"], "run tests through `make test`")
+        #expect(Model.dataDir.path == URL(fileURLWithPath: env).path)
+        #expect(Model.dataDir.standardizedFileURL != Model.defaultDataDir.standardizedFileURL)
+        #expect(Seed.realFolder == Model.defaultDataDir)
     }
 
     @Test func dataDirResolution() {

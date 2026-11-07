@@ -7,8 +7,8 @@ SWIFT_FLAGS := -Xswiftc -warnings-as-errors
 build:            ## release build of the executable, warnings are errors
 	swift build -c release $(SWIFT_FLAGS)
 
-test:             ## unit tests (Swift Testing); they never touch ~/Documents/Parley
-	swift test $(SWIFT_FLAGS)
+test:             ## unit tests (Swift Testing); default stores point at a temp folder, never ~/Documents/Parley
+	PARLEY_DATA_DIR="$$(mktemp -d "$${TMPDIR:-/tmp}/parley-test.XXXXXX")" swift test $(SWIFT_FLAGS)
 
 offline-guard:    ## ADR 0001: no network code in the app
 	@! grep -rnE 'URLSession|NSURLConnection|CFNetwork' Sources/ || (echo "network code found (ADR 0001)"; exit 1)
@@ -32,7 +32,7 @@ ai-eval: build    ## on-device model checks (needs Apple Intelligence; not in CI
 	.build/release/Parley --ai-eval
 
 bench:            ## performance workloads (benchmarks/plan.md)
-	swift test -c release --filter Bench
+	PARLEY_DATA_DIR="$$(mktemp -d "$${TMPDIR:-/tmp}/parley-test.XXXXXX")" swift test -c release --filter Bench
 
 shot: app         ## make shot ROUTE=progress NAME=progress [ARGS="--open x"]
 	scripts/shot.sh $(ROUTE) $(NAME) $(ARGS)

@@ -5,7 +5,7 @@ import Foundation
 /// Refuses the real data folder so a typo can never overwrite the user's words.
 enum Seed {
     /// The owner's data folder; nothing is ever seeded in or under it.
-    static let realFolder = URL.documentsDirectory.appending(path: "Parley")
+    static let realFolder = Model.defaultDataDir
 
     /// Seeding is allowed only into a missing or empty folder outside `real` (compared after resolving symlinks,
     /// `.`/`..`, trailing slashes and letter case — APFS is case-insensitive by default).

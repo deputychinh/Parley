@@ -1133,7 +1133,7 @@ struct SettingsView: View {
                 }
             }
             Section("Dữ liệu") {
-                LabeledContent("Thư mục", value: "~/Documents/Parley")
+                LabeledContent("Thư mục", value: (Model.dataDir.path as NSString).abbreviatingWithTildeInPath)
                 Button("Mở trong Finder") {
                     try? FileManager.default.createDirectory(at: Model.dataDir, withIntermediateDirectories: true)
                     NSWorkspace.shared.open(Model.dataDir)
