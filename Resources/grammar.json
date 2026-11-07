@@ -1,0 +1,4250 @@
+[
+ {
+  "id": "to-be",
+  "level": "A1",
+  "title": "Động từ to be",
+  "summary": "am / is / are — nền tảng của mọi câu",
+  "when": "Dùng to be để nói ai/cái gì là gì, ở đâu, thế nào: 'I am a developer', 'The server is down', 'They are in the meeting'.",
+  "form": [
+   "I am · he/she/it is · we/you/they are",
+   "Phủ định: am not / isn't / aren't",
+   "Câu hỏi: Am I…? Is it…? Are they…?"
+  ],
+  "tips": [
+   "Người Việt hay bỏ to be: 'The server down' ✗ → 'The server is down' ✓.",
+   "Không dùng to be cùng động từ thường ở hiện tại đơn: 'I am work here' ✗ → 'I work here' ✓."
+  ],
+  "examples": [
+   {
+    "en": "I am a backend developer.",
+    "vi": "Tôi là lập trình viên backend."
+   },
+   {
+    "en": "The server is down right now.",
+    "vi": "Máy chủ đang bị sập."
+   },
+   {
+    "en": "Are you ready for the demo?",
+    "vi": "Bạn sẵn sàng cho buổi demo chưa?"
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "The API ___ very slow today.",
+    "options": [
+     "is",
+     "are",
+     "am",
+     "be"
+    ],
+    "answer": "is",
+    "explain": "Chủ ngữ số ít 'the API' → is."
+   },
+   {
+    "prompt": "We ___ in the meeting room.",
+    "options": [
+     "are",
+     "is",
+     "am",
+     "be"
+    ],
+    "answer": "are",
+    "explain": "'We' → are."
+   },
+   {
+    "prompt": "___ you free this afternoon?",
+    "options": [
+     "Are",
+     "Is",
+     "Do",
+     "Am"
+    ],
+    "answer": "Are",
+    "explain": "Câu hỏi với to be: Are + you…?"
+   },
+   {
+    "prompt": "The tests ___ not ready yet.",
+    "options": [
+     "are",
+     "is",
+     "am",
+     "does"
+    ],
+    "answer": "are",
+    "explain": "'The tests' số nhiều → are not."
+   },
+   {
+    "prompt": "I ___ a project manager.",
+    "options": [
+     "am",
+     "is",
+     "are",
+     "be"
+    ],
+    "answer": "am",
+    "explain": "'I' → am."
+   }
+  ]
+ },
+ {
+  "id": "pronouns",
+  "level": "A1",
+  "title": "Đại từ & sở hữu",
+  "summary": "I / me / my / mine, it / its",
+  "when": "Đại từ chủ ngữ (I, he, they) đứng trước động từ; đại từ tân ngữ (me, him, them) đứng sau động từ hoặc giới từ; tính từ sở hữu (my, his, their) đứng trước danh từ; đại từ sở hữu (mine, his, theirs) đứng một mình.",
+  "form": [
+   "Chủ ngữ: I you he she it we they",
+   "Tân ngữ: me you him her it us them",
+   "Tính từ sở hữu + N: my your his her its our their",
+   "Đại từ sở hữu: mine yours his hers ours theirs"
+  ],
+  "tips": [
+   "'its' (của nó) không có dấu nháy; 'it's' = it is.",
+   "Sau giới từ dùng tân ngữ: 'between you and me', không phải 'between you and I'."
+  ],
+  "examples": [
+   {
+    "en": "Can you send it to me?",
+    "vi": "Bạn gửi nó cho tôi được không?"
+   },
+   {
+    "en": "This laptop is mine, that one is hers.",
+    "vi": "Laptop này của tôi, cái kia của cô ấy."
+   },
+   {
+    "en": "The app has lost its settings.",
+    "vi": "Ứng dụng đã mất phần cài đặt của nó."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "Please send the file to ___.",
+    "options": [
+     "me",
+     "I",
+     "my",
+     "mine"
+    ],
+    "answer": "me",
+    "explain": "Sau giới từ 'to' → tân ngữ me."
+   },
+   {
+    "prompt": "This is ___ laptop, not yours.",
+    "options": [
+     "my",
+     "mine",
+     "me",
+     "I"
+    ],
+    "answer": "my",
+    "explain": "Trước danh từ → tính từ sở hữu my."
+   },
+   {
+    "prompt": "The service restarted, but ___ logs are empty.",
+    "options": [
+     "its",
+     "it's",
+     "it",
+     "their"
+    ],
+    "answer": "its",
+    "explain": "'its' = của nó; 'it's' = it is."
+   },
+   {
+    "prompt": "Is this charger yours or ___?",
+    "options": [
+     "mine",
+     "my",
+     "me",
+     "I"
+    ],
+    "answer": "mine",
+    "explain": "Đứng một mình, không có danh từ theo sau → mine."
+   },
+   {
+    "prompt": "___ are waiting for the client.",
+    "options": [
+     "They",
+     "Them",
+     "Their",
+     "Theirs"
+    ],
+    "answer": "They",
+    "explain": "Làm chủ ngữ → They."
+   }
+  ]
+ },
+ {
+  "id": "plurals",
+  "level": "A1",
+  "title": "Danh từ số nhiều",
+  "summary": "-s, -es và các từ bất quy tắc",
+  "when": "Danh từ đếm được có số ít (a server) và số nhiều (two servers). Phần lớn thêm -s; một số thêm -es hoặc biến đổi bất quy tắc.",
+  "form": [
+   "+s: bug → bugs, user → users",
+   "+es sau s/x/ch/sh: box → boxes, patch → patches",
+   "phụ âm + y → ies: library → libraries",
+   "Bất quy tắc: person → people, child → children, man → men"
+  ],
+  "tips": [
+   "Sau số đếm lớn hơn 1 phải dùng số nhiều: 'three bug' ✗ → 'three bugs' ✓.",
+   "'people' đã là số nhiều: 'many people', không nói 'peoples'."
+  ],
+  "examples": [
+   {
+    "en": "We fixed three bugs this morning.",
+    "vi": "Sáng nay chúng tôi sửa ba lỗi."
+   },
+   {
+    "en": "Two new libraries were added.",
+    "vi": "Đã thêm hai thư viện mới."
+   },
+   {
+    "en": "Many people joined the call.",
+    "vi": "Nhiều người đã tham gia cuộc gọi."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "We have five new ___ this month.",
+    "options": [
+     "users",
+     "user",
+     "useres",
+     "users'"
+    ],
+    "answer": "users",
+    "explain": "Sau 'five' → số nhiều users."
+   },
+   {
+    "prompt": "The team updated two ___.",
+    "options": [
+     "libraries",
+     "librarys",
+     "library",
+     "libraryes"
+    ],
+    "answer": "libraries",
+    "explain": "Phụ âm + y → ies."
+   },
+   {
+    "prompt": "We need to install three ___ today.",
+    "options": [
+     "patches",
+     "patchs",
+     "patch",
+     "patchies"
+    ],
+    "answer": "patches",
+    "explain": "Tận cùng -ch → thêm -es."
+   },
+   {
+    "prompt": "How many ___ are in your team?",
+    "options": [
+     "people",
+     "peoples",
+     "person",
+     "persons'"
+    ],
+    "answer": "people",
+    "explain": "Số nhiều của person là people."
+   },
+   {
+    "prompt": "There are ten ___ and two women in the class.",
+    "options": [
+     "men",
+     "mans",
+     "man",
+     "mens"
+    ],
+    "answer": "men",
+    "explain": "man → men (bất quy tắc)."
+   }
+  ]
+ },
+ {
+  "id": "articles",
+  "title": "Mạo từ & danh từ không đếm được",
+  "summary": "a/an/the, feedback không có -s",
+  "when": "Người Việt hay bỏ mạo từ. a/an: nhắc lần đầu, một cái bất kỳ. the: cái đã biết, đã xác định. Danh từ không đếm được (feedback, information, data, advice, software, equipment) không dùng a/an và không thêm -s.",
+  "form": [
+   "a + âm phụ âm (a bug), an + âm nguyên âm (an issue, an API)",
+   "the + danh từ đã xác định (the bug we found yesterday)",
+   "some/any/a lot of + danh từ không đếm được (some feedback)"
+  ],
+  "tips": [
+   "Xét theo âm đọc chứ không theo chữ cái: 'an API', 'an hour', 'a user'.",
+   "Không nói 'feedbacks', 'informations', 'softwares', 'advices'."
+  ],
+  "examples": [
+   {
+    "en": "We found a bug in the payment module.",
+    "vi": "Chúng tôi tìm thấy một lỗi trong module thanh toán."
+   },
+   {
+    "en": "The bug only happens on iOS.",
+    "vi": "Lỗi đó chỉ xảy ra trên iOS."
+   },
+   {
+    "en": "Thanks for the feedback!",
+    "vi": "Cảm ơn phản hồi của bạn!"
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "We need ___ API key to access the service.",
+    "options": [
+     "a",
+     "an",
+     "the",
+     "no article"
+    ],
+    "answer": "an",
+    "explain": "'API' đọc /eɪ piː aɪ/, bắt đầu bằng âm nguyên âm → an."
+   },
+   {
+    "prompt": "Thanks for your ___!",
+    "options": [
+     "feedbacks",
+     "feedback",
+     "a feedback",
+     "feedbackes"
+    ],
+    "answer": "feedback",
+    "explain": "'feedback' không đếm được → không thêm -s, không dùng a."
+   },
+   {
+    "prompt": "Can you give me some ___ about the project?",
+    "options": [
+     "informations",
+     "information",
+     "an information",
+     "information's"
+    ],
+    "answer": "information",
+    "explain": "'information' không đếm được."
+   },
+   {
+    "prompt": "I found a bug yesterday. ___ bug crashes the app.",
+    "options": [
+     "The",
+     "A",
+     "An",
+     "No article"
+    ],
+    "answer": "The",
+    "explain": "Nhắc lại cái đã nói tới → the."
+   },
+   {
+    "prompt": "How much ___ do we have?",
+    "options": [
+     "data",
+     "datas",
+     "a data",
+     "data's"
+    ],
+    "answer": "data",
+    "explain": "'data' dùng như danh từ không đếm được → How much data."
+   }
+  ],
+  "level": "A1"
+ },
+ {
+  "id": "demonstratives",
+  "level": "A1",
+  "title": "This / that / these / those",
+  "summary": "Chỉ cái gần, cái xa",
+  "when": "this / these: gần (số ít / số nhiều); that / those: xa hoặc điều vừa được nhắc tới.",
+  "form": [
+   "this + N số ít · these + N số nhiều",
+   "that + N số ít · those + N số nhiều"
+  ],
+  "tips": [
+   "Chia theo số: 'these bug' ✗ → 'these bugs' ✓.",
+   "Trong họp, 'that' hay dùng để nói về điều người khác vừa nói: 'That's a good idea.'"
+  ],
+  "examples": [
+   {
+    "en": "This feature is almost done.",
+    "vi": "Tính năng này gần xong rồi."
+   },
+   {
+    "en": "Those tickets are from last sprint.",
+    "vi": "Những ticket đó là từ sprint trước."
+   },
+   {
+    "en": "That's a great point.",
+    "vi": "Đó là một ý rất hay."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "___ bugs are new.",
+    "options": [
+     "These",
+     "This",
+     "That",
+     "Them"
+    ],
+    "answer": "These",
+    "explain": "'bugs' số nhiều, ở gần → These."
+   },
+   {
+    "prompt": "Look at ___ chart on my screen.",
+    "options": [
+     "this",
+     "these",
+     "those",
+     "them"
+    ],
+    "answer": "this",
+    "explain": "'chart' số ít, ở gần → this."
+   },
+   {
+    "prompt": "Who created ___ tickets last week?",
+    "options": [
+     "those",
+     "that",
+     "this",
+     "them"
+    ],
+    "answer": "those",
+    "explain": "Số nhiều, đã xa về thời gian → those."
+   },
+   {
+    "prompt": "___ is exactly what I meant.",
+    "options": [
+     "That",
+     "Those",
+     "These",
+     "Them"
+    ],
+    "answer": "That",
+    "explain": "Nói về điều vừa được nói → That."
+   },
+   {
+    "prompt": "Can you review ___ two pull requests?",
+    "options": [
+     "these",
+     "this",
+     "that",
+     "it"
+    ],
+    "answer": "these",
+    "explain": "'two pull requests' số nhiều → these."
+   }
+  ]
+ },
+ {
+  "id": "there-is",
+  "level": "A1",
+  "title": "There is / There are",
+  "summary": "Nói có cái gì, ở đâu",
+  "when": "Dùng để nói sự tồn tại: 'There is a bug in the code', 'There are two meetings today'.",
+  "form": [
+   "There is + danh từ số ít / không đếm được",
+   "There are + danh từ số nhiều",
+   "Phủ định: There isn't / There aren't any…",
+   "Câu hỏi: Is there…? Are there…?"
+  ],
+  "tips": [
+   "Không dùng 'have' để nói tồn tại: 'In the code have a bug' ✗ → 'There is a bug in the code' ✓.",
+   "Chia theo danh từ đứng ngay sau: 'There is a laptop and two monitors'."
+  ],
+  "examples": [
+   {
+    "en": "There is a problem with the login page.",
+    "vi": "Có vấn đề với trang đăng nhập."
+   },
+   {
+    "en": "There are three tickets in the backlog.",
+    "vi": "Có ba ticket trong backlog."
+   },
+   {
+    "en": "Is there any coffee left?",
+    "vi": "Còn cà phê không?"
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "___ a bug in the payment flow.",
+    "options": [
+     "There is",
+     "There are",
+     "It has",
+     "Have"
+    ],
+    "answer": "There is",
+    "explain": "'a bug' số ít → There is."
+   },
+   {
+    "prompt": "___ two meetings this afternoon.",
+    "options": [
+     "There are",
+     "There is",
+     "It are",
+     "Has"
+    ],
+    "answer": "There are",
+    "explain": "'two meetings' số nhiều → There are."
+   },
+   {
+    "prompt": "___ any questions?",
+    "options": [
+     "Are there",
+     "Is there",
+     "There are",
+     "Have"
+    ],
+    "answer": "Are there",
+    "explain": "Câu hỏi, 'questions' số nhiều → Are there."
+   },
+   {
+    "prompt": "There ___ any data in this table.",
+    "options": [
+     "isn't",
+     "aren't",
+     "not",
+     "don't"
+    ],
+    "answer": "isn't",
+    "explain": "'data' không đếm được → isn't."
+   },
+   {
+    "prompt": "There ___ many users online now.",
+    "options": [
+     "are",
+     "is",
+     "be",
+     "has"
+    ],
+    "answer": "are",
+    "explain": "'many users' số nhiều → are."
+   }
+  ]
+ },
+ {
+  "id": "present",
+  "title": "Hiện tại đơn & tiếp diễn",
+  "summary": "Báo cáo tiến độ, nói về quy trình",
+  "when": "Hiện tại đơn cho thói quen, quy trình, sự thật (We deploy every Friday). Hiện tại tiếp diễn cho việc đang làm lúc này hoặc trong giai đoạn này (I'm working on the login bug).",
+  "form": [
+   "Hiện tại đơn: S + V(s/es) — The server runs every night.",
+   "Tiếp diễn: S + am/is/are + V-ing — We are testing it now."
+  ],
+  "tips": [
+   "Đừng quên -s với he/she/it: 'The build takes ten minutes', không phải 'The build take…'.",
+   "Động từ trạng thái (know, need, want, understand) thường không dùng -ing: 'I need more time', không nói 'I'm needing'."
+  ],
+  "examples": [
+   {
+    "en": "We usually deploy on Fridays.",
+    "vi": "Chúng tôi thường triển khai vào thứ Sáu."
+   },
+   {
+    "en": "I'm working on the payment bug right now.",
+    "vi": "Hiện tôi đang xử lý lỗi thanh toán."
+   },
+   {
+    "en": "The pipeline runs every night.",
+    "vi": "Pipeline chạy mỗi đêm."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "Right now, Anna ___ the new API.",
+    "options": [
+     "tests",
+     "is testing",
+     "test",
+     "tested"
+    ],
+    "answer": "is testing",
+    "explain": "'Right now' → việc đang diễn ra → hiện tại tiếp diễn."
+   },
+   {
+    "prompt": "Our team ___ a stand-up every morning.",
+    "options": [
+     "has",
+     "is having",
+     "have",
+     "having"
+    ],
+    "answer": "has",
+    "explain": "Thói quen lặp lại ('every morning') → hiện tại đơn; 'our team' số ít → has."
+   },
+   {
+    "prompt": "I ___ what you mean.",
+    "options": [
+     "understand",
+     "am understanding",
+     "understanding",
+     "understands"
+    ],
+    "answer": "understand",
+    "explain": "'Understand' là động từ trạng thái → không dùng -ing."
+   },
+   {
+    "prompt": "The build ___ about ten minutes.",
+    "options": [
+     "take",
+     "takes",
+     "is take",
+     "taking"
+    ],
+    "answer": "takes",
+    "explain": "Sự thật chung, chủ ngữ số ít → thêm -s."
+   },
+   {
+    "prompt": "This week we ___ on the migration.",
+    "options": [
+     "focus",
+     "are focusing",
+     "focuses",
+     "focusing"
+    ],
+    "answer": "are focusing",
+    "explain": "'This week' → giai đoạn tạm thời đang diễn ra → tiếp diễn."
+   }
+  ],
+  "level": "A1"
+ },
+ {
+  "id": "prepositions",
+  "level": "A1",
+  "title": "Giới từ in / on / at",
+  "summary": "Thời gian và nơi chốn",
+  "when": "at: một điểm (at 9 a.m., at the desk); on: ngày, bề mặt (on Monday, on the screen); in: khoảng lớn hoặc bên trong (in May, in 2026, in the folder).",
+  "form": [
+   "Thời gian: at 3 pm · on Friday / on 5 May · in June / in 2026 / in the morning",
+   "Nơi chốn: at the desk · on the page / on the wall · in the folder / in Hanoi"
+  ],
+  "tips": [
+   "'at night' nhưng 'in the morning'; 'on the weekend' (Mỹ) / 'at the weekend' (Anh).",
+   "Online: 'on the website', 'in the app', 'on the call', 'in the meeting'."
+  ],
+  "examples": [
+   {
+    "en": "The meeting is at 10 a.m. on Monday.",
+    "vi": "Cuộc họp lúc 10 giờ sáng thứ Hai."
+   },
+   {
+    "en": "The release is planned in June.",
+    "vi": "Bản phát hành dự kiến vào tháng Sáu."
+   },
+   {
+    "en": "The file is in the shared folder.",
+    "vi": "File nằm trong thư mục chung."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "Let's meet ___ 3 pm.",
+    "options": [
+     "at",
+     "on",
+     "in",
+     "by"
+    ],
+    "answer": "at",
+    "explain": "Giờ cụ thể → at."
+   },
+   {
+    "prompt": "The demo is ___ Friday.",
+    "options": [
+     "on",
+     "in",
+     "at",
+     "by"
+    ],
+    "answer": "on",
+    "explain": "Ngày trong tuần → on."
+   },
+   {
+    "prompt": "We started this project ___ 2024.",
+    "options": [
+     "in",
+     "on",
+     "at",
+     "since"
+    ],
+    "answer": "in",
+    "explain": "Năm → in."
+   },
+   {
+    "prompt": "The error message appears ___ the screen.",
+    "options": [
+     "on",
+     "in",
+     "at",
+     "by"
+    ],
+    "answer": "on",
+    "explain": "Trên bề mặt màn hình → on the screen."
+   },
+   {
+    "prompt": "You can find the report ___ the shared folder.",
+    "options": [
+     "in",
+     "on",
+     "at",
+     "to"
+    ],
+    "answer": "in",
+    "explain": "Bên trong thư mục → in."
+   }
+  ]
+ },
+ {
+  "id": "can",
+  "level": "A1",
+  "title": "Can / can't / could",
+  "summary": "Khả năng, xin phép, nhờ vả",
+  "when": "can + V: có thể (khả năng), xin phép (Can I…?), nhờ (Can you…?). could là dạng quá khứ hoặc lịch sự hơn.",
+  "form": [
+   "S + can / can't + V nguyên mẫu",
+   "Can I / Can you + V…?",
+   "Quá khứ: could / couldn't"
+  ],
+  "tips": [
+   "Sau can không có 'to' và không thêm -s: 'She can code' ✓, 'She can codes / can to code' ✗."
+  ],
+  "examples": [
+   {
+    "en": "I can join the call at four.",
+    "vi": "Tôi có thể vào cuộc gọi lúc bốn giờ."
+   },
+   {
+    "en": "Can you hear me?",
+    "vi": "Bạn nghe tôi nói được không?"
+   },
+   {
+    "en": "We couldn't reproduce the bug.",
+    "vi": "Chúng tôi đã không tái hiện được lỗi."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "She can ___ Python very well.",
+    "options": [
+     "write",
+     "writes",
+     "to write",
+     "writing"
+    ],
+    "answer": "write",
+    "explain": "Sau can → động từ nguyên mẫu."
+   },
+   {
+    "prompt": "___ you share your screen, please?",
+    "options": [
+     "Can",
+     "Do",
+     "Are",
+     "Must"
+    ],
+    "answer": "Can",
+    "explain": "Nhờ vả → Can you…?"
+   },
+   {
+    "prompt": "Sorry, I ___ hear you. Your mic is off.",
+    "options": [
+     "can't",
+     "don't can",
+     "not can",
+     "can't to"
+    ],
+    "answer": "can't",
+    "explain": "Phủ định của can → can't."
+   },
+   {
+    "prompt": "Yesterday we ___ access the server.",
+    "options": [
+     "couldn't",
+     "can't",
+     "don't could",
+     "not could"
+    ],
+    "answer": "couldn't",
+    "explain": "Quá khứ của can't → couldn't."
+   },
+   {
+    "prompt": "___ I ask a quick question?",
+    "options": [
+     "Can",
+     "Am",
+     "Do",
+     "Have"
+    ],
+    "answer": "Can",
+    "explain": "Xin phép → Can I…?"
+   }
+  ]
+ },
+ {
+  "id": "question-words",
+  "level": "A1",
+  "title": "Câu hỏi Wh- và Yes/No",
+  "summary": "what, when, why, how…",
+  "when": "Câu hỏi Yes/No bắt đầu bằng trợ động từ (Do, Is, Can…). Câu hỏi Wh- đặt từ để hỏi lên đầu: What, When, Where, Why, Who, Which, How (long / much / many).",
+  "form": [
+   "Wh- + do/does/did + S + V? — When does the sprint end?",
+   "Wh- + be + S…? — Where is the report?",
+   "Who làm chủ ngữ: Who fixed the bug? (không cần did)"
+  ],
+  "tips": [
+   "Đừng quên trợ động từ: 'When you start?' ✗ → 'When do you start?' ✓.",
+   "How many + danh từ đếm được; How much + danh từ không đếm được."
+  ],
+  "examples": [
+   {
+    "en": "When does the sprint end?",
+    "vi": "Khi nào sprint kết thúc?"
+   },
+   {
+    "en": "Why is the build failing?",
+    "vi": "Tại sao build bị lỗi?"
+   },
+   {
+    "en": "How many users do we have?",
+    "vi": "Chúng ta có bao nhiêu người dùng?"
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "When ___ the meeting start?",
+    "options": [
+     "does",
+     "is",
+     "do",
+     "has"
+    ],
+    "answer": "does",
+    "explain": "'the meeting' số ít, động từ thường → does."
+   },
+   {
+    "prompt": "___ is the deadline? — Next Friday.",
+    "options": [
+     "When",
+     "Where",
+     "Who",
+     "Why"
+    ],
+    "answer": "When",
+    "explain": "Hỏi thời gian → When."
+   },
+   {
+    "prompt": "How ___ time do we need?",
+    "options": [
+     "much",
+     "many",
+     "long",
+     "often"
+    ],
+    "answer": "much",
+    "explain": "'time' không đếm được → How much."
+   },
+   {
+    "prompt": "___ fixed the login bug? — Minh did.",
+    "options": [
+     "Who",
+     "Whom",
+     "Which",
+     "What"
+    ],
+    "answer": "Who",
+    "explain": "Hỏi người làm chủ ngữ → Who (không cần did)."
+   },
+   {
+    "prompt": "Why ___ you late this morning?",
+    "options": [
+     "were",
+     "did",
+     "do",
+     "was"
+    ],
+    "answer": "were",
+    "explain": "'late' là tính từ → dùng to be: were you late."
+   }
+  ]
+ },
+ {
+  "id": "adjectives-adverbs",
+  "level": "A1",
+  "title": "Tính từ & trạng từ",
+  "summary": "quick hay quickly?",
+  "when": "Tính từ bổ nghĩa cho danh từ hoặc đứng sau to be (a fast server, it is fast). Trạng từ bổ nghĩa cho động từ (it runs quickly), thường = tính từ + ly.",
+  "form": [
+   "Tính từ + N: a stable release",
+   "be / seem / look + tính từ: The app looks good",
+   "V + trạng từ: It works perfectly",
+   "Bất quy tắc: good → well, fast → fast, hard → hard"
+  ],
+  "tips": [
+   "Sau động từ thường dùng trạng từ: 'It works good' ✗ → 'It works well' ✓.",
+   "'hardly' nghĩa là 'hầu như không', không phải 'chăm chỉ'."
+  ],
+  "examples": [
+   {
+    "en": "This is a simple solution.",
+    "vi": "Đây là một giải pháp đơn giản."
+   },
+   {
+    "en": "The new version runs smoothly.",
+    "vi": "Phiên bản mới chạy mượt."
+   },
+   {
+    "en": "You did the demo really well.",
+    "vi": "Bạn làm buổi demo rất tốt."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "The system works ___ after the update.",
+    "options": [
+     "well",
+     "good",
+     "goodly",
+     "best"
+    ],
+    "answer": "well",
+    "explain": "Bổ nghĩa cho động từ 'works' → trạng từ well."
+   },
+   {
+    "prompt": "Please read the requirements ___.",
+    "options": [
+     "carefully",
+     "careful",
+     "care",
+     "carefulness"
+    ],
+    "answer": "carefully",
+    "explain": "Bổ nghĩa cho 'read' → trạng từ carefully."
+   },
+   {
+    "prompt": "This is a ___ question.",
+    "options": [
+     "good",
+     "well",
+     "goodly",
+     "better than"
+    ],
+    "answer": "good",
+    "explain": "Trước danh từ → tính từ good."
+   },
+   {
+    "prompt": "The new server is very ___.",
+    "options": [
+     "fast",
+     "fastly",
+     "faster than",
+     "fasting"
+    ],
+    "answer": "fast",
+    "explain": "Sau to be → tính từ; 'fastly' không tồn tại."
+   },
+   {
+    "prompt": "She speaks English ___.",
+    "options": [
+     "fluently",
+     "fluent",
+     "fluence",
+     "more fluent"
+    ],
+    "answer": "fluently",
+    "explain": "Bổ nghĩa cho 'speaks' → trạng từ fluently."
+   }
+  ]
+ },
+ {
+  "id": "imperatives",
+  "level": "A1",
+  "title": "Câu mệnh lệnh & Let's",
+  "summary": "Hướng dẫn, đề nghị cùng làm",
+  "when": "Câu mệnh lệnh dùng động từ nguyên mẫu ở đầu câu để hướng dẫn hoặc yêu cầu: 'Restart the app'. Let's + V để rủ cùng làm.",
+  "form": [
+   "V nguyên mẫu …: Click Save.",
+   "Don't + V: Don't push to main.",
+   "Let's + V: Let's start.",
+   "Thêm 'please' cho lịch sự: Please check the logs."
+  ],
+  "tips": [
+   "Phủ định dùng Don't, không dùng Not: 'Not touch the server' ✗ → 'Don't touch the server' ✓."
+  ],
+  "examples": [
+   {
+    "en": "Please restart the service.",
+    "vi": "Vui lòng khởi động lại dịch vụ."
+   },
+   {
+    "en": "Don't merge it yet.",
+    "vi": "Đừng gộp code vội."
+   },
+   {
+    "en": "Let's take a five-minute break.",
+    "vi": "Mình nghỉ năm phút nhé."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "___ push directly to the main branch.",
+    "options": [
+     "Don't",
+     "Not",
+     "No",
+     "Doesn't"
+    ],
+    "answer": "Don't",
+    "explain": "Câu mệnh lệnh phủ định → Don't + V."
+   },
+   {
+    "prompt": "___ start the meeting.",
+    "options": [
+     "Let's",
+     "Let",
+     "Lets",
+     "Let us to"
+    ],
+    "answer": "Let's",
+    "explain": "Rủ cùng làm → Let's + V."
+   },
+   {
+    "prompt": "Please ___ the logs before you call.",
+    "options": [
+     "check",
+     "checks",
+     "to check",
+     "checking"
+    ],
+    "answer": "check",
+    "explain": "Câu mệnh lệnh → động từ nguyên mẫu."
+   },
+   {
+    "prompt": "___ forget to update the ticket.",
+    "options": [
+     "Don't",
+     "Not",
+     "Doesn't",
+     "No"
+    ],
+    "answer": "Don't",
+    "explain": "Don't + V."
+   },
+   {
+    "prompt": "Let's ___ the deadline with the client.",
+    "options": [
+     "discuss",
+     "discussing",
+     "to discuss",
+     "discusses"
+    ],
+    "answer": "discuss",
+    "explain": "Sau Let's → động từ nguyên mẫu."
+   }
+  ]
+ },
+ {
+  "id": "some-any",
+  "level": "A1",
+  "title": "some / any / no",
+  "summary": "Một vài, bất kỳ, không có",
+  "when": "some: câu khẳng định và lời mời / đề nghị; any: câu phủ định và câu hỏi; no = not any.",
+  "form": [
+   "some + N (khẳng định, mời): We have some feedback.",
+   "any + N (phủ định, hỏi): Do you have any questions?",
+   "no + N: There are no errors."
+  ],
+  "tips": [
+   "Lời mời / đề nghị vẫn dùng some: 'Would you like some coffee?'",
+   "Không dùng hai phủ định: 'There aren't no errors' ✗."
+  ],
+  "examples": [
+   {
+    "en": "We got some feedback from the client.",
+    "vi": "Chúng tôi nhận được một số phản hồi từ khách hàng."
+   },
+   {
+    "en": "Do you have any questions?",
+    "vi": "Bạn có câu hỏi nào không?"
+   },
+   {
+    "en": "There are no errors in the log.",
+    "vi": "Không có lỗi nào trong log."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "Do you have ___ questions?",
+    "options": [
+     "any",
+     "some",
+     "no",
+     "a"
+    ],
+    "answer": "any",
+    "explain": "Câu hỏi → any."
+   },
+   {
+    "prompt": "We found ___ issues in the code.",
+    "options": [
+     "some",
+     "any",
+     "no any",
+     "a"
+    ],
+    "answer": "some",
+    "explain": "Câu khẳng định → some."
+   },
+   {
+    "prompt": "There aren't ___ tests for this module.",
+    "options": [
+     "any",
+     "some",
+     "no",
+     "a"
+    ],
+    "answer": "any",
+    "explain": "Câu phủ định → any."
+   },
+   {
+    "prompt": "Would you like ___ help with that?",
+    "options": [
+     "some",
+     "any",
+     "no",
+     "many"
+    ],
+    "answer": "some",
+    "explain": "Lời mời / đề nghị → some."
+   },
+   {
+    "prompt": "There are ___ open bugs. Great job!",
+    "options": [
+     "no",
+     "any",
+     "not",
+     "none"
+    ],
+    "answer": "no",
+    "explain": "no + N = not any."
+   }
+  ]
+ },
+ {
+  "id": "past",
+  "title": "Quá khứ đơn",
+  "summary": "Kể việc hôm qua trong daily stand-up",
+  "when": "Kể việc đã xong tại thời điểm xác định trong quá khứ: 'Yesterday I finished the API'.",
+  "form": [
+   "S + V2/V-ed — I fixed it yesterday.",
+   "Phủ định: didn't + V nguyên mẫu",
+   "Câu hỏi: Did + S + V nguyên mẫu?"
+  ],
+  "tips": [
+   "Sau 'didn't' và 'Did' dùng động từ nguyên mẫu: 'I didn't finish', không phải 'didn't finished'.",
+   "Động từ bất quy tắc hay gặp: write→wrote, find→found, go→went, build→built, send→sent."
+  ],
+  "examples": [
+   {
+    "en": "Yesterday I finished the login page.",
+    "vi": "Hôm qua tôi đã làm xong trang đăng nhập."
+   },
+   {
+    "en": "We found the root cause last night.",
+    "vi": "Tối qua chúng tôi đã tìm ra nguyên nhân gốc."
+   },
+   {
+    "en": "Did you send the report?",
+    "vi": "Bạn đã gửi báo cáo chưa?"
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "Yesterday I ___ the unit tests.",
+    "options": [
+     "write",
+     "wrote",
+     "written",
+     "writed"
+    ],
+    "answer": "wrote",
+    "explain": "'Yesterday' → quá khứ đơn; write → wrote (bất quy tắc)."
+   },
+   {
+    "prompt": "We didn't ___ the deadline.",
+    "options": [
+     "met",
+     "meet",
+     "meeting",
+     "meets"
+    ],
+    "answer": "meet",
+    "explain": "Sau didn't → động từ nguyên mẫu."
+   },
+   {
+    "prompt": "___ the deployment go well?",
+    "options": [
+     "Was",
+     "Did",
+     "Has",
+     "Does"
+    ],
+    "answer": "Did",
+    "explain": "Câu hỏi quá khứ với động từ thường → Did + S + V."
+   },
+   {
+    "prompt": "The server ___ down twice last week.",
+    "options": [
+     "goes",
+     "went",
+     "has gone",
+     "going"
+    ],
+    "answer": "went",
+    "explain": "'last week' → quá khứ đơn; go → went."
+   },
+   {
+    "prompt": "They ___ a new feature last sprint.",
+    "options": [
+     "built",
+     "build",
+     "builded",
+     "have built"
+    ],
+    "answer": "built",
+    "explain": "'last sprint' → quá khứ đơn; build → built."
+   }
+  ],
+  "level": "A1"
+ },
+ {
+  "id": "quantifiers",
+  "level": "A2",
+  "title": "much / many / few / little",
+  "summary": "Nói về số lượng",
+  "when": "many / few + danh từ đếm được số nhiều; much / little + danh từ không đếm được; a lot of dùng được cả hai. a few / a little = một ít (đủ dùng); few / little = rất ít (gần như không).",
+  "form": [
+   "many / a few / few + N đếm được",
+   "much / a little / little + N không đếm được",
+   "a lot of / lots of + cả hai"
+  ],
+  "tips": [
+   "'much' hay dùng trong câu phủ định và câu hỏi; câu khẳng định thường dùng 'a lot of'.",
+   "'a few' (vài, đủ dùng) khác 'few' (rất ít)."
+  ],
+  "examples": [
+   {
+    "en": "We don't have much time.",
+    "vi": "Chúng ta không có nhiều thời gian."
+   },
+   {
+    "en": "There are a lot of open tickets.",
+    "vi": "Có rất nhiều ticket đang mở."
+   },
+   {
+    "en": "I have a few questions.",
+    "vi": "Tôi có vài câu hỏi."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "How ___ bugs did you fix?",
+    "options": [
+     "many",
+     "much",
+     "a little",
+     "little"
+    ],
+    "answer": "many",
+    "explain": "'bugs' đếm được → many."
+   },
+   {
+    "prompt": "We don't have ___ budget left.",
+    "options": [
+     "much",
+     "many",
+     "few",
+     "a few"
+    ],
+    "answer": "much",
+    "explain": "'budget' không đếm được, câu phủ định → much."
+   },
+   {
+    "prompt": "I have ___ ideas I'd like to share.",
+    "options": [
+     "a few",
+     "a little",
+     "much",
+     "little"
+    ],
+    "answer": "a few",
+    "explain": "'ideas' đếm được, nghĩa tích cực → a few."
+   },
+   {
+    "prompt": "There is ___ information about this error online — almost nothing.",
+    "options": [
+     "little",
+     "few",
+     "many",
+     "a few"
+    ],
+    "answer": "little",
+    "explain": "Không đếm được, nghĩa 'rất ít' → little."
+   },
+   {
+    "prompt": "We received ___ feedback from users.",
+    "options": [
+     "a lot of",
+     "many",
+     "a few",
+     "few"
+    ],
+    "answer": "a lot of",
+    "explain": "'feedback' không đếm được, câu khẳng định → a lot of."
+   }
+  ]
+ },
+ {
+  "id": "comparatives",
+  "level": "A2",
+  "title": "So sánh hơn & so sánh nhất",
+  "summary": "faster, more reliable, the best",
+  "when": "So sánh hơn (giữa hai thứ) và so sánh nhất (trong một nhóm) — dùng nhiều khi bàn phương án và đánh đổi.",
+  "form": [
+   "Tính từ ngắn: fast → faster → the fastest",
+   "Tính từ dài: reliable → more reliable → the most reliable",
+   "Bất quy tắc: good → better → the best; bad → worse → the worst",
+   "as + adj + as: as fast as"
+  ],
+  "tips": [
+   "Không dùng hai lần: 'more faster' ✗ → 'faster' ✓.",
+   "So sánh hơn đi với 'than': 'better than', không phải 'better that'."
+  ],
+  "examples": [
+   {
+    "en": "Option B is cheaper than option A.",
+    "vi": "Phương án B rẻ hơn phương án A."
+   },
+   {
+    "en": "This is the most stable release so far.",
+    "vi": "Đây là bản phát hành ổn định nhất tới giờ."
+   },
+   {
+    "en": "The new API is twice as fast as the old one.",
+    "vi": "API mới nhanh gấp đôi API cũ."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "The new server is ___ than the old one.",
+    "options": [
+     "faster",
+     "more fast",
+     "fastest",
+     "more faster"
+    ],
+    "answer": "faster",
+    "explain": "Tính từ ngắn + er + than."
+   },
+   {
+    "prompt": "This is the ___ solution we have.",
+    "options": [
+     "best",
+     "better",
+     "good",
+     "most good"
+    ],
+    "answer": "best",
+    "explain": "So sánh nhất của good → the best."
+   },
+   {
+    "prompt": "Option A is ___ than option B.",
+    "options": [
+     "more expensive",
+     "expensiver",
+     "most expensive",
+     "more expensiver"
+    ],
+    "answer": "more expensive",
+    "explain": "Tính từ dài → more + adj + than."
+   },
+   {
+    "prompt": "The bug is ___ than we thought.",
+    "options": [
+     "worse",
+     "badder",
+     "more bad",
+     "worst"
+    ],
+    "answer": "worse",
+    "explain": "So sánh hơn của bad → worse."
+   },
+   {
+    "prompt": "Our app is as fast ___ theirs.",
+    "options": [
+     "as",
+     "than",
+     "like",
+     "that"
+    ],
+    "answer": "as",
+    "explain": "So sánh bằng: as + adj + as."
+   }
+  ]
+ },
+ {
+  "id": "past-continuous",
+  "level": "A2",
+  "title": "Quá khứ tiếp diễn",
+  "summary": "Đang làm gì thì…",
+  "when": "Diễn tả việc đang diễn ra tại một thời điểm trong quá khứ, thường bị một việc khác (quá khứ đơn) xen vào.",
+  "form": [
+   "S + was / were + V-ing — I was testing the app at ten.",
+   "while + quá khứ tiếp diễn; when + quá khứ đơn"
+  ],
+  "tips": [
+   "Hành động dài dùng tiếp diễn, hành động ngắn xen vào dùng quá khứ đơn: 'I was deploying when the server crashed.'"
+  ],
+  "examples": [
+   {
+    "en": "I was testing the app when it crashed.",
+    "vi": "Tôi đang test ứng dụng thì nó bị sập."
+   },
+   {
+    "en": "What were you doing at nine last night?",
+    "vi": "Tối qua lúc chín giờ bạn đang làm gì?"
+   },
+   {
+    "en": "While we were discussing the plan, the client called.",
+    "vi": "Trong lúc chúng tôi đang bàn kế hoạch thì khách hàng gọi."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "I ___ the code when the power went out.",
+    "options": [
+     "was writing",
+     "wrote",
+     "am writing",
+     "have written"
+    ],
+    "answer": "was writing",
+    "explain": "Việc đang diễn ra thì bị xen vào → was + V-ing."
+   },
+   {
+    "prompt": "They ___ a meeting at 3 pm yesterday.",
+    "options": [
+     "were having",
+     "had having",
+     "are having",
+     "was having"
+    ],
+    "answer": "were having",
+    "explain": "Thời điểm cụ thể trong quá khứ, 'they' → were + V-ing."
+   },
+   {
+    "prompt": "The server crashed while we ___ the update.",
+    "options": [
+     "were installing",
+     "installed",
+     "install",
+     "are installing"
+    ],
+    "answer": "were installing",
+    "explain": "while + quá khứ tiếp diễn."
+   },
+   {
+    "prompt": "What ___ you doing when I called?",
+    "options": [
+     "were",
+     "did",
+     "was",
+     "are"
+    ],
+    "answer": "were",
+    "explain": "Câu hỏi quá khứ tiếp diễn: were you doing."
+   },
+   {
+    "prompt": "She was presenting when the screen ___ black.",
+    "options": [
+     "went",
+     "was going",
+     "goes",
+     "has gone"
+    ],
+    "answer": "went",
+    "explain": "Việc ngắn xen vào → quá khứ đơn."
+   }
+  ]
+ },
+ {
+  "id": "future",
+  "title": "Tương lai: will, going to",
+  "summary": "Hứa làm, kế hoạch, lịch đã chốt",
+  "when": "will: quyết định ngay lúc nói, lời hứa, dự đoán (I'll check it). be going to: kế hoạch đã định (We're going to migrate next month). Hiện tại tiếp diễn: lịch đã chốt (I'm meeting the client on Monday).",
+  "form": [
+   "S + will + V — I'll send it today.",
+   "S + am/is/are going to + V — We're going to refactor it.",
+   "S + am/is/are + V-ing — The team is launching on Friday."
+  ],
+  "tips": [
+   "Khi nhận việc ngay trong họp, dùng 'I'll…': 'I'll look into it'.",
+   "Sau will dùng nguyên mẫu: 'will be', không phải 'will is'."
+  ],
+  "examples": [
+   {
+    "en": "Don't worry, I'll look into it.",
+    "vi": "Đừng lo, tôi sẽ kiểm tra việc đó."
+   },
+   {
+    "en": "We're going to release version 2 next month.",
+    "vi": "Tháng sau chúng tôi sẽ phát hành phiên bản 2."
+   },
+   {
+    "en": "I'm meeting the client tomorrow at ten.",
+    "vi": "Mai tôi gặp khách hàng lúc mười giờ."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "The phone is ringing. — I ___ get it.",
+    "options": [
+     "will",
+     "am going to",
+     "going to",
+     "am"
+    ],
+    "answer": "will",
+    "explain": "Quyết định ngay lúc nói → will."
+   },
+   {
+    "prompt": "We ___ migrate to the cloud next quarter — it's already planned.",
+    "options": [
+     "will",
+     "are going to",
+     "going",
+     "goes to"
+    ],
+    "answer": "are going to",
+    "explain": "Kế hoạch đã định trước → be going to."
+   },
+   {
+    "prompt": "I think the release ___ be delayed.",
+    "options": [
+     "will",
+     "is",
+     "going",
+     "does"
+    ],
+    "answer": "will",
+    "explain": "Dự đoán theo ý kiến (I think) → will."
+   },
+   {
+    "prompt": "The fix will ___ ready by Friday.",
+    "options": [
+     "is",
+     "be",
+     "being",
+     "are"
+    ],
+    "answer": "be",
+    "explain": "Sau will → động từ nguyên mẫu 'be'."
+   },
+   {
+    "prompt": "I ___ the vendor tomorrow at 3 pm — it's in my calendar.",
+    "options": [
+     "meet",
+     "am meeting",
+     "will meeting",
+     "met"
+    ],
+    "answer": "am meeting",
+    "explain": "Lịch hẹn đã chốt → hiện tại tiếp diễn."
+   }
+  ],
+  "level": "A2"
+ },
+ {
+  "id": "perfect",
+  "title": "Hiện tại hoàn thành",
+  "summary": "Đã xong chưa? Kết quả tới bây giờ",
+  "when": "Nói về kết quả tới hiện tại, không nêu thời điểm cụ thể: 'We have fixed the bug'. Hay đi với already, yet, just, so far, since, for.",
+  "form": [
+   "S + have/has + V3 — We have deployed the fix.",
+   "Phủ định: haven't/hasn't + V3 … yet",
+   "Câu hỏi: Have you + V3 … yet?"
+  ],
+  "tips": [
+   "Có thời điểm cụ thể trong quá khứ (yesterday, last week) thì dùng quá khứ đơn, không dùng hiện tại hoàn thành.",
+   "'yet' dùng trong câu phủ định và câu hỏi; 'already' dùng trong câu khẳng định."
+  ],
+  "examples": [
+   {
+    "en": "We have already fixed the login issue.",
+    "vi": "Chúng tôi đã sửa xong lỗi đăng nhập rồi."
+   },
+   {
+    "en": "Have you reviewed my pull request yet?",
+    "vi": "Bạn đã xem pull request của tôi chưa?"
+   },
+   {
+    "en": "I've worked here since 2021.",
+    "vi": "Tôi làm ở đây từ năm 2021."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "___ you finished the report yet?",
+    "options": [
+     "Did",
+     "Have",
+     "Are",
+     "Do"
+    ],
+    "answer": "Have",
+    "explain": "Câu hỏi với 'yet' → hiện tại hoàn thành: Have + S + V3."
+   },
+   {
+    "prompt": "We ___ the bug yesterday.",
+    "options": [
+     "have fixed",
+     "fixed",
+     "fix",
+     "has fixed"
+    ],
+    "answer": "fixed",
+    "explain": "Có thời điểm cụ thể 'yesterday' → quá khứ đơn."
+   },
+   {
+    "prompt": "The client ___ the design already.",
+    "options": [
+     "has approved",
+     "approve",
+     "is approve",
+     "approving"
+    ],
+    "answer": "has approved",
+    "explain": "'already' + kết quả tới hiện tại → has + V3."
+   },
+   {
+    "prompt": "I haven't tested it ___.",
+    "options": [
+     "already",
+     "yet",
+     "since",
+     "just"
+    ],
+    "answer": "yet",
+    "explain": "Câu phủ định → dùng 'yet'."
+   },
+   {
+    "prompt": "She has worked on this project ___ three months.",
+    "options": [
+     "since",
+     "for",
+     "from",
+     "during"
+    ],
+    "answer": "for",
+    "explain": "'for' + khoảng thời gian; 'since' + mốc thời gian."
+   }
+  ],
+  "level": "A2"
+ },
+ {
+  "id": "modals",
+  "title": "Should, could, might, must",
+  "summary": "Đề xuất, nhờ vả lịch sự, khả năng",
+  "when": "should: khuyên; could/might: khả năng, gợi ý nhẹ; must: bắt buộc; Could you / Would you mind…: nhờ lịch sự.",
+  "form": [
+   "Modal + V nguyên mẫu — We should add more tests.",
+   "Would you mind + V-ing? — Would you mind sharing your screen?",
+   "Could you + V? — Could you explain that again?"
+  ],
+  "tips": [
+   "Sau modal không có 'to' và không chia động từ: 'We should test', không 'should to test' hay 'should tests'.",
+   "Sau 'Would you mind' dùng V-ing."
+  ],
+  "examples": [
+   {
+    "en": "We should add monitoring before the launch.",
+    "vi": "Chúng ta nên thêm giám sát trước khi ra mắt."
+   },
+   {
+    "en": "Could you share your screen?",
+    "vi": "Bạn chia sẻ màn hình được không?"
+   },
+   {
+    "en": "It might be a caching issue.",
+    "vi": "Có thể là vấn đề bộ nhớ đệm."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "We should ___ more tests.",
+    "options": [
+     "add",
+     "to add",
+     "adding",
+     "adds"
+    ],
+    "answer": "add",
+    "explain": "Sau modal → động từ nguyên mẫu, không 'to'."
+   },
+   {
+    "prompt": "Would you mind ___ the link in the chat?",
+    "options": [
+     "post",
+     "to post",
+     "posting",
+     "posted"
+    ],
+    "answer": "posting",
+    "explain": "Would you mind + V-ing."
+   },
+   {
+    "prompt": "___ you explain that part again, please?",
+    "options": [
+     "Could",
+     "Should",
+     "Must",
+     "Might"
+    ],
+    "answer": "Could",
+    "explain": "Nhờ lịch sự → Could you…?"
+   },
+   {
+    "prompt": "All passwords ___ be encrypted. It's a rule.",
+    "options": [
+     "might",
+     "could",
+     "must",
+     "would"
+    ],
+    "answer": "must",
+    "explain": "Quy định bắt buộc → must."
+   },
+   {
+    "prompt": "I'm not sure, but it ___ be a network problem.",
+    "options": [
+     "must",
+     "might",
+     "should",
+     "will"
+    ],
+    "answer": "might",
+    "explain": "Không chắc chắn → might."
+   }
+  ],
+  "level": "A2"
+ },
+ {
+  "id": "have-to",
+  "level": "A2",
+  "title": "have to / must / don't have to / mustn't",
+  "summary": "Bắt buộc, không cần, bị cấm",
+  "when": "must / have to: bắt buộc; don't have to: không cần (tuỳ bạn); mustn't: không được phép.",
+  "form": [
+   "have to + V (thường do quy định bên ngoài)",
+   "must + V (thường do người nói yêu cầu)",
+   "don't have to + V = không cần",
+   "mustn't + V = cấm"
+  ],
+  "tips": [
+   "'don't have to' và 'mustn't' khác hẳn nghĩa: 'You don't have to come' (không cần đến) ≠ 'You mustn't come' (không được đến).",
+   "Quá khứ của must / have to là had to."
+  ],
+  "examples": [
+   {
+    "en": "We have to finish this by Friday.",
+    "vi": "Chúng ta phải xong việc này trước thứ Sáu."
+   },
+   {
+    "en": "You don't have to join the call.",
+    "vi": "Bạn không cần tham gia cuộc gọi."
+   },
+   {
+    "en": "You mustn't share your password.",
+    "vi": "Bạn không được chia sẻ mật khẩu."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "You ___ share customer data outside the company. It's forbidden.",
+    "options": [
+     "mustn't",
+     "don't have to",
+     "haven't to",
+     "needn't to"
+    ],
+    "answer": "mustn't",
+    "explain": "Bị cấm → mustn't."
+   },
+   {
+    "prompt": "It's optional. You ___ come to the party.",
+    "options": [
+     "don't have to",
+     "mustn't",
+     "must",
+     "have to"
+    ],
+    "answer": "don't have to",
+    "explain": "Không bắt buộc → don't have to."
+   },
+   {
+    "prompt": "Yesterday we ___ work late to fix the outage.",
+    "options": [
+     "had to",
+     "must",
+     "have to",
+     "musted"
+    ],
+    "answer": "had to",
+    "explain": "Quá khứ → had to."
+   },
+   {
+    "prompt": "She ___ wear a badge in the office.",
+    "options": [
+     "has to",
+     "have to",
+     "must to",
+     "haves to"
+    ],
+    "answer": "has to",
+    "explain": "'she' → has to."
+   },
+   {
+    "prompt": "___ update the docs too?",
+    "options": [
+     "Do we have to",
+     "Must we to",
+     "Have we to",
+     "Do we must"
+    ],
+    "answer": "Do we have to",
+    "explain": "Câu hỏi với have to dùng trợ động từ do."
+   }
+  ]
+ },
+ {
+  "id": "gerund-infinitive",
+  "level": "A2",
+  "title": "V-ing hay to V",
+  "summary": "enjoy doing, want to do",
+  "when": "Một số động từ đi với V-ing (enjoy, finish, avoid, suggest, mind), một số đi với to V (want, need, plan, decide, hope, agree). Sau giới từ luôn dùng V-ing.",
+  "form": [
+   "enjoy / finish / avoid / suggest / mind + V-ing",
+   "want / need / plan / decide / hope / agree + to V",
+   "giới từ + V-ing: interested in learning, before starting"
+  ],
+  "tips": [
+   "'look forward to' + V-ing (to ở đây là giới từ): 'I look forward to hearing from you.'",
+   "'suggest' không đi với to V: 'I suggest to wait' ✗ → 'I suggest waiting' ✓."
+  ],
+  "examples": [
+   {
+    "en": "We finished testing the feature.",
+    "vi": "Chúng tôi đã test xong tính năng."
+   },
+   {
+    "en": "I plan to refactor this module.",
+    "vi": "Tôi định viết lại module này."
+   },
+   {
+    "en": "Thanks for joining the call.",
+    "vi": "Cảm ơn bạn đã tham gia cuộc gọi."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "We need ___ the deadline.",
+    "options": [
+     "to discuss",
+     "discussing",
+     "discuss",
+     "discussed"
+    ],
+    "answer": "to discuss",
+    "explain": "need + to V."
+   },
+   {
+    "prompt": "I suggest ___ until Monday.",
+    "options": [
+     "waiting",
+     "to wait",
+     "wait",
+     "waited"
+    ],
+    "answer": "waiting",
+    "explain": "suggest + V-ing."
+   },
+   {
+    "prompt": "Have you finished ___ the report?",
+    "options": [
+     "writing",
+     "to write",
+     "write",
+     "written"
+    ],
+    "answer": "writing",
+    "explain": "finish + V-ing."
+   },
+   {
+    "prompt": "I look forward to ___ from you.",
+    "options": [
+     "hearing",
+     "hear",
+     "to hear",
+     "heard"
+    ],
+    "answer": "hearing",
+    "explain": "look forward to + V-ing."
+   },
+   {
+    "prompt": "The team decided ___ a new framework.",
+    "options": [
+     "to use",
+     "using",
+     "use",
+     "used"
+    ],
+    "answer": "to use",
+    "explain": "decide + to V."
+   }
+  ]
+ },
+ {
+  "id": "frequency",
+  "level": "A2",
+  "title": "Trạng từ tần suất",
+  "summary": "always, usually, never… đặt ở đâu?",
+  "when": "always (luôn), usually (thường), often (hay), sometimes (thỉnh thoảng), rarely (hiếm khi), never (không bao giờ) — nói về thói quen.",
+  "form": [
+   "Trước động từ thường: We usually deploy on Friday.",
+   "Sau to be: The build is always green.",
+   "Câu hỏi: How often…?"
+  ],
+  "tips": [
+   "Đặt sai vị trí là lỗi phổ biến: 'I go usually to the office' ✗ → 'I usually go to the office' ✓."
+  ],
+  "examples": [
+   {
+    "en": "We usually have a stand-up at nine.",
+    "vi": "Chúng tôi thường họp nhanh lúc chín giờ."
+   },
+   {
+    "en": "The tests are always slow on Mondays.",
+    "vi": "Thứ Hai test luôn chạy chậm."
+   },
+   {
+    "en": "How often do you deploy?",
+    "vi": "Bạn triển khai bao lâu một lần?"
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "We ___ deploy on Fridays.",
+    "options": [
+     "usually",
+     "are usually",
+     "usual",
+     "use"
+    ],
+    "answer": "usually",
+    "explain": "Trạng từ tần suất đứng trước động từ thường."
+   },
+   {
+    "prompt": "The build on main is ___ green.",
+    "options": [
+     "always",
+     "ever",
+     "every",
+     "all"
+    ],
+    "answer": "always",
+    "explain": "Sau to be → always."
+   },
+   {
+    "prompt": "How ___ do you update the docs?",
+    "options": [
+     "often",
+     "much",
+     "many",
+     "long"
+    ],
+    "answer": "often",
+    "explain": "Hỏi tần suất → How often."
+   },
+   {
+    "prompt": "I ___ work on weekends. I prefer to rest.",
+    "options": [
+     "never",
+     "ever",
+     "always never",
+     "no"
+    ],
+    "answer": "never",
+    "explain": "Không bao giờ → never."
+   },
+   {
+    "prompt": "She ___ late for meetings. She's very punctual.",
+    "options": [
+     "is rarely",
+     "rarely is",
+     "rare",
+     "rarely be"
+    ],
+    "answer": "is rarely",
+    "explain": "Trạng từ tần suất đứng sau to be: is rarely."
+   }
+  ]
+ },
+ {
+  "id": "too-enough",
+  "level": "A2",
+  "title": "too / enough",
+  "summary": "quá… / đủ…",
+  "when": "too + adj: quá (vượt mức, tiêu cực); adj + enough: đủ; enough + N: đủ (cái gì).",
+  "form": [
+   "too + adj (+ to V): too slow to use",
+   "adj + enough (+ to V): fast enough",
+   "enough + N: enough time"
+  ],
+  "tips": [
+   "Vị trí: 'good enough' (sau tính từ) nhưng 'enough time' (trước danh từ).",
+   "'too' mang nghĩa tiêu cực; khen thì dùng 'very': 'It's very good'."
+  ],
+  "examples": [
+   {
+    "en": "The page is too slow to load.",
+    "vi": "Trang tải quá chậm."
+   },
+   {
+    "en": "Is the server powerful enough?",
+    "vi": "Máy chủ có đủ mạnh không?"
+   },
+   {
+    "en": "We don't have enough time for testing.",
+    "vi": "Chúng ta không đủ thời gian để test."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "The file is ___ to send by email.",
+    "options": [
+     "too big",
+     "big enough",
+     "enough big",
+     "too much big"
+    ],
+    "answer": "too big",
+    "explain": "Vượt mức cho phép → too + adj."
+   },
+   {
+    "prompt": "Is your laptop ___ for this project?",
+    "options": [
+     "fast enough",
+     "enough fast",
+     "too fast enough",
+     "fast too"
+    ],
+    "answer": "fast enough",
+    "explain": "adj + enough."
+   },
+   {
+    "prompt": "We don't have ___ to finish today.",
+    "options": [
+     "enough time",
+     "time enough",
+     "too time",
+     "too much time enough"
+    ],
+    "answer": "enough time",
+    "explain": "enough + N."
+   },
+   {
+    "prompt": "This solution is ___ complicated for a small team.",
+    "options": [
+     "too",
+     "enough",
+     "too much",
+     "so much"
+    ],
+    "answer": "too",
+    "explain": "Quá mức → too + adj."
+   },
+   {
+    "prompt": "The test coverage isn't ___ yet.",
+    "options": [
+     "high enough",
+     "enough high",
+     "too high",
+     "high too"
+    ],
+    "answer": "high enough",
+    "explain": "adj + enough."
+   }
+  ]
+ },
+ {
+  "id": "used-to",
+  "level": "A2",
+  "title": "used to / be used to / get used to",
+  "summary": "Thói quen cũ và việc đã quen",
+  "when": "used to + V: thói quen trong quá khứ, nay không còn; be used to + V-ing / N: đã quen với; get used to + V-ing / N: dần quen.",
+  "form": [
+   "used to + V — I used to work in Hanoi.",
+   "be used to + V-ing — I'm used to working remotely.",
+   "get used to + V-ing — You'll get used to the new tool."
+  ],
+  "tips": [
+   "Sau be / get used to là V-ing: 'I'm used to work late' ✗ → 'I'm used to working late' ✓.",
+   "Phủ định: didn't use to (không có -d)."
+  ],
+  "examples": [
+   {
+    "en": "I used to write Java, now I write Swift.",
+    "vi": "Trước đây tôi viết Java, giờ tôi viết Swift."
+   },
+   {
+    "en": "I'm used to working with remote teams.",
+    "vi": "Tôi đã quen làm việc với các nhóm từ xa."
+   },
+   {
+    "en": "You'll get used to the new process.",
+    "vi": "Bạn sẽ dần quen với quy trình mới."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "I ___ work at a bank before I joined this startup.",
+    "options": [
+     "used to",
+     "am used to",
+     "use to",
+     "got used to"
+    ],
+    "answer": "used to",
+    "explain": "Thói quen trong quá khứ, nay không còn → used to + V."
+   },
+   {
+    "prompt": "She is used to ___ with clients.",
+    "options": [
+     "talking",
+     "talk",
+     "talked",
+     "talks"
+    ],
+    "answer": "talking",
+    "explain": "be used to + V-ing."
+   },
+   {
+    "prompt": "It took me a month to get used to ___ in English.",
+    "options": [
+     "presenting",
+     "present",
+     "presented",
+     "presents"
+    ],
+    "answer": "presenting",
+    "explain": "get used to + V-ing."
+   },
+   {
+    "prompt": "We didn't ___ have code reviews.",
+    "options": [
+     "use to",
+     "used to",
+     "using to",
+     "uses to"
+    ],
+    "answer": "use to",
+    "explain": "Sau didn't → use to (không có -d)."
+   },
+   {
+    "prompt": "Don't worry, you'll ___ used to the new IDE.",
+    "options": [
+     "get",
+     "be",
+     "use",
+     "got"
+    ],
+    "answer": "get",
+    "explain": "Dần quen → get used to."
+   }
+  ]
+ },
+ {
+  "id": "possessive",
+  "level": "A2",
+  "title": "Sở hữu cách 's và of",
+  "summary": "the client's request, the end of the sprint",
+  "when": "Người hoặc tổ chức: dùng 's (the client's request, the team's goal). Vật hoặc khái niệm: thường dùng of (the end of the sprint).",
+  "form": [
+   "N + 's: Minh's laptop, the company's policy",
+   "N số nhiều tận cùng -s: chỉ thêm ' — the users' feedback",
+   "the X of Y: the cause of the problem"
+  ],
+  "tips": [
+   "Số nhiều tận cùng -s chỉ thêm dấu nháy: 'the developers' room'.",
+   "Với vật, 'of' tự nhiên hơn: 'the cause of the problem'."
+  ],
+  "examples": [
+   {
+    "en": "The client's request is clear.",
+    "vi": "Yêu cầu của khách hàng rõ ràng."
+   },
+   {
+    "en": "All the users' data is backed up.",
+    "vi": "Toàn bộ dữ liệu của người dùng đã được sao lưu."
+   },
+   {
+    "en": "What's the root cause of the outage?",
+    "vi": "Nguyên nhân gốc của sự cố là gì?"
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "This is ___ laptop.",
+    "options": [
+     "Minh's",
+     "Minhs",
+     "Minh",
+     "Minhs'"
+    ],
+    "answer": "Minh's",
+    "explain": "Sở hữu của người → 's."
+   },
+   {
+    "prompt": "We collected all the ___ feedback.",
+    "options": [
+     "users'",
+     "users's",
+     "useres'",
+     "user"
+    ],
+    "answer": "users'",
+    "explain": "Số nhiều tận cùng -s → chỉ thêm '."
+   },
+   {
+    "prompt": "Let's talk about the end ___ the sprint.",
+    "options": [
+     "of",
+     "'s",
+     "for",
+     "from"
+    ],
+    "answer": "of",
+    "explain": "Khái niệm, sự vật → the end of."
+   },
+   {
+    "prompt": "The ___ decision was final.",
+    "options": [
+     "manager's",
+     "managers",
+     "manager",
+     "manager of"
+    ],
+    "answer": "manager's",
+    "explain": "Quyết định của quản lý → manager's."
+   },
+   {
+    "prompt": "What is the cause ___ this error?",
+    "options": [
+     "of",
+     "'s",
+     "by",
+     "from"
+    ],
+    "answer": "of",
+    "explain": "the cause of + N."
+   }
+  ]
+ },
+ {
+  "id": "present-perfect-continuous",
+  "level": "B1",
+  "title": "Hiện tại hoàn thành tiếp diễn",
+  "summary": "Đã và đang làm — được bao lâu rồi",
+  "when": "Nhấn mạnh quá trình kéo dài từ quá khứ đến nay (và có thể còn tiếp): 'I've been working on this bug all morning'.",
+  "form": [
+   "S + have / has been + V-ing (+ for / since…)",
+   "Câu hỏi: How long have you been + V-ing?"
+  ],
+  "tips": [
+   "Nói 'bao lâu' của một việc đang tiếp diễn → dùng dạng tiếp diễn: 'I've been waiting for 20 minutes'.",
+   "Động từ trạng thái (know, like) vẫn dùng hoàn thành đơn: 'I've known him for years'."
+  ],
+  "examples": [
+   {
+    "en": "I've been debugging this issue since 9 a.m.",
+    "vi": "Tôi đã gỡ lỗi vấn đề này từ 9 giờ sáng."
+   },
+   {
+    "en": "How long have you been working here?",
+    "vi": "Bạn làm ở đây được bao lâu rồi?"
+   },
+   {
+    "en": "We've been waiting for the client's approval.",
+    "vi": "Chúng tôi vẫn đang chờ khách hàng duyệt."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "I ___ on this bug all morning.",
+    "options": [
+     "have been working",
+     "am working",
+     "worked",
+     "have work"
+    ],
+    "answer": "have been working",
+    "explain": "Quá trình kéo dài tới giờ → have been + V-ing."
+   },
+   {
+    "prompt": "How long ___ you been learning English?",
+    "options": [
+     "have",
+     "did",
+     "are",
+     "has"
+    ],
+    "answer": "have",
+    "explain": "How long have you been + V-ing?"
+   },
+   {
+    "prompt": "She has been ___ the documentation for two hours.",
+    "options": [
+     "writing",
+     "wrote",
+     "written",
+     "write"
+    ],
+    "answer": "writing",
+    "explain": "has been + V-ing."
+   },
+   {
+    "prompt": "We ___ each other for five years.",
+    "options": [
+     "have known",
+     "have been knowing",
+     "know",
+     "are knowing"
+    ],
+    "answer": "have known",
+    "explain": "'know' là động từ trạng thái → không dùng tiếp diễn."
+   },
+   {
+    "prompt": "They've been waiting ___ 10 o'clock.",
+    "options": [
+     "since",
+     "for",
+     "from",
+     "at"
+    ],
+    "answer": "since",
+    "explain": "Mốc thời gian → since."
+   }
+  ]
+ },
+ {
+  "id": "past-perfect",
+  "level": "B1",
+  "title": "Quá khứ hoàn thành",
+  "summary": "Đã… trước khi…",
+  "when": "Việc xảy ra trước một việc khác trong quá khứ: 'When I arrived, the meeting had already started'.",
+  "form": [
+   "S + had + V3",
+   "Hay đi với: before, after, by the time, already, when"
+  ],
+  "tips": [
+   "Chỉ cần dùng khi muốn làm rõ thứ tự hai việc trong quá khứ; kể theo đúng thứ tự thì quá khứ đơn là đủ."
+  ],
+  "examples": [
+   {
+    "en": "When I joined the call, they had already started.",
+    "vi": "Khi tôi vào cuộc gọi, họ đã bắt đầu rồi."
+   },
+   {
+    "en": "We had fixed the bug before the client noticed.",
+    "vi": "Chúng tôi đã sửa lỗi trước khi khách hàng nhận ra."
+   },
+   {
+    "en": "By the time the alert fired, the server had crashed.",
+    "vi": "Khi cảnh báo kêu thì máy chủ đã sập rồi."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "When I arrived, the meeting ___.",
+    "options": [
+     "had already started",
+     "already started",
+     "has already started",
+     "was already start"
+    ],
+    "answer": "had already started",
+    "explain": "Xảy ra trước việc 'arrived' → had + V3."
+   },
+   {
+    "prompt": "She ___ the report before the deadline.",
+    "options": [
+     "had finished",
+     "has finished",
+     "finishing",
+     "had finish"
+    ],
+    "answer": "had finished",
+    "explain": "had + V3."
+   },
+   {
+    "prompt": "By the time we noticed, the data ___ lost.",
+    "options": [
+     "had been",
+     "has been",
+     "was being",
+     "have been"
+    ],
+    "answer": "had been",
+    "explain": "Bị động quá khứ hoàn thành: had been + V3."
+   },
+   {
+    "prompt": "I didn't know that he ___ the company.",
+    "options": [
+     "had left",
+     "has left",
+     "leaves",
+     "had leave"
+    ],
+    "answer": "had left",
+    "explain": "Việc rời đi xảy ra trước lúc 'didn't know' → had left."
+   },
+   {
+    "prompt": "After we ___ the tests, we deployed.",
+    "options": [
+     "had run",
+     "have run",
+     "had ran",
+     "run had"
+    ],
+    "answer": "had run",
+    "explain": "had + V3; run → run."
+   }
+  ]
+ },
+ {
+  "id": "conditionals",
+  "title": "Câu điều kiện",
+  "summary": "Bàn phương án: nếu… thì…",
+  "when": "Loại 1 (có thể xảy ra): If + hiện tại, will + V. Loại 2 (giả định, khó xảy ra): If + quá khứ, would + V.",
+  "form": [
+   "If + S + V(s), S + will/can + V — If we deploy today, we'll catch the release.",
+   "If + S + V2/were, S + would + V — If we had more time, we would refactor it."
+  ],
+  "tips": [
+   "Không dùng 'will' trong mệnh đề If: 'If it fails', không phải 'If it will fail'.",
+   "Loại 2 dùng 'were' cho mọi ngôi: 'If I were you, I would…'."
+  ],
+  "examples": [
+   {
+    "en": "If the tests pass, we'll merge it today.",
+    "vi": "Nếu test chạy qua, hôm nay chúng ta sẽ gộp code."
+   },
+   {
+    "en": "If we had more people, we would finish earlier.",
+    "vi": "Nếu có thêm người, chúng ta sẽ xong sớm hơn."
+   },
+   {
+    "en": "If I were you, I would ask the client first.",
+    "vi": "Nếu tôi là bạn, tôi sẽ hỏi khách hàng trước."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "If the build ___, we will roll back.",
+    "options": [
+     "fails",
+     "will fail",
+     "failed",
+     "fail"
+    ],
+    "answer": "fails",
+    "explain": "Loại 1: mệnh đề If dùng hiện tại đơn, không dùng will."
+   },
+   {
+    "prompt": "If we ___ more budget, we would hire another developer.",
+    "options": [
+     "have",
+     "had",
+     "will have",
+     "has"
+    ],
+    "answer": "had",
+    "explain": "Loại 2 (giả định): If + quá khứ, would + V."
+   },
+   {
+    "prompt": "If I ___ you, I would talk to the team lead.",
+    "options": [
+     "am",
+     "was",
+     "were",
+     "be"
+    ],
+    "answer": "were",
+    "explain": "Loại 2 dùng 'were' cho mọi ngôi."
+   },
+   {
+    "prompt": "If you finish early, you ___ help with testing.",
+    "options": [
+     "can",
+     "would",
+     "had",
+     "could have"
+    ],
+    "answer": "can",
+    "explain": "Loại 1: mệnh đề chính dùng will/can/should + V."
+   },
+   {
+    "prompt": "We ___ the deadline if the API is ready on time.",
+    "options": [
+     "will meet",
+     "would meet",
+     "met",
+     "meet"
+    ],
+    "answer": "will meet",
+    "explain": "If + hiện tại → mệnh đề chính will + V (loại 1)."
+   }
+  ],
+  "level": "B1"
+ },
+ {
+  "id": "passive",
+  "title": "Câu bị động",
+  "summary": "Báo cáo sự cố, việc đã được làm",
+  "when": "Dùng khi hành động quan trọng hơn người làm: 'The server was restarted', 'The feature will be released next week'.",
+  "form": [
+   "be + V3 — The bug was fixed.",
+   "has/have been + V3 — The ticket has been closed.",
+   "will be + V3 — It will be deployed tonight."
+  ],
+  "tips": [
+   "Phải có 'be': 'The bug was fixed', không phải 'The bug fixed'.",
+   "Muốn nói ai làm thì thêm 'by…': 'The issue was reported by a customer.'"
+  ],
+  "examples": [
+   {
+    "en": "The server was restarted at 2 a.m.",
+    "vi": "Máy chủ đã được khởi động lại lúc 2 giờ sáng."
+   },
+   {
+    "en": "The issue has been resolved.",
+    "vi": "Vấn đề đã được giải quyết."
+   },
+   {
+    "en": "The new version will be released on Monday.",
+    "vi": "Phiên bản mới sẽ được phát hành vào thứ Hai."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "The bug ___ fixed yesterday.",
+    "options": [
+     "was",
+     "is",
+     "has",
+     "were"
+    ],
+    "answer": "was",
+    "explain": "Bị động quá khứ: was/were + V3; 'the bug' số ít → was."
+   },
+   {
+    "prompt": "The ticket has ___ closed.",
+    "options": [
+     "be",
+     "been",
+     "being",
+     "was"
+    ],
+    "answer": "been",
+    "explain": "Hiện tại hoàn thành bị động: has been + V3."
+   },
+   {
+    "prompt": "The update will ___ tonight.",
+    "options": [
+     "deploy",
+     "be deployed",
+     "deployed",
+     "been deployed"
+    ],
+    "answer": "be deployed",
+    "explain": "Tương lai bị động: will be + V3."
+   },
+   {
+    "prompt": "This issue was reported ___ a customer.",
+    "options": [
+     "from",
+     "by",
+     "with",
+     "of"
+    ],
+    "answer": "by",
+    "explain": "Người thực hiện hành động trong câu bị động → by."
+   },
+   {
+    "prompt": "All logs ___ every day.",
+    "options": [
+     "are checked",
+     "checks",
+     "are check",
+     "checking"
+    ],
+    "answer": "are checked",
+    "explain": "Hiện tại đơn bị động: am/is/are + V3."
+   }
+  ],
+  "level": "B1"
+ },
+ {
+  "id": "reported-speech",
+  "level": "B1",
+  "title": "Câu tường thuật",
+  "summary": "He said that… / She asked if…",
+  "when": "Thuật lại lời người khác — rất hay dùng khi báo cáo lại cho team: 'The client said they needed more time.'",
+  "form": [
+   "said (that) + lùi thì: is → was, will → would, can → could, has done → had done",
+   "told + người + (that)…: She told me that…",
+   "Câu hỏi: asked if / whether + S + V; asked + wh- + S + V",
+   "Yêu cầu: asked / told + người + to V"
+  ],
+  "tips": [
+   "'say' không đi trực tiếp với người: 'He said me' ✗ → 'He told me' ✓.",
+   "Câu hỏi tường thuật không đảo ngữ: 'She asked when the release was'."
+  ],
+  "examples": [
+   {
+    "en": "The client said they needed more time.",
+    "vi": "Khách hàng nói họ cần thêm thời gian."
+   },
+   {
+    "en": "She asked if the fix was ready.",
+    "vi": "Cô ấy hỏi bản sửa đã xong chưa."
+   },
+   {
+    "en": "My manager told me to update the ticket.",
+    "vi": "Quản lý bảo tôi cập nhật ticket."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "He ___ me that the server was down.",
+    "options": [
+     "told",
+     "said",
+     "says",
+     "tell"
+    ],
+    "answer": "told",
+    "explain": "Có tân ngữ người (me) → told."
+   },
+   {
+    "prompt": "She said she ___ join the meeting.",
+    "options": [
+     "would",
+     "will",
+     "can will",
+     "is"
+    ],
+    "answer": "would",
+    "explain": "will → would khi lùi thì."
+   },
+   {
+    "prompt": "They asked ___ we could finish by Friday.",
+    "options": [
+     "if",
+     "that",
+     "what",
+     "do"
+    ],
+    "answer": "if",
+    "explain": "Câu hỏi Yes/No tường thuật → if / whether."
+   },
+   {
+    "prompt": "The PM asked me ___ the documentation.",
+    "options": [
+     "to update",
+     "update",
+     "updating",
+     "that update"
+    ],
+    "answer": "to update",
+    "explain": "Yêu cầu → asked + người + to V."
+   },
+   {
+    "prompt": "He asked where the logs ___.",
+    "options": [
+     "were",
+     "are were",
+     "did be",
+     "been"
+    ],
+    "answer": "were",
+    "explain": "Không đảo ngữ, lùi thì: where the logs were."
+   }
+  ]
+ },
+ {
+  "id": "relative-clauses",
+  "level": "B1",
+  "title": "Mệnh đề quan hệ",
+  "summary": "who, which, that, whose, where",
+  "when": "Bổ sung thông tin cho danh từ: người → who / that; vật → which / that; sở hữu → whose; nơi chốn → where.",
+  "form": [
+   "the developer who wrote this code",
+   "the bug which / that crashed the app",
+   "the client whose data was lost",
+   "the office where we work"
+  ],
+  "tips": [
+   "Không lặp lại chủ ngữ: 'the man who he called' ✗ → 'the man who called' ✓.",
+   "Mệnh đề có dấu phẩy (bổ sung thông tin) không dùng 'that': 'Our CTO, who joined last year, …'."
+  ],
+  "examples": [
+   {
+    "en": "The engineer who fixed the bug is on leave.",
+    "vi": "Kỹ sư đã sửa lỗi đang nghỉ phép."
+   },
+   {
+    "en": "This is the feature that users asked for.",
+    "vi": "Đây là tính năng mà người dùng đã yêu cầu."
+   },
+   {
+    "en": "We called the client whose account was locked.",
+    "vi": "Chúng tôi đã gọi cho khách hàng bị khoá tài khoản."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "The developer ___ wrote this module has left.",
+    "options": [
+     "who",
+     "which",
+     "whose",
+     "where"
+    ],
+    "answer": "who",
+    "explain": "Chỉ người → who."
+   },
+   {
+    "prompt": "This is the bug ___ crashed the app yesterday.",
+    "options": [
+     "that",
+     "who",
+     "whose",
+     "where"
+    ],
+    "answer": "that",
+    "explain": "Chỉ vật → that / which."
+   },
+   {
+    "prompt": "We contacted the user ___ account was hacked.",
+    "options": [
+     "whose",
+     "who",
+     "which",
+     "that's"
+    ],
+    "answer": "whose",
+    "explain": "Sở hữu (tài khoản của người dùng) → whose."
+   },
+   {
+    "prompt": "That's the office ___ our team works.",
+    "options": [
+     "where",
+     "which",
+     "who",
+     "whose"
+    ],
+    "answer": "where",
+    "explain": "Nơi chốn → where."
+   },
+   {
+    "prompt": "Our CTO, ___ joined last year, approved the plan.",
+    "options": [
+     "who",
+     "that",
+     "which",
+     "whose"
+    ],
+    "answer": "who",
+    "explain": "Mệnh đề có dấu phẩy không dùng that; chỉ người → who."
+   }
+  ]
+ },
+ {
+  "id": "questions",
+  "title": "Câu hỏi lịch sự & gián tiếp",
+  "summary": "Hỏi khéo trong họp",
+  "when": "Câu hỏi gián tiếp nghe lịch sự hơn: 'Could you tell me when it will be ready?' thay vì 'When will it be ready?'.",
+  "form": [
+   "Could you tell me + từ để hỏi + S + V? — Could you tell me where the logs are?",
+   "Do you know if/whether + S + V? — Do you know if the build passed?"
+  ],
+  "tips": [
+   "Trong câu hỏi gián tiếp giữ trật tự S + V (không đảo): 'when it will be ready', không phải 'when will it be ready'.",
+   "Câu hỏi Yes/No gián tiếp dùng if hoặc whether."
+  ],
+  "examples": [
+   {
+    "en": "Could you tell me when the fix will be ready?",
+    "vi": "Bạn có thể cho tôi biết khi nào bản sửa xong không?"
+   },
+   {
+    "en": "Do you know if the client approved it?",
+    "vi": "Bạn có biết khách hàng đã duyệt chưa?"
+   },
+   {
+    "en": "I was wondering whether we could move the meeting.",
+    "vi": "Không biết chúng ta có thể dời cuộc họp được không."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "Could you tell me where ___?",
+    "options": [
+     "the logs are",
+     "are the logs",
+     "is the logs",
+     "the logs is"
+    ],
+    "answer": "the logs are",
+    "explain": "Câu hỏi gián tiếp: S + V, không đảo ngữ."
+   },
+   {
+    "prompt": "Do you know ___ the build passed?",
+    "options": [
+     "if",
+     "that",
+     "what",
+     "does"
+    ],
+    "answer": "if",
+    "explain": "Câu hỏi Yes/No gián tiếp → if/whether."
+   },
+   {
+    "prompt": "Can you tell me what time ___?",
+    "options": [
+     "does the meeting start",
+     "the meeting starts",
+     "starts the meeting",
+     "the meeting start"
+    ],
+    "answer": "the meeting starts",
+    "explain": "Giữ trật tự S + V và chia động từ: the meeting starts."
+   },
+   {
+    "prompt": "I was wondering ___ you could review this today.",
+    "options": [
+     "whether",
+     "what",
+     "that",
+     "which"
+    ],
+    "answer": "whether",
+    "explain": "Hỏi có hay không một cách lịch sự → whether."
+   },
+   {
+    "prompt": "Do you know how long ___?",
+    "options": [
+     "it will take",
+     "will it take",
+     "it takes will",
+     "takes it"
+    ],
+    "answer": "it will take",
+    "explain": "Câu hỏi gián tiếp: S + V → it will take."
+   }
+  ],
+  "level": "B1"
+ },
+ {
+  "id": "question-tags",
+  "level": "B1",
+  "title": "Câu hỏi đuôi",
+  "summary": "…, isn't it? …, didn't you?",
+  "when": "Dùng để xác nhận lại điều mình nghĩ là đúng: 'The demo is tomorrow, isn't it?'. Câu khẳng định → đuôi phủ định và ngược lại.",
+  "form": [
+   "Khẳng định, + trợ động từ phủ định + đại từ?: You fixed it, didn't you?",
+   "Phủ định, + trợ động từ khẳng định?: It isn't ready, is it?",
+   "Đặc biệt: I am → aren't I?; Let's → shall we?"
+  ],
+  "tips": [
+   "Dùng đúng trợ động từ của câu chính: has → hasn't, will → won't, động từ thường → do / does / did."
+  ],
+  "examples": [
+   {
+    "en": "The demo is tomorrow, isn't it?",
+    "vi": "Buổi demo là ngày mai, phải không?"
+   },
+   {
+    "en": "You've pushed the code, haven't you?",
+    "vi": "Bạn đã đẩy code lên rồi, đúng không?"
+   },
+   {
+    "en": "Let's start, shall we?",
+    "vi": "Mình bắt đầu nhé?"
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "The release is on Friday, ___?",
+    "options": [
+     "isn't it",
+     "is it",
+     "doesn't it",
+     "wasn't it"
+    ],
+    "answer": "isn't it",
+    "explain": "Câu khẳng định với is → đuôi isn't it."
+   },
+   {
+    "prompt": "You sent the email, ___?",
+    "options": [
+     "didn't you",
+     "did you",
+     "don't you",
+     "weren't you"
+    ],
+    "answer": "didn't you",
+    "explain": "Quá khứ đơn, động từ thường → didn't you."
+   },
+   {
+    "prompt": "She hasn't reviewed it yet, ___?",
+    "options": [
+     "has she",
+     "hasn't she",
+     "did she",
+     "does she"
+    ],
+    "answer": "has she",
+    "explain": "Câu phủ định → đuôi khẳng định has she."
+   },
+   {
+    "prompt": "They'll join the call, ___?",
+    "options": [
+     "won't they",
+     "will they",
+     "don't they",
+     "aren't they"
+    ],
+    "answer": "won't they",
+    "explain": "will → won't."
+   },
+   {
+    "prompt": "Let's take a break, ___?",
+    "options": [
+     "shall we",
+     "will we",
+     "don't we",
+     "let we"
+    ],
+    "answer": "shall we",
+    "explain": "Let's… → shall we?"
+   }
+  ]
+ },
+ {
+  "id": "phrasal",
+  "title": "Cụm động từ trong họp IT",
+  "summary": "look into, figure out, roll out…",
+  "when": "Người bản xứ dùng rất nhiều cụm động từ trong họp: look into, figure out, roll out, set up, bring up, follow up on.",
+  "form": [
+   "look into = điều tra, kiểm tra",
+   "figure out = tìm ra (cách giải quyết)",
+   "roll out = triển khai dần",
+   "set up = thiết lập, sắp xếp",
+   "bring up = nêu ra (vấn đề)",
+   "follow up on = theo dõi tiếp"
+  ],
+  "tips": [
+   "Nhiều cụm tách được: đại từ phải nằm giữa — 'set it up', không phải 'set up it'."
+  ],
+  "examples": [
+   {
+    "en": "I'll look into the error and get back to you.",
+    "vi": "Tôi sẽ kiểm tra lỗi rồi phản hồi lại bạn."
+   },
+   {
+    "en": "We're rolling out the feature to 10% of users.",
+    "vi": "Chúng tôi đang triển khai tính năng cho 10% người dùng."
+   },
+   {
+    "en": "Can we figure out why the test fails?",
+    "vi": "Chúng ta có thể tìm ra vì sao test bị lỗi không?"
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "I'll look ___ the issue and get back to you.",
+    "options": [
+     "into",
+     "at",
+     "for",
+     "on"
+    ],
+    "answer": "into",
+    "explain": "look into = điều tra, kiểm tra."
+   },
+   {
+    "prompt": "Let's set ___ a meeting with the client.",
+    "options": [
+     "up",
+     "on",
+     "in",
+     "off"
+    ],
+    "answer": "up",
+    "explain": "set up a meeting = sắp xếp một cuộc họp."
+   },
+   {
+    "prompt": "We need to figure ___ why the server crashed.",
+    "options": [
+     "out",
+     "up",
+     "in",
+     "off"
+    ],
+    "answer": "out",
+    "explain": "figure out = tìm ra."
+   },
+   {
+    "prompt": "The new design will be rolled ___ next week.",
+    "options": [
+     "out",
+     "up",
+     "in",
+     "off"
+    ],
+    "answer": "out",
+    "explain": "roll out = triển khai, tung ra."
+   },
+   {
+    "prompt": "I'd like to bring ___ one more issue.",
+    "options": [
+     "up",
+     "out",
+     "in",
+     "on"
+    ],
+    "answer": "up",
+    "explain": "bring up = nêu ra một vấn đề."
+   }
+  ],
+  "level": "B1"
+ },
+ {
+  "id": "linking",
+  "level": "B1",
+  "title": "Từ nối",
+  "summary": "although, however, because of, despite…",
+  "when": "Nối ý mạch lạc khi trình bày: tương phản (although, however, despite), nguyên nhân (because, because of, since), kết quả (so, therefore), bổ sung (also, moreover, in addition).",
+  "form": [
+   "although / even though + mệnh đề",
+   "despite / in spite of + N / V-ing",
+   "because + mệnh đề · because of + N",
+   "However, … (đầu câu, có dấu phẩy)"
+  ],
+  "tips": [
+   "Không dùng 'Although… but…': 'Although it's late, but we continue' ✗ → bỏ 'but'.",
+   "Không nói 'despite of': 'despite the bug' ✓."
+  ],
+  "examples": [
+   {
+    "en": "Although the deadline is tight, we can make it.",
+    "vi": "Dù hạn chót gấp, chúng ta vẫn kịp."
+   },
+   {
+    "en": "The release was delayed because of a critical bug.",
+    "vi": "Bản phát hành bị hoãn vì một lỗi nghiêm trọng."
+   },
+   {
+    "en": "The plan is good. However, it's expensive.",
+    "vi": "Kế hoạch tốt. Tuy nhiên, nó tốn kém."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "___ the bug, we released on time.",
+    "options": [
+     "Despite",
+     "Although",
+     "Because",
+     "However"
+    ],
+    "answer": "Despite",
+    "explain": "Theo sau là danh từ (the bug), nghĩa tương phản → Despite."
+   },
+   {
+    "prompt": "___ it was late, we finished the deployment.",
+    "options": [
+     "Although",
+     "Despite",
+     "However",
+     "Because of"
+    ],
+    "answer": "Although",
+    "explain": "Theo sau là mệnh đề, nghĩa tương phản → Although."
+   },
+   {
+    "prompt": "The meeting was cancelled ___ the CEO was sick.",
+    "options": [
+     "because",
+     "because of",
+     "despite",
+     "however"
+    ],
+    "answer": "because",
+    "explain": "Theo sau là mệnh đề, chỉ nguyên nhân → because."
+   },
+   {
+    "prompt": "The design is nice. ___, it's hard to implement.",
+    "options": [
+     "However",
+     "Although",
+     "Despite",
+     "Because"
+    ],
+    "answer": "However",
+    "explain": "Đầu câu, có dấu phẩy, tương phản → However."
+   },
+   {
+    "prompt": "We delayed the launch ___ security issues.",
+    "options": [
+     "because of",
+     "because",
+     "although",
+     "however"
+    ],
+    "answer": "because of",
+    "explain": "Theo sau là cụm danh từ → because of."
+   }
+  ]
+ },
+ {
+  "id": "so-such",
+  "level": "B1",
+  "title": "so / such",
+  "summary": "…đến mức…",
+  "when": "so + adj / adv; such + (a / an) + adj + N. Thêm 'that…' để nói kết quả.",
+  "form": [
+   "so + adj: The app is so slow.",
+   "such + a / an + adj + N: It's such a slow app.",
+   "so + adj + that…: It was so slow that users left."
+  ],
+  "tips": [
+   "Đừng nhầm: 'so a good idea' ✗ → 'such a good idea' ✓."
+  ],
+  "examples": [
+   {
+    "en": "The new UI is so clean.",
+    "vi": "Giao diện mới gọn quá."
+   },
+   {
+    "en": "It was such a long meeting.",
+    "vi": "Đó là một cuộc họp dài quá."
+   },
+   {
+    "en": "The page was so slow that users left.",
+    "vi": "Trang chậm đến mức người dùng bỏ đi."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "It's ___ a good idea!",
+    "options": [
+     "such",
+     "so",
+     "very",
+     "too"
+    ],
+    "answer": "such",
+    "explain": "such + a + adj + N."
+   },
+   {
+    "prompt": "The demo was ___ impressive.",
+    "options": [
+     "so",
+     "such",
+     "such a",
+     "so a"
+    ],
+    "answer": "so",
+    "explain": "Chỉ có tính từ → so."
+   },
+   {
+    "prompt": "We had ___ a busy week.",
+    "options": [
+     "such",
+     "so",
+     "too",
+     "very much"
+    ],
+    "answer": "such",
+    "explain": "such + a + adj + N."
+   },
+   {
+    "prompt": "The bug was so serious ___ we stopped the release.",
+    "options": [
+     "that",
+     "which",
+     "as",
+     "so"
+    ],
+    "answer": "that",
+    "explain": "so + adj + that (kết quả)."
+   },
+   {
+    "prompt": "They are ___ helpful colleagues.",
+    "options": [
+     "such",
+     "so",
+     "such a",
+     "so much"
+    ],
+    "answer": "such",
+    "explain": "Danh từ số nhiều → such (không có a)."
+   }
+  ]
+ },
+ {
+  "id": "dependent-prepositions",
+  "level": "B1",
+  "title": "Giới từ đi kèm",
+  "summary": "depend on, responsible for, familiar with…",
+  "when": "Nhiều động từ và tính từ đi với một giới từ cố định — phải học cả cụm.",
+  "form": [
+   "V + giới từ: depend on, wait for, apply for, focus on, agree with, deal with",
+   "adj + giới từ: responsible for, interested in, good at, familiar with, aware of"
+  ],
+  "tips": [
+   "Học cả cụm, không học từng từ: 'responsible for', không phải 'responsible of'."
+  ],
+  "examples": [
+   {
+    "en": "It depends on the budget.",
+    "vi": "Còn tuỳ vào ngân sách."
+   },
+   {
+    "en": "Who is responsible for the deployment?",
+    "vi": "Ai chịu trách nhiệm việc triển khai?"
+   },
+   {
+    "en": "Are you familiar with Docker?",
+    "vi": "Bạn có quen với Docker không?"
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "The timeline depends ___ the client's feedback.",
+    "options": [
+     "on",
+     "of",
+     "in",
+     "at"
+    ],
+    "answer": "on",
+    "explain": "depend on."
+   },
+   {
+    "prompt": "Who is responsible ___ the database?",
+    "options": [
+     "for",
+     "of",
+     "about",
+     "on"
+    ],
+    "answer": "for",
+    "explain": "responsible for."
+   },
+   {
+    "prompt": "We're waiting ___ approval from legal.",
+    "options": [
+     "for",
+     "on",
+     "to",
+     "at"
+    ],
+    "answer": "for",
+    "explain": "wait for."
+   },
+   {
+    "prompt": "Are you familiar ___ this framework?",
+    "options": [
+     "with",
+     "about",
+     "to",
+     "for"
+    ],
+    "answer": "with",
+    "explain": "familiar with."
+   },
+   {
+    "prompt": "She's very good ___ explaining complex ideas.",
+    "options": [
+     "at",
+     "in",
+     "on",
+     "for"
+    ],
+    "answer": "at",
+    "explain": "good at + V-ing."
+   }
+  ]
+ },
+ {
+  "id": "conditionals-advanced",
+  "level": "B2",
+  "title": "Câu điều kiện loại 0, 3 & hỗn hợp",
+  "summary": "Sự thật, tiếc nuối, rút kinh nghiệm",
+  "when": "Loại 0: sự thật luôn đúng. Loại 3: giả định trái với quá khứ, tiếc nuối (If we had tested it, we would have caught the bug). Hỗn hợp: điều kiện trong quá khứ, kết quả ở hiện tại.",
+  "form": [
+   "Loại 0: If + hiện tại, hiện tại",
+   "Loại 3: If + had + V3, would have + V3",
+   "Hỗn hợp: If + had + V3, would + V (bây giờ)"
+  ],
+  "tips": [
+   "Loại 3 rất hay dùng trong post-mortem: 'If we had had monitoring, we would have noticed earlier.'"
+  ],
+  "examples": [
+   {
+    "en": "If the cache is empty, the app loads data from the server.",
+    "vi": "Nếu bộ nhớ đệm trống, ứng dụng tải dữ liệu từ máy chủ."
+   },
+   {
+    "en": "If we had tested it, we would have caught the bug.",
+    "vi": "Nếu chúng ta đã test thì đã bắt được lỗi."
+   },
+   {
+    "en": "If we had hired more people last year, we wouldn't be so busy now.",
+    "vi": "Nếu năm ngoái tuyển thêm người thì giờ đã không bận như vậy."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "If we ___ the logs, we would have found the issue earlier.",
+    "options": [
+     "had checked",
+     "checked",
+     "have checked",
+     "would check"
+    ],
+    "answer": "had checked",
+    "explain": "Loại 3: If + had + V3."
+   },
+   {
+    "prompt": "If you restart the service, the cache ___ cleared.",
+    "options": [
+     "is",
+     "would be",
+     "will have been",
+     "had been"
+    ],
+    "answer": "is",
+    "explain": "Loại 0 (luôn đúng): hiện tại – hiện tại."
+   },
+   {
+    "prompt": "If she had told us, we ___ helped.",
+    "options": [
+     "would have",
+     "will have",
+     "would",
+     "had"
+    ],
+    "answer": "would have",
+    "explain": "Loại 3: would have + V3."
+   },
+   {
+    "prompt": "If we had migrated last year, we ___ these problems now.",
+    "options": [
+     "wouldn't have",
+     "wouldn't had",
+     "won't have",
+     "hadn't"
+    ],
+    "answer": "wouldn't have",
+    "explain": "Hỗn hợp: kết quả ở hiện tại → would + V (wouldn't have = không có)."
+   },
+   {
+    "prompt": "If the build ___, nobody would have noticed.",
+    "options": [
+     "hadn't failed",
+     "didn't fail",
+     "wouldn't fail",
+     "hasn't failed"
+    ],
+    "answer": "hadn't failed",
+    "explain": "Loại 3: If + had (not) + V3."
+   }
+  ]
+ },
+ {
+  "id": "future-continuous-perfect",
+  "level": "B2",
+  "title": "Tương lai tiếp diễn & hoàn thành",
+  "summary": "will be doing / will have done",
+  "when": "Tương lai tiếp diễn: đang làm gì vào một thời điểm trong tương lai. Tương lai hoàn thành: sẽ xong trước một thời điểm trong tương lai.",
+  "form": [
+   "will be + V-ing — This time tomorrow I'll be flying to Tokyo.",
+   "will have + V3 (by + mốc thời gian) — By Friday we'll have finished."
+  ],
+  "tips": [
+   "'by Friday' (không muộn hơn thứ Sáu) thường đi với tương lai hoàn thành."
+  ],
+  "examples": [
+   {
+    "en": "This time next week, I'll be presenting to the board.",
+    "vi": "Giờ này tuần sau tôi sẽ đang thuyết trình trước ban lãnh đạo."
+   },
+   {
+    "en": "By the end of the month, we'll have migrated all users.",
+    "vi": "Đến cuối tháng, chúng tôi sẽ chuyển xong toàn bộ người dùng."
+   },
+   {
+    "en": "Will you be using the meeting room at three?",
+    "vi": "Lúc ba giờ bạn có đang dùng phòng họp không?"
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "By Friday, we ___ the migration.",
+    "options": [
+     "will have finished",
+     "will finish having",
+     "are finishing",
+     "will be finish"
+    ],
+    "answer": "will have finished",
+    "explain": "by + mốc thời gian → will have + V3."
+   },
+   {
+    "prompt": "This time tomorrow, I ___ on a plane.",
+    "options": [
+     "will be sitting",
+     "will sit have",
+     "sit",
+     "am sat"
+    ],
+    "answer": "will be sitting",
+    "explain": "Đang diễn ra tại thời điểm tương lai → will be + V-ing."
+   },
+   {
+    "prompt": "By 2027, the team ___ three new products.",
+    "options": [
+     "will have launched",
+     "will launch",
+     "launches",
+     "will be launched having"
+    ],
+    "answer": "will have launched",
+    "explain": "Hoàn thành trước mốc 2027 → will have + V3."
+   },
+   {
+    "prompt": "Don't call at 2 pm — I ___ an interview.",
+    "options": [
+     "will be doing",
+     "will have done",
+     "do",
+     "did"
+    ],
+    "answer": "will be doing",
+    "explain": "Đang làm vào lúc đó → will be + V-ing."
+   },
+   {
+    "prompt": "___ you be using the projector this afternoon?",
+    "options": [
+     "Will",
+     "Are",
+     "Do",
+     "Have"
+    ],
+    "answer": "Will",
+    "explain": "Câu hỏi tương lai tiếp diễn: Will you be + V-ing?"
+   }
+  ]
+ },
+ {
+  "id": "modals-deduction",
+  "level": "B2",
+  "title": "Suy đoán: must / can't / might (have)",
+  "summary": "Chắc chắn là, không thể nào, có lẽ",
+  "when": "Suy đoán hiện tại: must be (chắc chắn là), can't be (chắc chắn không), might / could be (có thể). Về quá khứ: must / can't / might have + V3. should have + V3: lẽ ra nên.",
+  "form": [
+   "must / might / can't + V (hiện tại)",
+   "must / might / can't + have + V3 (quá khứ)",
+   "should have + V3: lẽ ra nên (tiếc)"
+  ],
+  "tips": [
+   "Phủ định của 'must be' khi suy đoán là 'can't be', không phải 'mustn't be'.",
+   "'should have done' dùng để rút kinh nghiệm: 'We should have tested it.'"
+  ],
+  "examples": [
+   {
+    "en": "The server must be overloaded.",
+    "vi": "Chắc chắn máy chủ đang quá tải."
+   },
+   {
+    "en": "He can't have seen my message — he was offline.",
+    "vi": "Anh ấy không thể đã thấy tin nhắn của tôi — anh ấy đang offline."
+   },
+   {
+    "en": "We should have added more tests.",
+    "vi": "Lẽ ra chúng ta nên thêm test."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "The site is very slow. The server ___ overloaded.",
+    "options": [
+     "must be",
+     "can't be",
+     "must",
+     "should"
+    ],
+    "answer": "must be",
+    "explain": "Gần như chắc chắn → must be."
+   },
+   {
+    "prompt": "She ___ the email — she was on holiday.",
+    "options": [
+     "can't have read",
+     "mustn't read",
+     "can't read have",
+     "must have read"
+    ],
+    "answer": "can't have read",
+    "explain": "Chắc chắn không (quá khứ) → can't have + V3."
+   },
+   {
+    "prompt": "I'm not sure why it failed. Someone ___ the config.",
+    "options": [
+     "might have changed",
+     "must change",
+     "can't have change",
+     "should change"
+    ],
+    "answer": "might have changed",
+    "explain": "Có thể (quá khứ) → might have + V3."
+   },
+   {
+    "prompt": "We ___ tested it before releasing. Now users are angry.",
+    "options": [
+     "should have",
+     "must have",
+     "can't have",
+     "would"
+    ],
+    "answer": "should have",
+    "explain": "Lẽ ra nên → should have + V3."
+   },
+   {
+    "prompt": "That ___ be right. The numbers don't add up.",
+    "options": [
+     "can't",
+     "mustn't",
+     "shouldn't have",
+     "must"
+    ],
+    "answer": "can't",
+    "explain": "Chắc chắn không đúng → can't be."
+   }
+  ]
+ },
+ {
+  "id": "wish",
+  "level": "B2",
+  "title": "wish / if only",
+  "summary": "Ước gì…",
+  "when": "Mong ước trái với thực tế: hiện tại → wish + quá khứ; quá khứ → wish + had + V3; muốn người khác thay đổi → wish + would.",
+  "form": [
+   "wish + S + V2 / were (hiện tại): I wish I had more time.",
+   "wish + S + had + V3 (quá khứ): I wish we had tested it.",
+   "wish + S + would + V (phàn nàn): I wish he would reply."
+  ],
+  "tips": [
+   "Không dùng thì hiện tại sau wish: 'I wish I have more time' ✗."
+  ],
+  "examples": [
+   {
+    "en": "I wish I had more time for this project.",
+    "vi": "Ước gì tôi có thêm thời gian cho dự án này."
+   },
+   {
+    "en": "I wish we had backed up the data.",
+    "vi": "Ước gì chúng ta đã sao lưu dữ liệu."
+   },
+   {
+    "en": "I wish the client would make a decision.",
+    "vi": "Ước gì khách hàng chịu đưa ra quyết định."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "I wish I ___ more experience with Kubernetes.",
+    "options": [
+     "had",
+     "have",
+     "would have",
+     "has"
+    ],
+    "answer": "had",
+    "explain": "Ước ở hiện tại → quá khứ đơn."
+   },
+   {
+    "prompt": "I wish we ___ the backup before the update.",
+    "options": [
+     "had made",
+     "made",
+     "have made",
+     "would make"
+    ],
+    "answer": "had made",
+    "explain": "Ước về quá khứ → had + V3."
+   },
+   {
+    "prompt": "I wish it ___ Friday today.",
+    "options": [
+     "were",
+     "is",
+     "will be",
+     "be"
+    ],
+    "answer": "were",
+    "explain": "Ước ở hiện tại với to be → were."
+   },
+   {
+    "prompt": "I wish my teammate ___ answer my messages faster.",
+    "options": [
+     "would",
+     "will",
+     "is",
+     "had"
+    ],
+    "answer": "would",
+    "explain": "Muốn người khác thay đổi → would + V."
+   },
+   {
+    "prompt": "If only we ___ the warning signs earlier!",
+    "options": [
+     "had noticed",
+     "noticed",
+     "have noticed",
+     "would notice"
+    ],
+    "answer": "had noticed",
+    "explain": "Tiếc về quá khứ → had + V3."
+   }
+  ]
+ },
+ {
+  "id": "causative",
+  "level": "B2",
+  "title": "Thể sai khiến: have / get something done",
+  "summary": "Nhờ người khác làm",
+  "when": "Nhờ hoặc thuê người khác làm việc gì: 'We had the code reviewed by an expert', 'I need to get my laptop fixed'.",
+  "form": [
+   "have + O + V3: have the server checked",
+   "get + O + V3: get the license renewed",
+   "have + người + V: I'll have Minh send you the file."
+  ],
+  "tips": [
+   "Phân biệt: 'I fixed my laptop' (tự sửa) với 'I had my laptop fixed' (nhờ người sửa)."
+  ],
+  "examples": [
+   {
+    "en": "We had the app tested by an external team.",
+    "vi": "Chúng tôi nhờ một nhóm bên ngoài test ứng dụng."
+   },
+   {
+    "en": "I need to get my laptop repaired.",
+    "vi": "Tôi cần mang laptop đi sửa."
+   },
+   {
+    "en": "I'll have Linh send you the invoice.",
+    "vi": "Tôi sẽ bảo Linh gửi hoá đơn cho bạn."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "We had the code ___ by a security expert.",
+    "options": [
+     "reviewed",
+     "review",
+     "reviewing",
+     "to review"
+    ],
+    "answer": "reviewed",
+    "explain": "have + O + V3."
+   },
+   {
+    "prompt": "I need to get my password ___.",
+    "options": [
+     "reset",
+     "resetting",
+     "to reset",
+     "resets"
+    ],
+    "answer": "reset",
+    "explain": "get + O + V3 (reset → reset)."
+   },
+   {
+    "prompt": "I'll have my assistant ___ you the details.",
+    "options": [
+     "send",
+     "sent",
+     "to send",
+     "sending"
+    ],
+    "answer": "send",
+    "explain": "have + người + V nguyên mẫu."
+   },
+   {
+    "prompt": "They got the server ___ last week.",
+    "options": [
+     "upgraded",
+     "upgrade",
+     "upgrading",
+     "to upgrade"
+    ],
+    "answer": "upgraded",
+    "explain": "get + O + V3."
+   },
+   {
+    "prompt": "You should have your contract ___ by a lawyer.",
+    "options": [
+     "checked",
+     "check",
+     "checking",
+     "to checked"
+    ],
+    "answer": "checked",
+    "explain": "have + O + V3."
+   }
+  ]
+ },
+ {
+  "id": "verb-patterns-meaning",
+  "level": "B2",
+  "title": "V-ing hay to V: đổi nghĩa",
+  "summary": "remember doing vs remember to do",
+  "when": "Một số động từ đổi nghĩa: remember / forget doing (nhớ / quên đã làm) vs to do (nhớ / quên phải làm); stop doing (ngừng làm) vs stop to do (dừng lại để làm); try doing (thử làm) vs try to do (cố gắng làm).",
+  "form": [
+   "remember + V-ing (việc đã làm) / + to V (việc cần làm)",
+   "stop + V-ing (ngừng) / + to V (dừng lại để)",
+   "try + V-ing (thử) / + to V (cố gắng)"
+  ],
+  "tips": [
+   "'Remember to push your code' = nhớ đẩy code (chưa làm); 'I remember pushing it' = tôi nhớ là đã đẩy rồi."
+  ],
+  "examples": [
+   {
+    "en": "Remember to update the ticket.",
+    "vi": "Nhớ cập nhật ticket nhé."
+   },
+   {
+    "en": "I remember sending that email.",
+    "vi": "Tôi nhớ là đã gửi email đó."
+   },
+   {
+    "en": "Try restarting the app.",
+    "vi": "Thử khởi động lại ứng dụng xem."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "Please remember ___ the door when you leave.",
+    "options": [
+     "to lock",
+     "locking",
+     "lock",
+     "locked"
+    ],
+    "answer": "to lock",
+    "explain": "Việc cần làm → remember + to V."
+   },
+   {
+    "prompt": "I don't remember ___ that setting. Who did it?",
+    "options": [
+     "changing",
+     "to change",
+     "change",
+     "changed"
+    ],
+    "answer": "changing",
+    "explain": "Việc (có thể) đã làm → remember + V-ing."
+   },
+   {
+    "prompt": "If it doesn't work, try ___ the cache.",
+    "options": [
+     "clearing",
+     "to clear",
+     "clear",
+     "cleared"
+    ],
+    "answer": "clearing",
+    "explain": "Thử một cách xem có hiệu quả → try + V-ing."
+   },
+   {
+    "prompt": "We stopped ___ that library because it was too slow.",
+    "options": [
+     "using",
+     "to use",
+     "use",
+     "used"
+    ],
+    "answer": "using",
+    "explain": "Ngừng làm → stop + V-ing."
+   },
+   {
+    "prompt": "On the way to the office, I stopped ___ a coffee.",
+    "options": [
+     "to buy",
+     "buying",
+     "buy",
+     "bought"
+    ],
+    "answer": "to buy",
+    "explain": "Dừng lại để làm việc khác → stop + to V."
+   }
+  ]
+ },
+ {
+  "id": "participle-clauses",
+  "level": "C1",
+  "title": "Mệnh đề phân từ",
+  "summary": "Having reviewed…, Built in…",
+  "when": "Rút gọn mệnh đề để câu gọn và chuyên nghiệp hơn trong báo cáo: 'Having reviewed the logs, we found…', 'Built in 2020, the system…'.",
+  "form": [
+   "V-ing (chủ động, cùng lúc): Looking at the data, we noticed…",
+   "Having + V3 (xong trước): Having fixed the bug, we deployed.",
+   "V3 (bị động): Written in Go, the service is fast."
+  ],
+  "tips": [
+   "Chủ ngữ hai vế phải là một: 'Having finished the report, the meeting started' ✗ (cuộc họp không viết báo cáo)."
+  ],
+  "examples": [
+   {
+    "en": "Having analysed the logs, we found the root cause.",
+    "vi": "Sau khi phân tích log, chúng tôi đã tìm ra nguyên nhân gốc."
+   },
+   {
+    "en": "Built on open-source tools, the platform is cheap to run.",
+    "vi": "Được xây dựng trên công cụ mã nguồn mở, nền tảng này vận hành rẻ."
+   },
+   {
+    "en": "Looking at the metrics, I think we should scale up.",
+    "vi": "Nhìn vào các chỉ số, tôi nghĩ chúng ta nên mở rộng."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "___ all the tests, we deployed the update.",
+    "options": [
+     "Having passed",
+     "Passed",
+     "Having pass",
+     "Pass"
+    ],
+    "answer": "Having passed",
+    "explain": "Việc xong trước → Having + V3."
+   },
+   {
+    "prompt": "___ in Rust, the service uses very little memory.",
+    "options": [
+     "Written",
+     "Writing",
+     "Having write",
+     "Wrote"
+    ],
+    "answer": "Written",
+    "explain": "Nghĩa bị động (được viết) → V3."
+   },
+   {
+    "prompt": "___ at the dashboard, I noticed a spike in errors.",
+    "options": [
+     "Looking",
+     "Looked",
+     "Having look",
+     "Look"
+    ],
+    "answer": "Looking",
+    "explain": "Chủ động, cùng lúc → V-ing."
+   },
+   {
+    "prompt": "___ by the results, the team celebrated.",
+    "options": [
+     "Encouraged",
+     "Encouraging",
+     "Encourage",
+     "Having encouraging"
+    ],
+    "answer": "Encouraged",
+    "explain": "Team được khích lệ (bị động) → V3."
+   },
+   {
+    "prompt": "___ the contract, the client sent the payment.",
+    "options": [
+     "Having signed",
+     "Signed having",
+     "Sign",
+     "Having sign"
+    ],
+    "answer": "Having signed",
+    "explain": "Ký xong rồi mới trả tiền → Having + V3."
+   }
+  ]
+ },
+ {
+  "id": "cleft",
+  "level": "C1",
+  "title": "Câu chẻ — nhấn mạnh",
+  "summary": "It was X that… / What we need is…",
+  "when": "Nhấn mạnh một phần của câu khi trình bày: 'It was the database that caused the outage', 'What we need is more time'.",
+  "form": [
+   "It is / was + phần nhấn mạnh + that / who…",
+   "What + S + V + is / was + …: What I'm worried about is security."
+  ],
+  "tips": [
+   "Dùng câu chẻ để làm rõ hiểu lầm một cách lịch sự trong họp: 'It's the API, not the UI, that's slow.'"
+  ],
+  "examples": [
+   {
+    "en": "It was the database that caused the outage.",
+    "vi": "Chính cơ sở dữ liệu đã gây ra sự cố."
+   },
+   {
+    "en": "What we need is a clear deadline.",
+    "vi": "Điều chúng ta cần là một hạn chót rõ ràng."
+   },
+   {
+    "en": "It's Minh who knows the system best.",
+    "vi": "Chính Minh là người hiểu hệ thống nhất."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "It was the cache ___ caused the problem.",
+    "options": [
+     "that",
+     "what",
+     "which it",
+     "who"
+    ],
+    "answer": "that",
+    "explain": "It was + X + that…"
+   },
+   {
+    "prompt": "___ we need is more testers.",
+    "options": [
+     "What",
+     "That",
+     "Which",
+     "It"
+    ],
+    "answer": "What",
+    "explain": "What + S + V + is…"
+   },
+   {
+    "prompt": "It's Linh ___ designed the new UI.",
+    "options": [
+     "who",
+     "which",
+     "what",
+     "whom she"
+    ],
+    "answer": "who",
+    "explain": "Nhấn mạnh người → who (hoặc that)."
+   },
+   {
+    "prompt": "What worries me ___ the security of the system.",
+    "options": [
+     "is",
+     "are",
+     "it is",
+     "that"
+    ],
+    "answer": "is",
+    "explain": "Mệnh đề What… làm chủ ngữ → is."
+   },
+   {
+    "prompt": "It ___ until Friday that we found the bug.",
+    "options": [
+     "wasn't",
+     "isn't",
+     "didn't",
+     "weren't"
+    ],
+    "answer": "wasn't",
+    "explain": "It wasn't until… that… = mãi đến… mới…"
+   }
+  ]
+ },
+ {
+  "id": "inversion",
+  "level": "C1",
+  "title": "Đảo ngữ",
+  "summary": "Never have I…, Not only did…",
+  "when": "Dùng trong văn trang trọng hoặc để nhấn mạnh: Not only… but also, Never have I…, Rarely do we…, Only after…, No sooner had… than.",
+  "form": [
+   "Never / Rarely / Seldom + trợ động từ + S + V: Rarely do we see such results.",
+   "Not only + trợ động từ + S + V, but … also…",
+   "Only after + N / mệnh đề + trợ động từ + S + V",
+   "No sooner had + S + V3 + than…"
+  ],
+  "tips": [
+   "Phải đưa trợ động từ lên trước chủ ngữ: 'Never I have seen' ✗ → 'Never have I seen' ✓."
+  ],
+  "examples": [
+   {
+    "en": "Never have we had so many users online.",
+    "vi": "Chưa bao giờ chúng tôi có nhiều người dùng trực tuyến như vậy."
+   },
+   {
+    "en": "Not only did the update fix the bug, but it also improved speed.",
+    "vi": "Bản cập nhật không chỉ sửa lỗi mà còn tăng tốc độ."
+   },
+   {
+    "en": "Only after the audit did we realise the risk.",
+    "vi": "Chỉ sau đợt kiểm tra chúng tôi mới nhận ra rủi ro."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "Never ___ such a fast deployment.",
+    "options": [
+     "have I seen",
+     "I have seen",
+     "I saw",
+     "seen I have"
+    ],
+    "answer": "have I seen",
+    "explain": "Never + trợ động từ + S + V."
+   },
+   {
+    "prompt": "Not only ___ late, but it was also over budget.",
+    "options": [
+     "was the project",
+     "the project was",
+     "did the project",
+     "the project"
+    ],
+    "answer": "was the project",
+    "explain": "Not only + be + S."
+   },
+   {
+    "prompt": "Rarely ___ such positive feedback.",
+    "options": [
+     "do we get",
+     "we get",
+     "we do get",
+     "get we"
+    ],
+    "answer": "do we get",
+    "explain": "Rarely + do + S + V."
+   },
+   {
+    "prompt": "Only after the outage ___ the importance of backups.",
+    "options": [
+     "did we understand",
+     "we understood",
+     "we did understand",
+     "understood we"
+    ],
+    "answer": "did we understand",
+    "explain": "Only after… + did + S + V."
+   },
+   {
+    "prompt": "No sooner ___ the release than users reported a bug.",
+    "options": [
+     "had we shipped",
+     "we had shipped",
+     "did we shipped",
+     "we shipped"
+    ],
+    "answer": "had we shipped",
+    "explain": "No sooner had + S + V3 + than…"
+   }
+  ]
+ },
+ {
+  "id": "subjunctive",
+  "level": "C1",
+  "title": "Thể giả định",
+  "summary": "suggest that he be…, It's time we…",
+  "when": "Sau suggest, recommend, insist, require (+ that) dùng động từ nguyên mẫu cho mọi ngôi; It's (high) time + S + V2 = đã đến lúc; would rather + S + V2 = muốn ai đó làm gì.",
+  "form": [
+   "suggest / recommend / insist + that + S + V nguyên mẫu: We recommend that he join the call.",
+   "It's (high) time + S + V2: It's time we upgraded the server.",
+   "would rather + S + V2: I'd rather you sent it today."
+  ],
+  "tips": [
+   "Trong văn trang trọng không thêm -s: 'I suggest that she review it' (không phải 'reviews')."
+  ],
+  "examples": [
+   {
+    "en": "I suggest that the team review the design again.",
+    "vi": "Tôi đề nghị nhóm xem lại thiết kế."
+   },
+   {
+    "en": "It's time we moved to the cloud.",
+    "vi": "Đã đến lúc chúng ta chuyển lên cloud."
+   },
+   {
+    "en": "I'd rather you didn't share this yet.",
+    "vi": "Tôi muốn bạn chưa chia sẻ việc này."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "The auditor recommended that the company ___ its passwords.",
+    "options": [
+     "change",
+     "changes",
+     "changed",
+     "will change"
+    ],
+    "answer": "change",
+    "explain": "recommend that + S + V nguyên mẫu."
+   },
+   {
+    "prompt": "It's high time we ___ this legacy code.",
+    "options": [
+     "replaced",
+     "replace",
+     "will replace",
+     "are replacing"
+    ],
+    "answer": "replaced",
+    "explain": "It's high time + S + V2."
+   },
+   {
+    "prompt": "I'd rather you ___ the client yourself.",
+    "options": [
+     "called",
+     "call",
+     "will call",
+     "calling"
+    ],
+    "answer": "called",
+    "explain": "would rather + S + V2."
+   },
+   {
+    "prompt": "They insisted that every user ___ two-factor authentication.",
+    "options": [
+     "enable",
+     "enables",
+     "enabled",
+     "will enable"
+    ],
+    "answer": "enable",
+    "explain": "insist that + S + V nguyên mẫu."
+   },
+   {
+    "prompt": "It's time the team ___ a proper break.",
+    "options": [
+     "took",
+     "take",
+     "takes",
+     "will take"
+    ],
+    "answer": "took",
+    "explain": "It's time + S + V2."
+   }
+  ]
+ },
+ {
+  "id": "hedging",
+  "level": "C1",
+  "title": "Nói giảm & rào đón lịch sự",
+  "summary": "It seems that…, We might want to…",
+  "when": "Trong họp và email, người bản xứ thường nói giảm để lịch sự và không quá chắc chắn: 'It seems that…', 'We might want to…', 'I'm not sure, but…'.",
+  "form": [
+   "It seems / appears that…",
+   "tend to / be likely to + V",
+   "We might want to / It might be worth + V-ing",
+   "a bit / slightly / somewhat + adj"
+  ],
+  "tips": [
+   "Nói thẳng 'Your code is wrong' dễ gây khó chịu; 'I think there might be an issue with this part' chuyên nghiệp hơn."
+  ],
+  "examples": [
+   {
+    "en": "It seems that the issue is on the client side.",
+    "vi": "Có vẻ vấn đề nằm ở phía client."
+   },
+   {
+    "en": "We might want to postpone the release.",
+    "vi": "Có lẽ chúng ta nên hoãn bản phát hành."
+   },
+   {
+    "en": "The estimate is slightly optimistic.",
+    "vi": "Ước lượng này hơi lạc quan một chút."
+   }
+  ],
+  "exercises": [
+   {
+    "prompt": "It ___ that the bug only affects Android.",
+    "options": [
+     "seems",
+     "seem",
+     "is seeming",
+     "seemed it"
+    ],
+    "answer": "seems",
+    "explain": "It seems that… (chủ ngữ it → seems)."
+   },
+   {
+    "prompt": "We ___ want to double-check the numbers.",
+    "options": [
+     "might",
+     "must",
+     "can't",
+     "should to"
+    ],
+    "answer": "might",
+    "explain": "Gợi ý nhẹ nhàng → We might want to…"
+   },
+   {
+    "prompt": "It might be worth ___ another library.",
+    "options": [
+     "trying",
+     "to try",
+     "try",
+     "tried"
+    ],
+    "answer": "trying",
+    "explain": "be worth + V-ing."
+   },
+   {
+    "prompt": "Users tend ___ the default settings.",
+    "options": [
+     "to keep",
+     "keeping",
+     "keep",
+     "kept"
+    ],
+    "answer": "to keep",
+    "explain": "tend + to V."
+   },
+   {
+    "prompt": "The timeline is ___ tight, isn't it?",
+    "options": [
+     "a bit",
+     "a few",
+     "few",
+     "many"
+    ],
+    "answer": "a bit",
+    "explain": "Nói giảm trước tính từ → a bit + adj."
+   }
+  ]
+ }
+]

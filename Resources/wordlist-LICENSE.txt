@@ -1,0 +1,6 @@
+wordlist.txt = google-10000-english (usa, no swears) by Josh Kaufman, filtered to words present in the CMU Pronouncing Dictionary, proper nouns removed (via /usr/share/dict/words).
+Source: https://github.com/first20hours/google-10000-english
+Derived from the Google Web Trillion Word Corpus (LDC2006T13) via Peter Norvig's list.
+License note from the source: educational and personal/research use permitted (LDC license, Norvig's MIT license, US fair use);
+commercial use is NOT recommended without licensing from the Linguistic Data Consortium.
+=> Replace this file with a commercially licensed frequency list (e.g. NGSL, CC BY-SA 4.0) before App Store distribution.

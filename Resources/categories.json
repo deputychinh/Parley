@@ -1,0 +1,357 @@
+[
+ {
+  "id": "it",
+  "title": "Công nghệ thông tin",
+  "symbol": "desktopcomputer",
+  "subtopics": [
+   {
+    "id": "it-0",
+    "title": "Họp & phối hợp",
+    "topic": "meetings"
+   },
+   {
+    "id": "it-1",
+    "title": "Agile & Scrum",
+    "topic": "agile"
+   },
+   {
+    "id": "it-2",
+    "title": "Phát triển phần mềm",
+    "topic": "dev"
+   },
+   {
+    "id": "it-3",
+    "title": "Hạ tầng & sự cố",
+    "topic": "ops"
+   },
+   {
+    "id": "it-4",
+    "title": "Dữ liệu & bảo mật",
+    "topic": "security"
+   },
+   {
+    "id": "it-5",
+    "title": "Sản phẩm & kế hoạch",
+    "topic": "product"
+   },
+   {
+    "id": "it-6",
+    "title": "AI & phân tích dữ liệu",
+    "prompt": "artificial intelligence, machine learning and data analytics at work"
+   },
+   {
+    "id": "it-7",
+    "title": "Lập trình web & mobile",
+    "prompt": "frontend, backend and mobile app development"
+   },
+   {
+    "id": "it-8",
+    "title": "Kiểm thử & chất lượng",
+    "prompt": "software testing and quality assurance"
+   },
+   {
+    "id": "it-9",
+    "title": "Thiết kế UI/UX",
+    "prompt": "user interface and user experience design"
+   },
+   {
+    "id": "it-10",
+    "title": "Phỏng vấn kỹ sư phần mềm",
+    "prompt": "technical job interviews for software engineers"
+   }
+  ]
+ },
+ {
+  "id": "work",
+  "title": "Công việc & kinh doanh",
+  "symbol": "briefcase.fill",
+  "subtopics": [
+   {
+    "id": "work-0",
+    "title": "Email & văn viết",
+    "topic": "email"
+   },
+   {
+    "id": "work-1",
+    "title": "Phỏng vấn & sự nghiệp",
+    "topic": "career"
+   },
+   {
+    "id": "work-2",
+    "title": "Thuyết trình",
+    "prompt": "giving presentations and talks at work"
+   },
+   {
+    "id": "work-3",
+    "title": "Đàm phán",
+    "prompt": "business negotiation and deals"
+   },
+   {
+    "id": "work-4",
+    "title": "Marketing & bán hàng",
+    "prompt": "marketing, branding and sales"
+   },
+   {
+    "id": "work-5",
+    "title": "Khởi nghiệp",
+    "prompt": "startups, founders and fundraising"
+   }
+  ]
+ },
+ {
+  "id": "food",
+  "title": "Nấu ăn & ẩm thực",
+  "symbol": "fork.knife",
+  "subtopics": [
+   {
+    "id": "food-0",
+    "title": "Nhà hàng & gọi món",
+    "topic": "food"
+   },
+   {
+    "id": "food-1",
+    "title": "Nguyên liệu & gia vị",
+    "prompt": "cooking ingredients, vegetables and spices"
+   },
+   {
+    "id": "food-2",
+    "title": "Cách chế biến",
+    "prompt": "cooking methods such as frying, boiling, grilling and steaming"
+   },
+   {
+    "id": "food-3",
+    "title": "Dụng cụ nhà bếp",
+    "prompt": "kitchen tools and appliances"
+   },
+   {
+    "id": "food-4",
+    "title": "Đồ uống & cà phê",
+    "prompt": "drinks, coffee and tea"
+   },
+   {
+    "id": "food-5",
+    "title": "Món Việt bằng tiếng Anh",
+    "prompt": "describing Vietnamese dishes and street food in English"
+   },
+   {
+    "id": "food-6",
+    "title": "Làm bánh",
+    "prompt": "baking cakes and bread"
+   }
+  ]
+ },
+ {
+  "id": "sports",
+  "title": "Thể thao",
+  "symbol": "figure.run",
+  "subtopics": [
+   {
+    "id": "sports-0",
+    "title": "Bóng đá",
+    "prompt": "football (soccer) matches and players"
+   },
+   {
+    "id": "sports-1",
+    "title": "Gym & thể hình",
+    "prompt": "gym workouts and fitness training"
+   },
+   {
+    "id": "sports-2",
+    "title": "Chạy bộ",
+    "prompt": "running and marathons"
+   },
+   {
+    "id": "sports-3",
+    "title": "Bơi lội",
+    "prompt": "swimming"
+   },
+   {
+    "id": "sports-4",
+    "title": "Cầu lông & tennis",
+    "prompt": "badminton and tennis"
+   },
+   {
+    "id": "sports-5",
+    "title": "Yoga & thiền",
+    "prompt": "yoga and meditation"
+   },
+   {
+    "id": "sports-6",
+    "title": "Esports & game",
+    "prompt": "esports and video games"
+   }
+  ]
+ },
+ {
+  "id": "travel",
+  "title": "Du lịch",
+  "symbol": "airplane",
+  "subtopics": [
+   {
+    "id": "travel-0",
+    "title": "Sân bay & di chuyển",
+    "topic": "travel"
+   },
+   {
+    "id": "travel-1",
+    "title": "Khách sạn",
+    "prompt": "staying at a hotel: booking, check-in and services"
+   },
+   {
+    "id": "travel-2",
+    "title": "Hỏi đường & giao thông",
+    "prompt": "asking for directions and using public transport"
+   },
+   {
+    "id": "travel-3",
+    "title": "Tham quan",
+    "prompt": "sightseeing, tours and attractions"
+   },
+   {
+    "id": "travel-4",
+    "title": "Visa & thủ tục",
+    "prompt": "visas, passports and immigration"
+   },
+   {
+    "id": "travel-5",
+    "title": "Sự cố khi đi du lịch",
+    "prompt": "travel problems such as lost luggage, delays and getting sick abroad"
+   }
+  ]
+ },
+ {
+  "id": "health",
+  "title": "Sức khoẻ",
+  "symbol": "heart.text.square.fill",
+  "subtopics": [
+   {
+    "id": "health-0",
+    "title": "Sức khoẻ & công việc",
+    "topic": "health"
+   },
+   {
+    "id": "health-1",
+    "title": "Khám bệnh",
+    "prompt": "visiting a doctor or hospital"
+   },
+   {
+    "id": "health-2",
+    "title": "Dinh dưỡng",
+    "prompt": "nutrition and healthy eating"
+   },
+   {
+    "id": "health-3",
+    "title": "Sức khoẻ tinh thần",
+    "prompt": "mental health, stress and wellbeing"
+   }
+  ]
+ },
+ {
+  "id": "life",
+  "title": "Đời sống hằng ngày",
+  "symbol": "house.fill",
+  "subtopics": [
+   {
+    "id": "life-0",
+    "title": "Giao tiếp hằng ngày",
+    "topic": "daily"
+   },
+   {
+    "id": "life-1",
+    "title": "Cảm xúc & quan điểm",
+    "topic": "opinions"
+   },
+   {
+    "id": "life-2",
+    "title": "Nhà cửa & việc nhà",
+    "prompt": "home, furniture and household chores"
+   },
+   {
+    "id": "life-3",
+    "title": "Gia đình & bạn bè",
+    "prompt": "family, friends and relationships"
+   },
+   {
+    "id": "life-4",
+    "title": "Mua sắm & quần áo",
+    "prompt": "shopping and clothes"
+   },
+   {
+    "id": "life-5",
+    "title": "Thời tiết",
+    "prompt": "weather and seasons"
+   }
+  ]
+ },
+ {
+  "id": "money",
+  "title": "Tài chính",
+  "symbol": "creditcard.fill",
+  "subtopics": [
+   {
+    "id": "money-0",
+    "title": "Chi tiêu & mua sắm",
+    "topic": "money"
+   },
+   {
+    "id": "money-1",
+    "title": "Ngân hàng",
+    "prompt": "banking and payments"
+   },
+   {
+    "id": "money-2",
+    "title": "Đầu tư",
+    "prompt": "investing and the stock market"
+   }
+  ]
+ },
+ {
+  "id": "fun",
+  "title": "Giải trí",
+  "symbol": "film.fill",
+  "subtopics": [
+   {
+    "id": "fun-0",
+    "title": "Phim ảnh",
+    "prompt": "movies and TV series"
+   },
+   {
+    "id": "fun-1",
+    "title": "Âm nhạc",
+    "prompt": "music and concerts"
+   },
+   {
+    "id": "fun-2",
+    "title": "Sách & đọc",
+    "prompt": "books and reading"
+   },
+   {
+    "id": "fun-3",
+    "title": "Mạng xã hội",
+    "prompt": "social media and online content"
+   }
+  ]
+ },
+ {
+  "id": "nature",
+  "title": "Thiên nhiên & môi trường",
+  "symbol": "leaf.fill",
+  "subtopics": [
+   {
+    "id": "nature-0",
+    "title": "Môi trường",
+    "prompt": "environment and climate change"
+   },
+   {
+    "id": "nature-1",
+    "title": "Động vật",
+    "prompt": "animals and wildlife"
+   },
+   {
+    "id": "nature-2",
+    "title": "Địa lý & cảnh quan",
+    "prompt": "geography and natural landscapes"
+   }
+  ]
+ }
+]

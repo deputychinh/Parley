@@ -1,0 +1,1250 @@
+[
+  {
+    "id": "meetings",
+    "title": "Họp & phối hợp",
+    "symbol": "person.3.fill",
+    "summary": "Câu chữ hay gặp trong daily, sync và họp dự án",
+    "words": [
+      {
+        "term": "agenda",
+        "meaning": "chương trình họp, nội dung cần bàn",
+        "example": "Let's go through the agenda before we start.",
+        "exampleTranslation": "Hãy xem qua nội dung cuộc họp trước khi bắt đầu."
+      },
+      {
+        "term": "action item",
+        "meaning": "việc cần làm được giao sau cuộc họp",
+        "example": "I'll send out the action items after the meeting.",
+        "exampleTranslation": "Tôi sẽ gửi danh sách việc cần làm sau cuộc họp."
+      },
+      {
+        "term": "follow up",
+        "meaning": "trao đổi tiếp, theo dõi tiếp",
+        "example": "Can you follow up with the design team on this?",
+        "exampleTranslation": "Bạn trao đổi tiếp với nhóm thiết kế về việc này được không?"
+      },
+      {
+        "term": "stand-up",
+        "meaning": "buổi họp ngắn hằng ngày (daily stand-up)",
+        "example": "We have a quick stand-up every morning at nine.",
+        "exampleTranslation": "Chúng tôi có buổi họp nhanh mỗi sáng lúc chín giờ."
+      },
+      {
+        "term": "blocker",
+        "meaning": "vấn đề đang chặn tiến độ",
+        "example": "Do you have any blockers today?",
+        "exampleTranslation": "Hôm nay bạn có vướng mắc gì không?"
+      },
+      {
+        "term": "take it offline",
+        "meaning": "bàn riêng sau, không bàn trong cuộc họp",
+        "example": "This is getting too detailed, let's take it offline.",
+        "exampleTranslation": "Việc này đi vào chi tiết quá rồi, mình bàn riêng sau nhé."
+      },
+      {
+        "term": "circle back",
+        "meaning": "quay lại bàn tiếp sau",
+        "example": "Let's circle back to this next week.",
+        "exampleTranslation": "Tuần sau mình quay lại bàn chuyện này nhé."
+      },
+      {
+        "term": "on the same page",
+        "meaning": "hiểu giống nhau, thống nhất",
+        "example": "I want to make sure we're all on the same page.",
+        "exampleTranslation": "Tôi muốn chắc rằng tất cả chúng ta đều hiểu giống nhau."
+      },
+      {
+        "term": "bandwidth",
+        "meaning": "(nghĩa bóng) thời gian, sức để nhận thêm việc",
+        "example": "I don't have the bandwidth to take on another task this sprint.",
+        "exampleTranslation": "Sprint này tôi không còn sức để nhận thêm việc nữa."
+      },
+      {
+        "term": "heads-up",
+        "meaning": "lời báo trước, nhắc trước",
+        "example": "Just a heads-up, the release might be delayed.",
+        "exampleTranslation": "Báo trước một chút, bản phát hành có thể bị trễ."
+      },
+      {
+        "term": "ETA",
+        "meaning": "thời gian dự kiến hoàn thành",
+        "example": "What's the ETA for the fix?",
+        "exampleTranslation": "Khi nào dự kiến sửa xong?"
+      },
+      {
+        "term": "stakeholder",
+        "meaning": "bên liên quan",
+        "example": "We need to update the stakeholders on the timeline.",
+        "exampleTranslation": "Chúng ta cần cập nhật tiến độ cho các bên liên quan."
+      },
+      {
+        "term": "kickoff",
+        "meaning": "buổi họp khởi động dự án",
+        "example": "The project kickoff is scheduled for Monday.",
+        "exampleTranslation": "Buổi khởi động dự án được lên lịch vào thứ Hai."
+      },
+      {
+        "term": "wrap up",
+        "meaning": "kết thúc, tổng kết",
+        "example": "Let's wrap up, we're almost out of time.",
+        "exampleTranslation": "Mình kết thúc nhé, sắp hết giờ rồi."
+      },
+      {
+        "term": "recap",
+        "meaning": "tóm tắt lại",
+        "example": "Can someone recap what we decided?",
+        "exampleTranslation": "Ai có thể tóm tắt lại những gì chúng ta đã quyết định không?"
+      },
+      {
+        "term": "sync",
+        "meaning": "buổi trao đổi ngắn để thống nhất",
+        "example": "Let's have a quick sync after lunch.",
+        "exampleTranslation": "Sau bữa trưa mình trao đổi nhanh nhé."
+      }
+    ],
+    "group": "it"
+  },
+  {
+    "id": "agile",
+    "title": "Agile & Scrum",
+    "symbol": "arrow.triangle.2.circlepath",
+    "summary": "Sprint, backlog, user story, ước lượng",
+    "words": [
+      {
+        "term": "sprint",
+        "meaning": "chu kỳ phát triển ngắn (thường 1–2 tuần)",
+        "example": "We'll finish this feature in the next sprint.",
+        "exampleTranslation": "Chúng ta sẽ làm xong tính năng này trong sprint tới."
+      },
+      {
+        "term": "backlog",
+        "meaning": "danh sách việc cần làm, tồn đọng",
+        "example": "Please add this bug to the backlog.",
+        "exampleTranslation": "Hãy thêm lỗi này vào danh sách việc cần làm."
+      },
+      {
+        "term": "user story",
+        "meaning": "yêu cầu viết từ góc nhìn người dùng",
+        "example": "Each user story should have clear acceptance criteria.",
+        "exampleTranslation": "Mỗi user story nên có tiêu chí chấp nhận rõ ràng."
+      },
+      {
+        "term": "acceptance criteria",
+        "meaning": "tiêu chí chấp nhận",
+        "example": "The acceptance criteria aren't clear yet.",
+        "exampleTranslation": "Tiêu chí chấp nhận vẫn chưa rõ ràng."
+      },
+      {
+        "term": "story points",
+        "meaning": "điểm ước lượng độ khó",
+        "example": "How many story points is this ticket?",
+        "exampleTranslation": "Ticket này bao nhiêu điểm?"
+      },
+      {
+        "term": "estimate",
+        "meaning": "ước lượng",
+        "example": "Can you give me a rough estimate?",
+        "exampleTranslation": "Bạn có thể ước lượng sơ bộ không?"
+      },
+      {
+        "term": "retrospective",
+        "meaning": "buổi họp nhìn lại sau sprint",
+        "example": "We'll discuss this in the retrospective.",
+        "exampleTranslation": "Chúng ta sẽ bàn chuyện này trong buổi nhìn lại sprint."
+      },
+      {
+        "term": "velocity",
+        "meaning": "tốc độ hoàn thành công việc của nhóm",
+        "example": "Our velocity dropped this sprint.",
+        "exampleTranslation": "Tốc độ của nhóm giảm trong sprint này."
+      },
+      {
+        "term": "refinement",
+        "meaning": "buổi làm rõ và chia nhỏ việc trong backlog",
+        "example": "Let's discuss the details in the refinement session.",
+        "exampleTranslation": "Hãy bàn chi tiết trong buổi làm rõ yêu cầu."
+      },
+      {
+        "term": "definition of done",
+        "meaning": "tiêu chuẩn để coi là hoàn thành",
+        "example": "Writing tests is part of our definition of done.",
+        "exampleTranslation": "Viết test là một phần trong tiêu chuẩn hoàn thành của chúng tôi."
+      },
+      {
+        "term": "epic",
+        "meaning": "nhóm công việc lớn gồm nhiều user story",
+        "example": "This epic will take about three sprints.",
+        "exampleTranslation": "Epic này sẽ mất khoảng ba sprint."
+      },
+      {
+        "term": "scope creep",
+        "meaning": "phạm vi công việc phình ra ngoài kế hoạch",
+        "example": "We need to avoid scope creep on this project.",
+        "exampleTranslation": "Chúng ta cần tránh để phạm vi dự án phình ra."
+      },
+      {
+        "term": "MVP",
+        "meaning": "sản phẩm khả dụng tối thiểu",
+        "example": "Let's ship the MVP first and improve it later.",
+        "exampleTranslation": "Hãy ra mắt phiên bản tối thiểu trước rồi cải thiện sau."
+      },
+      {
+        "term": "priority",
+        "meaning": "mức ưu tiên",
+        "example": "This bug is our top priority.",
+        "exampleTranslation": "Lỗi này là ưu tiên hàng đầu của chúng ta."
+      },
+      {
+        "term": "ticket",
+        "meaning": "phiếu công việc (task, bug trên Jira…)",
+        "example": "I've created a ticket for this issue.",
+        "exampleTranslation": "Tôi đã tạo ticket cho vấn đề này."
+      }
+    ],
+    "group": "it"
+  },
+  {
+    "id": "dev",
+    "title": "Phát triển phần mềm",
+    "symbol": "chevron.left.forwardslash.chevron.right",
+    "summary": "Deploy, review code, nợ kỹ thuật",
+    "words": [
+      {
+        "term": "deploy",
+        "meaning": "triển khai lên máy chủ",
+        "example": "We'll deploy the new version tonight.",
+        "exampleTranslation": "Tối nay chúng tôi sẽ triển khai phiên bản mới."
+      },
+      {
+        "term": "release",
+        "meaning": "bản phát hành; phát hành",
+        "example": "The release is planned for next Friday.",
+        "exampleTranslation": "Bản phát hành dự kiến vào thứ Sáu tuần sau."
+      },
+      {
+        "term": "roll back",
+        "meaning": "quay lại phiên bản trước",
+        "example": "If anything goes wrong, we'll roll back.",
+        "exampleTranslation": "Nếu có gì sai, chúng ta sẽ quay lại phiên bản trước."
+      },
+      {
+        "term": "pull request",
+        "meaning": "yêu cầu gộp code (PR)",
+        "example": "Could you review my pull request?",
+        "exampleTranslation": "Bạn xem giúp pull request của tôi được không?"
+      },
+      {
+        "term": "code review",
+        "meaning": "xem xét, góp ý code",
+        "example": "The code review found a few issues.",
+        "exampleTranslation": "Buổi review code phát hiện vài vấn đề."
+      },
+      {
+        "term": "merge",
+        "meaning": "gộp code",
+        "example": "Don't merge it until the tests pass.",
+        "exampleTranslation": "Đừng gộp code cho đến khi test chạy qua."
+      },
+      {
+        "term": "refactor",
+        "meaning": "viết lại code cho gọn mà không đổi chức năng",
+        "example": "We should refactor this module before adding new features.",
+        "exampleTranslation": "Chúng ta nên viết lại module này trước khi thêm tính năng mới."
+      },
+      {
+        "term": "technical debt",
+        "meaning": "nợ kỹ thuật",
+        "example": "We keep adding technical debt to meet deadlines.",
+        "exampleTranslation": "Chúng ta cứ tích thêm nợ kỹ thuật để kịp hạn."
+      },
+      {
+        "term": "regression",
+        "meaning": "lỗi phát sinh ở chức năng vốn chạy đúng",
+        "example": "This change caused a regression in the login flow.",
+        "exampleTranslation": "Thay đổi này làm hỏng lại luồng đăng nhập."
+      },
+      {
+        "term": "hotfix",
+        "meaning": "bản sửa lỗi khẩn",
+        "example": "We need a hotfix before the weekend.",
+        "exampleTranslation": "Chúng ta cần một bản sửa lỗi khẩn trước cuối tuần."
+      },
+      {
+        "term": "feature flag",
+        "meaning": "công tắc bật/tắt tính năng",
+        "example": "Let's hide the new page behind a feature flag.",
+        "exampleTranslation": "Hãy ẩn trang mới sau một công tắc bật tắt tính năng."
+      },
+      {
+        "term": "staging",
+        "meaning": "môi trường thử nghiệm trước khi lên thật",
+        "example": "It works on staging but not in production.",
+        "exampleTranslation": "Nó chạy được trên staging nhưng không chạy trên môi trường thật."
+      },
+      {
+        "term": "production",
+        "meaning": "môi trường chạy thật",
+        "example": "Never test directly in production.",
+        "exampleTranslation": "Đừng bao giờ thử nghiệm trực tiếp trên môi trường thật."
+      },
+      {
+        "term": "dependency",
+        "meaning": "thư viện, phần phụ thuộc",
+        "example": "We need to update this dependency for security reasons.",
+        "exampleTranslation": "Chúng ta cần cập nhật thư viện này vì lý do bảo mật."
+      },
+      {
+        "term": "edge case",
+        "meaning": "trường hợp hiếm, trường hợp biên",
+        "example": "Did you handle the edge case where the list is empty?",
+        "exampleTranslation": "Bạn đã xử lý trường hợp danh sách rỗng chưa?"
+      },
+      {
+        "term": "backward compatible",
+        "meaning": "tương thích ngược",
+        "example": "The new API must be backward compatible.",
+        "exampleTranslation": "API mới phải tương thích ngược."
+      }
+    ],
+    "group": "it"
+  },
+  {
+    "id": "ops",
+    "title": "Hạ tầng & sự cố",
+    "symbol": "server.rack",
+    "summary": "Hiệu năng, sự cố, trực hệ thống",
+    "words": [
+      {
+        "term": "latency",
+        "meaning": "độ trễ",
+        "example": "Users are complaining about high latency.",
+        "exampleTranslation": "Người dùng phàn nàn về độ trễ cao."
+      },
+      {
+        "term": "scalability",
+        "meaning": "khả năng mở rộng",
+        "example": "Scalability is our main concern for this launch.",
+        "exampleTranslation": "Khả năng mở rộng là mối lo chính cho lần ra mắt này."
+      },
+      {
+        "term": "downtime",
+        "meaning": "thời gian hệ thống ngừng hoạt động",
+        "example": "The migration will cause about ten minutes of downtime.",
+        "exampleTranslation": "Việc chuyển đổi sẽ khiến hệ thống ngừng khoảng mười phút."
+      },
+      {
+        "term": "outage",
+        "meaning": "sự cố mất dịch vụ",
+        "example": "We had a major outage last night.",
+        "exampleTranslation": "Tối qua chúng ta bị một sự cố mất dịch vụ lớn."
+      },
+      {
+        "term": "incident",
+        "meaning": "sự cố",
+        "example": "Who is handling the incident?",
+        "exampleTranslation": "Ai đang xử lý sự cố?"
+      },
+      {
+        "term": "root cause",
+        "meaning": "nguyên nhân gốc",
+        "example": "We still haven't found the root cause.",
+        "exampleTranslation": "Chúng ta vẫn chưa tìm ra nguyên nhân gốc."
+      },
+      {
+        "term": "post-mortem",
+        "meaning": "bản phân tích sau sự cố",
+        "example": "Let's write a post-mortem for this outage.",
+        "exampleTranslation": "Hãy viết bản phân tích sau sự cố cho lần mất dịch vụ này."
+      },
+      {
+        "term": "monitoring",
+        "meaning": "giám sát hệ thống",
+        "example": "We should add monitoring for this service.",
+        "exampleTranslation": "Chúng ta nên thêm giám sát cho dịch vụ này."
+      },
+      {
+        "term": "on-call",
+        "meaning": "trực sự cố",
+        "example": "Who's on-call this weekend?",
+        "exampleTranslation": "Cuối tuần này ai trực sự cố?"
+      },
+      {
+        "term": "bottleneck",
+        "meaning": "điểm nghẽn",
+        "example": "The database is the bottleneck.",
+        "exampleTranslation": "Cơ sở dữ liệu là điểm nghẽn."
+      },
+      {
+        "term": "load balancer",
+        "meaning": "bộ cân bằng tải",
+        "example": "The load balancer spreads traffic across the servers.",
+        "exampleTranslation": "Bộ cân bằng tải phân phối lưu lượng giữa các máy chủ."
+      },
+      {
+        "term": "pipeline",
+        "meaning": "chuỗi build/test/deploy tự động (CI/CD)",
+        "example": "The pipeline failed because of a flaky test.",
+        "exampleTranslation": "Pipeline bị lỗi vì một test lúc chạy được lúc không."
+      },
+      {
+        "term": "container",
+        "meaning": "container, gói chạy ứng dụng độc lập",
+        "example": "Each service runs in its own container.",
+        "exampleTranslation": "Mỗi dịch vụ chạy trong container riêng."
+      },
+      {
+        "term": "capacity",
+        "meaning": "năng lực xử lý, sức chứa",
+        "example": "We need more capacity for the holiday traffic.",
+        "exampleTranslation": "Chúng ta cần thêm năng lực cho lượng truy cập dịp lễ."
+      },
+      {
+        "term": "workaround",
+        "meaning": "cách xử lý tạm",
+        "example": "There's a workaround until we ship the fix.",
+        "exampleTranslation": "Có cách xử lý tạm cho đến khi chúng ta phát hành bản sửa."
+      },
+      {
+        "term": "uptime",
+        "meaning": "thời gian hoạt động ổn định",
+        "example": "Our uptime was 99.9% last month.",
+        "exampleTranslation": "Tháng trước hệ thống hoạt động ổn định 99,9% thời gian."
+      }
+    ],
+    "group": "it"
+  },
+  {
+    "id": "security",
+    "title": "Dữ liệu & bảo mật",
+    "symbol": "lock.shield.fill",
+    "summary": "Cơ sở dữ liệu, xác thực, lỗ hổng",
+    "words": [
+      {
+        "term": "migration",
+        "meaning": "việc chuyển đổi dữ liệu hoặc hệ thống",
+        "example": "The database migration is scheduled for Sunday.",
+        "exampleTranslation": "Việc chuyển đổi cơ sở dữ liệu được lên lịch vào Chủ nhật."
+      },
+      {
+        "term": "schema",
+        "meaning": "cấu trúc dữ liệu",
+        "example": "We need to change the schema to support this.",
+        "exampleTranslation": "Chúng ta cần đổi cấu trúc dữ liệu để hỗ trợ việc này."
+      },
+      {
+        "term": "query",
+        "meaning": "câu truy vấn",
+        "example": "This query is too slow.",
+        "exampleTranslation": "Câu truy vấn này chạy quá chậm."
+      },
+      {
+        "term": "backup",
+        "meaning": "bản sao lưu",
+        "example": "Make sure we have a backup before the update.",
+        "exampleTranslation": "Hãy chắc chắn có bản sao lưu trước khi cập nhật."
+      },
+      {
+        "term": "authentication",
+        "meaning": "xác thực (bạn là ai)",
+        "example": "The bug is in the authentication service.",
+        "exampleTranslation": "Lỗi nằm ở dịch vụ xác thực."
+      },
+      {
+        "term": "authorization",
+        "meaning": "phân quyền (bạn được làm gì)",
+        "example": "Authorization checks are missing on this endpoint.",
+        "exampleTranslation": "Endpoint này đang thiếu kiểm tra phân quyền."
+      },
+      {
+        "term": "encryption",
+        "meaning": "mã hoá",
+        "example": "All customer data needs encryption at rest.",
+        "exampleTranslation": "Mọi dữ liệu khách hàng cần được mã hoá khi lưu trữ."
+      },
+      {
+        "term": "vulnerability",
+        "meaning": "lỗ hổng bảo mật",
+        "example": "The scan found a critical vulnerability.",
+        "exampleTranslation": "Đợt quét phát hiện một lỗ hổng nghiêm trọng."
+      },
+      {
+        "term": "compliance",
+        "meaning": "sự tuân thủ quy định, tiêu chuẩn",
+        "example": "We have to meet the compliance requirements by Q3.",
+        "exampleTranslation": "Chúng ta phải đáp ứng các yêu cầu tuân thủ trước quý 3."
+      },
+      {
+        "term": "data breach",
+        "meaning": "vụ rò rỉ dữ liệu",
+        "example": "A data breach would be a disaster for us.",
+        "exampleTranslation": "Một vụ rò rỉ dữ liệu sẽ là thảm hoạ với chúng ta."
+      },
+      {
+        "term": "access control",
+        "meaning": "kiểm soát truy cập",
+        "example": "We need stricter access control for production.",
+        "exampleTranslation": "Chúng ta cần kiểm soát truy cập chặt hơn cho môi trường thật."
+      },
+      {
+        "term": "credentials",
+        "meaning": "thông tin đăng nhập",
+        "example": "Never share your credentials in the chat.",
+        "exampleTranslation": "Đừng bao giờ chia sẻ thông tin đăng nhập trong chat."
+      },
+      {
+        "term": "audit log",
+        "meaning": "nhật ký kiểm tra (ai đã làm gì)",
+        "example": "Check the audit log to see who changed it.",
+        "exampleTranslation": "Xem nhật ký kiểm tra để biết ai đã thay đổi nó."
+      },
+      {
+        "term": "personal data",
+        "meaning": "dữ liệu cá nhân",
+        "example": "We must not store personal data in the logs.",
+        "exampleTranslation": "Chúng ta không được lưu dữ liệu cá nhân trong log."
+      }
+    ],
+    "group": "it"
+  },
+  {
+    "id": "product",
+    "title": "Sản phẩm & kế hoạch",
+    "symbol": "chart.line.uptrend.xyaxis",
+    "summary": "Lộ trình, ưu tiên, đánh đổi, hạn chót",
+    "words": [
+      {
+        "term": "roadmap",
+        "meaning": "lộ trình sản phẩm",
+        "example": "This feature is on the roadmap for next quarter.",
+        "exampleTranslation": "Tính năng này nằm trong lộ trình quý sau."
+      },
+      {
+        "term": "requirement",
+        "meaning": "yêu cầu",
+        "example": "The requirement changed again this morning.",
+        "exampleTranslation": "Yêu cầu lại thay đổi vào sáng nay."
+      },
+      {
+        "term": "trade-off",
+        "meaning": "sự đánh đổi",
+        "example": "There's a trade-off between speed and quality.",
+        "exampleTranslation": "Có sự đánh đổi giữa tốc độ và chất lượng."
+      },
+      {
+        "term": "milestone",
+        "meaning": "mốc quan trọng",
+        "example": "We hit our first milestone yesterday.",
+        "exampleTranslation": "Hôm qua chúng ta đã đạt mốc đầu tiên."
+      },
+      {
+        "term": "deliverable",
+        "meaning": "sản phẩm cần bàn giao",
+        "example": "What is the main deliverable for this phase?",
+        "exampleTranslation": "Giai đoạn này cần bàn giao gì là chính?"
+      },
+      {
+        "term": "deadline",
+        "meaning": "hạn chót",
+        "example": "Can we push the deadline by a week?",
+        "exampleTranslation": "Chúng ta có thể lùi hạn chót một tuần không?"
+      },
+      {
+        "term": "launch",
+        "meaning": "sự ra mắt; ra mắt",
+        "example": "The launch went smoothly.",
+        "exampleTranslation": "Buổi ra mắt diễn ra suôn sẻ."
+      },
+      {
+        "term": "metrics",
+        "meaning": "các chỉ số đo lường",
+        "example": "Let's look at the metrics after the launch.",
+        "exampleTranslation": "Hãy xem các chỉ số sau khi ra mắt."
+      },
+      {
+        "term": "feedback",
+        "meaning": "phản hồi, góp ý",
+        "example": "We got a lot of positive feedback from users.",
+        "exampleTranslation": "Chúng ta nhận được nhiều phản hồi tích cực từ người dùng."
+      },
+      {
+        "term": "user experience",
+        "meaning": "trải nghiệm người dùng",
+        "example": "This change will improve the user experience.",
+        "exampleTranslation": "Thay đổi này sẽ cải thiện trải nghiệm người dùng."
+      },
+      {
+        "term": "budget",
+        "meaning": "ngân sách",
+        "example": "We're running over budget.",
+        "exampleTranslation": "Chúng ta đang vượt ngân sách."
+      },
+      {
+        "term": "timeline",
+        "meaning": "tiến độ, mốc thời gian",
+        "example": "The timeline is too tight.",
+        "exampleTranslation": "Tiến độ quá gấp."
+      },
+      {
+        "term": "prioritize",
+        "meaning": "ưu tiên (làm trước)",
+        "example": "We need to prioritize the payment bugs.",
+        "exampleTranslation": "Chúng ta cần ưu tiên các lỗi thanh toán."
+      },
+      {
+        "term": "align",
+        "meaning": "thống nhất, đồng bộ (với ai)",
+        "example": "Let's align with the marketing team first.",
+        "exampleTranslation": "Hãy thống nhất với nhóm marketing trước."
+      }
+    ],
+    "group": "it"
+  },
+  {
+    "id": "daily",
+    "title": "Giao tiếp hằng ngày",
+    "symbol": "bubble.left.and.bubble.right.fill",
+    "summary": "Câu nói tự nhiên khi trò chuyện",
+    "group": "general",
+    "words": [
+      {
+        "term": "appreciate",
+        "meaning": "trân trọng, cảm kích",
+        "example": "I really appreciate your help.",
+        "exampleTranslation": "Tôi thực sự cảm kích sự giúp đỡ của bạn."
+      },
+      {
+        "term": "by the way",
+        "meaning": "nhân tiện",
+        "example": "By the way, did you get my message?",
+        "exampleTranslation": "Nhân tiện, bạn đã nhận được tin nhắn của tôi chưa?"
+      },
+      {
+        "term": "catch up",
+        "meaning": "gặp nhau cập nhật tin tức",
+        "example": "Let's catch up over coffee this week.",
+        "exampleTranslation": "Tuần này mình gặp nhau uống cà phê nói chuyện nhé."
+      },
+      {
+        "term": "no worries",
+        "meaning": "không sao đâu",
+        "example": "No worries, I can do it tomorrow.",
+        "exampleTranslation": "Không sao đâu, mai tôi làm cũng được."
+      },
+      {
+        "term": "figure out",
+        "meaning": "tìm ra, hiểu ra",
+        "example": "I can't figure out how this works.",
+        "exampleTranslation": "Tôi không hiểu ra cái này hoạt động thế nào."
+      },
+      {
+        "term": "get used to",
+        "meaning": "dần quen với",
+        "example": "It takes time to get used to a new codebase.",
+        "exampleTranslation": "Cần thời gian để làm quen với một codebase mới."
+      },
+      {
+        "term": "make sense",
+        "meaning": "hợp lý, dễ hiểu",
+        "example": "Does that make sense to everyone?",
+        "exampleTranslation": "Mọi người thấy vậy có hợp lý không?"
+      },
+      {
+        "term": "running late",
+        "meaning": "đang bị trễ",
+        "example": "Sorry, I'm running late, I'll be there in ten minutes.",
+        "exampleTranslation": "Xin lỗi, tôi bị trễ, mười phút nữa tôi đến."
+      },
+      {
+        "term": "convenient",
+        "meaning": "thuận tiện",
+        "example": "Is Friday afternoon convenient for you?",
+        "exampleTranslation": "Chiều thứ Sáu có tiện cho bạn không?"
+      },
+      {
+        "term": "definitely",
+        "meaning": "chắc chắn",
+        "example": "I'll definitely join the party.",
+        "exampleTranslation": "Tôi chắc chắn sẽ tham gia bữa tiệc."
+      },
+      {
+        "term": "honestly",
+        "meaning": "thật lòng mà nói",
+        "example": "Honestly, I didn't expect that.",
+        "exampleTranslation": "Thật lòng mà nói, tôi không ngờ chuyện đó."
+      },
+      {
+        "term": "look forward to",
+        "meaning": "mong chờ",
+        "example": "I look forward to meeting you.",
+        "exampleTranslation": "Tôi mong được gặp bạn."
+      }
+    ]
+  },
+  {
+    "id": "email",
+    "title": "Email & văn viết công việc",
+    "symbol": "envelope.fill",
+    "summary": "Viết email lịch sự, rõ ràng",
+    "group": "general",
+    "words": [
+      {
+        "term": "attached",
+        "meaning": "được đính kèm",
+        "example": "Please find the report attached.",
+        "exampleTranslation": "Báo cáo được đính kèm trong email này."
+      },
+      {
+        "term": "regarding",
+        "meaning": "về việc",
+        "example": "I'm writing regarding the invoice.",
+        "exampleTranslation": "Tôi viết thư về việc hoá đơn."
+      },
+      {
+        "term": "clarify",
+        "meaning": "làm rõ",
+        "example": "Could you clarify what you mean?",
+        "exampleTranslation": "Bạn có thể làm rõ ý bạn không?"
+      },
+      {
+        "term": "confirm",
+        "meaning": "xác nhận",
+        "example": "Please confirm your attendance by Friday.",
+        "exampleTranslation": "Vui lòng xác nhận tham dự trước thứ Sáu."
+      },
+      {
+        "term": "reminder",
+        "meaning": "lời nhắc",
+        "example": "This is a friendly reminder about tomorrow's meeting.",
+        "exampleTranslation": "Đây là lời nhắc về cuộc họp ngày mai."
+      },
+      {
+        "term": "at your earliest convenience",
+        "meaning": "khi bạn tiện sớm nhất",
+        "example": "Please reply at your earliest convenience.",
+        "exampleTranslation": "Vui lòng phản hồi khi bạn tiện sớm nhất."
+      },
+      {
+        "term": "in advance",
+        "meaning": "trước (cảm ơn trước…)",
+        "example": "Thanks in advance for your help.",
+        "exampleTranslation": "Cảm ơn trước vì sự giúp đỡ của bạn."
+      },
+      {
+        "term": "apologize",
+        "meaning": "xin lỗi",
+        "example": "I apologize for the late reply.",
+        "exampleTranslation": "Tôi xin lỗi vì trả lời muộn."
+      },
+      {
+        "term": "forward",
+        "meaning": "chuyển tiếp",
+        "example": "I'll forward the email to my manager.",
+        "exampleTranslation": "Tôi sẽ chuyển tiếp email cho quản lý."
+      },
+      {
+        "term": "proposal",
+        "meaning": "bản đề xuất",
+        "example": "We sent the proposal to the client yesterday.",
+        "exampleTranslation": "Hôm qua chúng tôi đã gửi đề xuất cho khách hàng."
+      },
+      {
+        "term": "schedule",
+        "meaning": "lên lịch; lịch trình",
+        "example": "Can we schedule a call for next week?",
+        "exampleTranslation": "Chúng ta có thể lên lịch gọi vào tuần sau không?"
+      },
+      {
+        "term": "as discussed",
+        "meaning": "như đã trao đổi",
+        "example": "As discussed, I've updated the document.",
+        "exampleTranslation": "Như đã trao đổi, tôi đã cập nhật tài liệu."
+      }
+    ]
+  },
+  {
+    "id": "career",
+    "title": "Phỏng vấn & sự nghiệp",
+    "symbol": "briefcase.fill",
+    "summary": "Phỏng vấn, đánh giá, thăng tiến",
+    "group": "general",
+    "words": [
+      {
+        "term": "resume",
+        "meaning": "sơ yếu lý lịch, CV",
+        "example": "Please send your resume to HR.",
+        "exampleTranslation": "Vui lòng gửi CV cho phòng nhân sự."
+      },
+      {
+        "term": "responsibility",
+        "meaning": "trách nhiệm",
+        "example": "My main responsibility is backend development.",
+        "exampleTranslation": "Trách nhiệm chính của tôi là phát triển backend."
+      },
+      {
+        "term": "strength",
+        "meaning": "điểm mạnh",
+        "example": "My biggest strength is solving problems.",
+        "exampleTranslation": "Điểm mạnh lớn nhất của tôi là giải quyết vấn đề."
+      },
+      {
+        "term": "weakness",
+        "meaning": "điểm yếu",
+        "example": "One weakness I'm working on is public speaking.",
+        "exampleTranslation": "Một điểm yếu tôi đang cải thiện là nói trước đám đông."
+      },
+      {
+        "term": "promotion",
+        "meaning": "sự thăng chức",
+        "example": "She got a promotion last month.",
+        "exampleTranslation": "Tháng trước cô ấy được thăng chức."
+      },
+      {
+        "term": "salary",
+        "meaning": "lương",
+        "example": "We can discuss the salary in the next round.",
+        "exampleTranslation": "Chúng ta có thể bàn về lương ở vòng sau."
+      },
+      {
+        "term": "experience",
+        "meaning": "kinh nghiệm",
+        "example": "I have five years of experience in mobile development.",
+        "exampleTranslation": "Tôi có năm năm kinh nghiệm phát triển ứng dụng di động."
+      },
+      {
+        "term": "achievement",
+        "meaning": "thành tích",
+        "example": "What is your proudest achievement?",
+        "exampleTranslation": "Thành tích bạn tự hào nhất là gì?"
+      },
+      {
+        "term": "colleague",
+        "meaning": "đồng nghiệp",
+        "example": "My colleague helped me a lot in my first year.",
+        "exampleTranslation": "Đồng nghiệp đã giúp tôi rất nhiều trong năm đầu."
+      },
+      {
+        "term": "career path",
+        "meaning": "lộ trình sự nghiệp",
+        "example": "I want to move into a management career path.",
+        "exampleTranslation": "Tôi muốn chuyển sang lộ trình sự nghiệp quản lý."
+      },
+      {
+        "term": "negotiate",
+        "meaning": "thương lượng",
+        "example": "Don't be afraid to negotiate your offer.",
+        "exampleTranslation": "Đừng ngại thương lượng lời mời làm việc."
+      },
+      {
+        "term": "teamwork",
+        "meaning": "làm việc nhóm",
+        "example": "Good teamwork is the key to this project.",
+        "exampleTranslation": "Làm việc nhóm tốt là chìa khoá của dự án này."
+      }
+    ]
+  },
+  {
+    "id": "travel",
+    "title": "Du lịch & di chuyển",
+    "symbol": "airplane",
+    "summary": "Sân bay, khách sạn, hỏi đường",
+    "group": "general",
+    "words": [
+      {
+        "term": "boarding pass",
+        "meaning": "thẻ lên máy bay",
+        "example": "Please show your boarding pass at the gate.",
+        "exampleTranslation": "Vui lòng xuất trình thẻ lên máy bay tại cửa."
+      },
+      {
+        "term": "check in",
+        "meaning": "làm thủ tục, nhận phòng",
+        "example": "We can check in after two o'clock.",
+        "exampleTranslation": "Chúng ta có thể nhận phòng sau hai giờ."
+      },
+      {
+        "term": "luggage",
+        "meaning": "hành lý",
+        "example": "My luggage didn't arrive.",
+        "exampleTranslation": "Hành lý của tôi không đến."
+      },
+      {
+        "term": "delay",
+        "meaning": "sự chậm trễ",
+        "example": "The flight has a two-hour delay.",
+        "exampleTranslation": "Chuyến bay bị trễ hai tiếng."
+      },
+      {
+        "term": "reservation",
+        "meaning": "việc đặt chỗ",
+        "example": "I have a reservation under the name Nguyen.",
+        "exampleTranslation": "Tôi có đặt chỗ dưới tên Nguyễn."
+      },
+      {
+        "term": "itinerary",
+        "meaning": "lịch trình chuyến đi",
+        "example": "I'll send you the itinerary tonight.",
+        "exampleTranslation": "Tối nay tôi sẽ gửi bạn lịch trình chuyến đi."
+      },
+      {
+        "term": "currency",
+        "meaning": "tiền tệ",
+        "example": "Where can I exchange currency?",
+        "exampleTranslation": "Tôi có thể đổi tiền ở đâu?"
+      },
+      {
+        "term": "sightseeing",
+        "meaning": "tham quan",
+        "example": "We went sightseeing in the old town.",
+        "exampleTranslation": "Chúng tôi đi tham quan khu phố cổ."
+      },
+      {
+        "term": "round trip",
+        "meaning": "khứ hồi",
+        "example": "How much is a round trip ticket?",
+        "exampleTranslation": "Vé khứ hồi giá bao nhiêu?"
+      },
+      {
+        "term": "directions",
+        "meaning": "sự chỉ đường",
+        "example": "Could you give me directions to the station?",
+        "exampleTranslation": "Bạn chỉ đường giúp tôi đến nhà ga được không?"
+      },
+      {
+        "term": "souvenir",
+        "meaning": "quà lưu niệm",
+        "example": "I bought a souvenir for my mom.",
+        "exampleTranslation": "Tôi mua một món quà lưu niệm cho mẹ."
+      },
+      {
+        "term": "customs",
+        "meaning": "hải quan",
+        "example": "It took an hour to get through customs.",
+        "exampleTranslation": "Mất một tiếng mới qua được hải quan."
+      }
+    ]
+  },
+  {
+    "id": "health",
+    "title": "Sức khoẻ",
+    "symbol": "heart.text.square.fill",
+    "summary": "Khám bệnh, triệu chứng, cân bằng công việc",
+    "group": "general",
+    "words": [
+      {
+        "term": "appointment",
+        "meaning": "cuộc hẹn",
+        "example": "I have a doctor's appointment at three.",
+        "exampleTranslation": "Tôi có lịch hẹn bác sĩ lúc ba giờ."
+      },
+      {
+        "term": "symptom",
+        "meaning": "triệu chứng",
+        "example": "What symptom did you notice first?",
+        "exampleTranslation": "Bạn thấy triệu chứng nào đầu tiên?"
+      },
+      {
+        "term": "prescription",
+        "meaning": "đơn thuốc",
+        "example": "The doctor gave me a prescription.",
+        "exampleTranslation": "Bác sĩ kê cho tôi một đơn thuốc."
+      },
+      {
+        "term": "headache",
+        "meaning": "đau đầu",
+        "example": "I have a terrible headache today.",
+        "exampleTranslation": "Hôm nay tôi đau đầu kinh khủng."
+      },
+      {
+        "term": "exhausted",
+        "meaning": "kiệt sức",
+        "example": "I'm exhausted after the long trip.",
+        "exampleTranslation": "Tôi kiệt sức sau chuyến đi dài."
+      },
+      {
+        "term": "recover",
+        "meaning": "hồi phục",
+        "example": "It took me a week to recover.",
+        "exampleTranslation": "Tôi mất một tuần để hồi phục."
+      },
+      {
+        "term": "stress",
+        "meaning": "căng thẳng",
+        "example": "Work stress is affecting my sleep.",
+        "exampleTranslation": "Căng thẳng công việc đang ảnh hưởng đến giấc ngủ của tôi."
+      },
+      {
+        "term": "exercise",
+        "meaning": "tập thể dục",
+        "example": "I try to exercise three times a week.",
+        "exampleTranslation": "Tôi cố gắng tập thể dục ba lần một tuần."
+      },
+      {
+        "term": "allergic",
+        "meaning": "bị dị ứng",
+        "example": "I'm allergic to seafood.",
+        "exampleTranslation": "Tôi bị dị ứng hải sản."
+      },
+      {
+        "term": "sick leave",
+        "meaning": "nghỉ ốm",
+        "example": "He's on sick leave until Monday.",
+        "exampleTranslation": "Anh ấy nghỉ ốm đến thứ Hai."
+      },
+      {
+        "term": "healthy",
+        "meaning": "khoẻ mạnh, lành mạnh",
+        "example": "Try to eat healthy food.",
+        "exampleTranslation": "Hãy cố ăn đồ ăn lành mạnh."
+      },
+      {
+        "term": "burnout",
+        "meaning": "kiệt sức vì công việc",
+        "example": "Too much overtime leads to burnout.",
+        "exampleTranslation": "Làm thêm giờ quá nhiều dẫn đến kiệt sức."
+      }
+    ]
+  },
+  {
+    "id": "money",
+    "title": "Tài chính & mua sắm",
+    "symbol": "creditcard.fill",
+    "summary": "Hoá đơn, chi tiêu, hoàn tiền",
+    "group": "general",
+    "words": [
+      {
+        "term": "afford",
+        "meaning": "đủ khả năng chi trả",
+        "example": "We can't afford a new server right now.",
+        "exampleTranslation": "Hiện giờ chúng ta không đủ tiền mua máy chủ mới."
+      },
+      {
+        "term": "invoice",
+        "meaning": "hoá đơn",
+        "example": "I'll send the invoice by email.",
+        "exampleTranslation": "Tôi sẽ gửi hoá đơn qua email."
+      },
+      {
+        "term": "refund",
+        "meaning": "hoàn tiền",
+        "example": "Can I get a refund for this?",
+        "exampleTranslation": "Tôi có thể được hoàn tiền món này không?"
+      },
+      {
+        "term": "discount",
+        "meaning": "giảm giá",
+        "example": "Is there a discount for students?",
+        "exampleTranslation": "Có giảm giá cho sinh viên không?"
+      },
+      {
+        "term": "expense",
+        "meaning": "khoản chi",
+        "example": "Please submit every travel expense by Friday.",
+        "exampleTranslation": "Vui lòng nộp mọi khoản chi công tác trước thứ Sáu."
+      },
+      {
+        "term": "savings",
+        "meaning": "tiền tiết kiệm",
+        "example": "I keep my savings in a separate account.",
+        "exampleTranslation": "Tôi để tiền tiết kiệm trong một tài khoản riêng."
+      },
+      {
+        "term": "loan",
+        "meaning": "khoản vay",
+        "example": "They took out a loan to buy a house.",
+        "exampleTranslation": "Họ vay tiền để mua nhà."
+      },
+      {
+        "term": "subscription",
+        "meaning": "gói thuê bao",
+        "example": "I cancelled my music subscription.",
+        "exampleTranslation": "Tôi đã huỷ gói nghe nhạc."
+      },
+      {
+        "term": "receipt",
+        "meaning": "biên lai",
+        "example": "Keep the receipt in case you need to return it.",
+        "exampleTranslation": "Giữ biên lai phòng khi bạn cần trả hàng."
+      },
+      {
+        "term": "transfer",
+        "meaning": "chuyển khoản",
+        "example": "I'll transfer the money tonight.",
+        "exampleTranslation": "Tối nay tôi sẽ chuyển khoản."
+      },
+      {
+        "term": "overpriced",
+        "meaning": "đắt quá mức",
+        "example": "That laptop is overpriced.",
+        "exampleTranslation": "Cái laptop đó đắt quá mức."
+      },
+      {
+        "term": "tax",
+        "meaning": "thuế",
+        "example": "Does the price include tax?",
+        "exampleTranslation": "Giá đã bao gồm thuế chưa?"
+      }
+    ]
+  },
+  {
+    "id": "opinions",
+    "title": "Cảm xúc & quan điểm",
+    "symbol": "face.smiling.inverse",
+    "summary": "Đồng ý, phản đối, bày tỏ cảm xúc",
+    "group": "general",
+    "words": [
+      {
+        "term": "in my opinion",
+        "meaning": "theo ý kiến của tôi",
+        "example": "In my opinion, we should wait.",
+        "exampleTranslation": "Theo ý kiến của tôi, chúng ta nên chờ."
+      },
+      {
+        "term": "agree",
+        "meaning": "đồng ý",
+        "example": "I totally agree with you.",
+        "exampleTranslation": "Tôi hoàn toàn đồng ý với bạn."
+      },
+      {
+        "term": "disagree",
+        "meaning": "không đồng ý",
+        "example": "I respectfully disagree.",
+        "exampleTranslation": "Tôi xin phép không đồng ý."
+      },
+      {
+        "term": "concerned",
+        "meaning": "lo ngại",
+        "example": "I'm concerned about the timeline.",
+        "exampleTranslation": "Tôi lo ngại về tiến độ."
+      },
+      {
+        "term": "frustrated",
+        "meaning": "bực bội, nản",
+        "example": "He's frustrated with the slow progress.",
+        "exampleTranslation": "Anh ấy bực vì tiến độ chậm."
+      },
+      {
+        "term": "excited",
+        "meaning": "hào hứng",
+        "example": "I'm excited about the new project.",
+        "exampleTranslation": "Tôi rất hào hứng với dự án mới."
+      },
+      {
+        "term": "grateful",
+        "meaning": "biết ơn",
+        "example": "I'm grateful for your support.",
+        "exampleTranslation": "Tôi biết ơn sự ủng hộ của bạn."
+      },
+      {
+        "term": "overwhelmed",
+        "meaning": "quá tải, choáng ngợp",
+        "example": "I feel overwhelmed with all these tasks.",
+        "exampleTranslation": "Tôi thấy quá tải với tất cả những việc này."
+      },
+      {
+        "term": "point of view",
+        "meaning": "quan điểm",
+        "example": "Let me explain my point of view.",
+        "exampleTranslation": "Để tôi giải thích quan điểm của mình."
+      },
+      {
+        "term": "to be honest",
+        "meaning": "thật ra mà nói",
+        "example": "To be honest, I prefer the first option.",
+        "exampleTranslation": "Thật ra mà nói, tôi thích phương án đầu hơn."
+      },
+      {
+        "term": "good point",
+        "meaning": "ý hay, ý đúng",
+        "example": "That's a good point.",
+        "exampleTranslation": "Đó là một ý hay."
+      },
+      {
+        "term": "relieved",
+        "meaning": "nhẹ nhõm",
+        "example": "I was relieved when the tests passed.",
+        "exampleTranslation": "Tôi thấy nhẹ nhõm khi test chạy qua."
+      }
+    ]
+  },
+  {
+    "id": "food",
+    "title": "Ăn uống",
+    "symbol": "fork.knife",
+    "summary": "Nhà hàng, gọi món, khẩu vị",
+    "group": "general",
+    "words": [
+      {
+        "term": "order",
+        "meaning": "gọi món",
+        "example": "Are you ready to order?",
+        "exampleTranslation": "Bạn sẵn sàng gọi món chưa?"
+      },
+      {
+        "term": "menu",
+        "meaning": "thực đơn",
+        "example": "Could we see the menu, please?",
+        "exampleTranslation": "Cho chúng tôi xem thực đơn được không?"
+      },
+      {
+        "term": "spicy",
+        "meaning": "cay",
+        "example": "Is this dish spicy?",
+        "exampleTranslation": "Món này có cay không?"
+      },
+      {
+        "term": "vegetarian",
+        "meaning": "chay; người ăn chay",
+        "example": "Do you have any vegetarian options?",
+        "exampleTranslation": "Bạn có món chay nào không?"
+      },
+      {
+        "term": "takeaway",
+        "meaning": "đồ mang đi",
+        "example": "Can I get this as takeaway?",
+        "exampleTranslation": "Cho tôi mang món này đi được không?"
+      },
+      {
+        "term": "bill",
+        "meaning": "hoá đơn (nhà hàng)",
+        "example": "Could we have the bill, please?",
+        "exampleTranslation": "Cho chúng tôi xin hoá đơn."
+      },
+      {
+        "term": "tip",
+        "meaning": "tiền boa",
+        "example": "Is the tip included?",
+        "exampleTranslation": "Đã bao gồm tiền boa chưa?"
+      },
+      {
+        "term": "ingredient",
+        "meaning": "nguyên liệu",
+        "example": "What is the main ingredient?",
+        "exampleTranslation": "Nguyên liệu chính là gì?"
+      },
+      {
+        "term": "delicious",
+        "meaning": "ngon",
+        "example": "The soup is delicious.",
+        "exampleTranslation": "Món súp ngon quá."
+      },
+      {
+        "term": "portion",
+        "meaning": "phần ăn",
+        "example": "The portion here is huge.",
+        "exampleTranslation": "Phần ăn ở đây rất to."
+      },
+      {
+        "term": "craving",
+        "meaning": "cơn thèm; đang thèm",
+        "example": "I'm craving something sweet.",
+        "exampleTranslation": "Tôi đang thèm đồ ngọt."
+      },
+      {
+        "term": "leftovers",
+        "meaning": "đồ ăn thừa",
+        "example": "We had leftovers for lunch.",
+        "exampleTranslation": "Chúng tôi ăn đồ thừa cho bữa trưa."
+      }
+    ]
+  }
+]
