@@ -13,9 +13,9 @@ enum Main {
             }
             dispatchMain()
         }
-        if let i = args.firstIndex(of: "--seed") { // sample data for screenshots (scripts/shot.sh)
-            guard i + 1 < args.count else { print("FAIL: --seed needs a folder"); exit(1) }
-            do { try Seed.write(to: URL(fileURLWithPath: args[i + 1])); exit(0) } catch { print("FAIL:", error.localizedDescription); exit(1) }
+        if args.contains("--seed") { // sample data for screenshots (scripts/shot.sh)
+            guard let dir = Seed.folder(in: args) else { print("FAIL: --seed needs a folder"); exit(1) }
+            do { try Seed.write(to: dir); exit(0) } catch { print("FAIL:", error.localizedDescription); exit(1) }
         }
         ParleyApp.main()
     }

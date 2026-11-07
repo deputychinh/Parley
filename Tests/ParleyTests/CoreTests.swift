@@ -153,9 +153,30 @@ enum TestData {
         try FileManager.default.createSymbolicLink(at: link, withDestinationURL: real)
         let docs = home.appending(path: "Documents")
         for path in [real.path, real.path + "/", real.path + "/.", docs.path + "/x/../Parley", real.path.uppercased(),
-                     real.path + "/sub", link.path, docs.path] {
+                     real.path + "/sub", real.path.uppercased() + "/NEW", link.path, docs.path] {
             #expect(!Seed.isAllowed(URL(fileURLWithPath: path), real: real), "must refuse \(path)")
         }
+    }
+
+    @Test func seedRefusesAnEmptyParentOfTheRealFolder() throws {
+        let emptyDocs = home.appending(path: "Docs2")             // real folder not created yet → parent is empty
+        try FileManager.default.createDirectory(at: emptyDocs, withIntermediateDirectories: true)
+        #expect(!Seed.isAllowed(emptyDocs, real: emptyDocs.appending(path: "Parley")))
+    }
+
+    @Test func seedRefusesWhatItCannotRead() throws {
+        let file = home.appending(path: "plain-file")
+        try FileManager.default.createDirectory(at: home, withIntermediateDirectories: true)
+        try Data("x".utf8).write(to: file)
+        #expect(!Seed.isAllowed(file, real: real))                 // not a folder → refuse, never "empty"
+    }
+
+    @Test func seedFolderArgument() {
+        #expect(Seed.folder(in: ["app", "--seed", "/tmp/a"])?.path == "/tmp/a")
+        #expect(Seed.folder(in: ["app", "--seed"]) == nil)
+        #expect(Seed.folder(in: ["app", "--seed", "--route"]) == nil)
+        #expect(Seed.folder(in: ["app", "--seed", ""]) == nil)
+        #expect(Seed.folder(in: ["app"]) == nil)
     }
 
     @Test func seedNeedsAMissingOrEmptyFolder() throws {

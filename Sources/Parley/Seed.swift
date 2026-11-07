@@ -9,15 +9,24 @@ enum Seed {
     /// Seeding is allowed only into a missing or empty folder outside `real` (compared after resolving symlinks,
     /// `.`/`..`, trailing slashes and letter case — APFS is case-insensitive by default).
     nonisolated static func isAllowed(_ dir: URL, real: URL = realFolder, fm: FileManager = .default) -> Bool {
-        func key(_ u: URL) -> String {
-            var path = u.resolvingSymlinksInPath().standardizedFileURL.path.lowercased()
-            while path.count > 1, path.hasSuffix("/") { path.removeLast() }
-            return path
-        }
+        // Case-folded because a folder that doesn't exist yet keeps the typed case after resolving.
+        func key(_ u: URL) -> String { u.resolvingSymlinksInPath().standardizedFileURL.path.lowercased() }
         let d = key(dir), r = key(real)
         guard d != r, !d.hasPrefix(r + "/"), !r.hasPrefix(d + "/") else { return false } // also refuse ~/Documents itself
-        let contents = (try? fm.contentsOfDirectory(atPath: dir.path)) ?? []
-        return contents.isEmpty
+        do {
+            return try fm.contentsOfDirectory(atPath: dir.path).isEmpty
+        } catch let e as CocoaError where e.code == .fileReadNoSuchFile {
+            return true // missing → will be created
+        } catch {
+            return false // unreadable or not a folder → never assume it is safe
+        }
+    }
+
+    /// The folder after `--seed`; nil when it is missing or another flag follows.
+    nonisolated static func folder(in args: [String]) -> URL? {
+        guard let i = args.firstIndex(of: "--seed"), args.indices.contains(i + 1), !args[i + 1].hasPrefix("--"),
+              !args[i + 1].isEmpty else { return nil }
+        return URL(fileURLWithPath: args[i + 1])
     }
 
     static func write(to dir: URL) throws {

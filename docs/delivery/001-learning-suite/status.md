@@ -5,7 +5,7 @@ Path: Full — because the request is open-ended and adds several features to an
 Appetite: 3 slices of agent work · started 2026-11-08 · **Spent: 0 of 3 slices**
 Status: doing
 
-**Next action:** Run the independent review of PARLEY-1 (commit range from the "build(parley-1)" commit; story docs/stories/PARLEY-1.md), record the score, then deliver-loop PARLEY-2 (progress & streak).
+**Next action:** PARLEY-1 final review (round 3), then apply PARLEY-2 (drafts: Progress.swift, ProgressTests.swift, wire_p2.py) and run its cycle.
 
 Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action.
 
@@ -45,7 +45,7 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 
 ## Progress log (one line per item or slice)
 
-- 2026-11-08 PARLEY-1 — built, `make ci` green (14 tests), review pending (session hit usage limit)
+- 2026-11-08 PARLEY-1 — review r1 7.0 (seed guard bypass) → fixed 71f85c2; r2 8.0 (case/parent mutants, shot.sh killed running app) → fixed; 21 tests
 - 2026-11-08 baseline — `swift build` with Xcode green; `Parley --file t.aiff` unit checks ok + STT/translation pipeline ok.
 
 ## Rulings (decisions taken without asking)

@@ -15,12 +15,13 @@ verified without risking the owner's data.
 
 | AC | Evidence |
 | --- | --- |
-| AC1.1 | `make ci` → 18 tests in 7 suites passed; mutation `86_400→86_000` in `VocabItem.intervals` makes `make test`/`make ci` exit 2 |
+| AC1.1 | `make ci` → 21 tests in 7 suites passed; mutation `86_400→86_000` in `VocabItem.intervals` makes `make test`/`make ci` exit 2 |
 | AC1.2 | `DataSafetyTests.seedRefusesTheRealFolderInAnySpelling` (exact, trailing `/`, `/.`, `..`, upper case, subfolder, symlink, parent) and `seedNeedsAMissingOrEmptyFolder`; mutation "guard only exact path" → test fails; `dataDirResolution` (`--data-dir` > `PARLEY_DATA_DIR` > default); stores tested with `TestData.file` |
 | AC1.3 | `scripts/shot.sh vocabulary _probe` → screenshot shows the 12 seeded words, not the owner's; `seedWritesSampleDataAtomically` |
 
 ## Review rounds
 - Round 1 (independent): 7.0/10 — seed guard bypassable with a trailing slash; no tests for data-dir resolution; seed writes not atomic. Fixed: `Seed.isAllowed` (missing/empty folder outside the real one, resolved + case-folded), `Model.resolveDataDir`, atomic writes, `--seed` without a path exits 1. Rejected: "the seed already ran on the real folder" — that session file existed before `Seed.swift` was written (owner's sample data, mtime 2026-11-07 18:21); the seed reuses its stamp on purpose.
+- Round 2 (fresh reviewer): 8.0/10 — mutants survived (case-folding for a not-yet-existing subfolder, parent guard), `shot.sh` killed the owner's running Parley, unreadable folder counted as empty, CLI parsing untested. Fixed: tests for `REAL/NEW` and an empty parent (both mutants now fail the suite), `shot.sh` refuses to run while Parley is open, `isAllowed` only treats "no such file" as empty, `Seed.folder(in:)` tested.
 
 ## Score
 Pending final review.
