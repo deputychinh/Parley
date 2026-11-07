@@ -7,6 +7,7 @@ enum Main {
     static func main() {
         setvbuf(stdout, nil, _IOLBF, 0) // line-buffer so `open --stdout` logs appear live
         let args = CommandLine.arguments
+        if let problem = Model.dataDirArgumentError(args) { print("FAIL:", problem); exit(2) } // never fall back to real data
         if let i = args.firstIndex(of: "--file"), i + 1 < args.count {
             Task {
                 do { try await selfTest(args[i + 1]); exit(0) } catch { print("FAIL:", error.localizedDescription); exit(1) }

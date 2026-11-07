@@ -65,7 +65,7 @@ enum WordDiff {
     /// Expected words in order, each marked correct / wrong (with what was typed) / missing; typed words that match
     /// nothing are inserted as `extra`. Comparison ignores case and punctuation (`Answer.normalize`).
     static func diff(expected: String, typed: String) -> [Token] {
-        let exp = words(expected), got = words(typed)
+        let exp = words(expected), got = joinCompounds(words(typed), expected: Set(words(expected).map(key)))
         let a = exp.map(key), b = got.map(key)
         var t = Array(repeating: Array(repeating: 0, count: b.count + 1), count: a.count + 1) // LCS lengths of suffixes
         for i in stride(from: a.count - 1, through: 0, by: -1) {
@@ -107,6 +107,22 @@ enum WordDiff {
 
     static let pass = 0.8
 
+    /// "every one" typed for "everyone": two adjacent typed words whose join is an expected word become one word.
+    static func joinCompounds(_ typed: [String], expected: Set<String>) -> [String] {
+        var out: [String] = []
+        var i = 0
+        while i < typed.count {
+            if i + 1 < typed.count, !expected.contains(key(typed[i])), expected.contains(key(typed[i]) + key(typed[i + 1])) {
+                out.append(typed[i] + typed[i + 1])
+                i += 2
+            } else {
+                out.append(typed[i])
+                i += 1
+            }
+        }
+        return out
+    }
+
     /// Case, punctuation and apostrophes don't count: "lets" for "let's" is a typing slip, not a listening error.
     static func key(_ w: String) -> String {
         Answer.normalize(w).replacingOccurrences(of: "'", with: "").replacingOccurrences(of: "’", with: "")
@@ -124,13 +140,20 @@ struct ListeningRun: Equatable {
     let dictation: Bool
     private(set) var scores: [Int: Double] = [:]   // clip index → best-so-far is not kept: the latest attempt counts
 
-    /// Grades an answer for clip `index`; returns the diff and the XP event (nil when this sentence already earned XP).
-    mutating func grade(index: Int, expected: String, answer: String) -> (tokens: [WordDiff.Token], event: XPEvent?) {
+    /// Grades an answer for clip `index` and logs XP the first time this sentence is answered.
+    @MainActor mutating func grade(index: Int, expected: String, answer: String, activity: ActivityStore?) -> (tokens: [WordDiff.Token], event: XPEvent?) {
         let tokens = WordDiff.diff(expected: expected, typed: answer)
         let s = WordDiff.score(tokens)
         let first = scores[index] == nil
         scores[index] = s
-        return (tokens, first ? .listening(dictation: dictation, pass: s >= WordDiff.pass) : nil)
+        let event: XPEvent? = first ? .listening(dictation: dictation, pass: s >= WordDiff.pass) : nil
+        if let event { activity?.log(event) }
+        return (tokens, event)
+    }
+
+    /// Sentences for a run: real meeting audio when chosen and available, otherwise the curated sentences.
+    static func pool(meeting: [Clip], useMeeting: Bool, curated: [Clip] = Clips.curated()) -> [Clip] {
+        useMeeting && !meeting.isEmpty ? meeting : curated
     }
 
     var answered: Int { scores.count }
@@ -166,7 +189,7 @@ final class ClipPlayer {
             p.play()
             player = p
             playing = true
-            let wait = clip.duration / speed
+            let wait = (min(clip.end, p.duration) - clip.start) / speed // the last line may claim 15 s past the end
             stopTask = Task { [weak self] in
                 try? await Task.sleep(for: .seconds(wait))
                 if !Task.isCancelled { self?.stop() }
@@ -203,7 +226,7 @@ struct ListeningView: View {
     @State private var session: ListeningPlan?
     @AppStorage("listeningSpeed") private var speed = 1.0
 
-    private var pool: [Clip] { useMeeting && !meeting.isEmpty ? meeting : Clips.curated() }
+    private var pool: [Clip] { ListeningRun.pool(meeting: meeting, useMeeting: useMeeting) }
 
     var body: some View {
         Group {
@@ -219,7 +242,7 @@ struct ListeningView: View {
         }
         .navigationTitle("Luyện nghe")
         .task {
-            meeting = Clips.fromHistory()
+            meeting = await Task.detached(priority: .userInitiated) { Clips.fromHistory() }.value
             useMeeting = !meeting.isEmpty
             if let m = DebugArgs.value("--open").flatMap(ListeningMode.init(rawValue:)) { start(m) }
         }
@@ -301,6 +324,7 @@ struct ListeningModeCard: View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 10) {
                 Image(systemName: mode.symbol).font(.title).foregroundStyle(Color.parley.gradient)
+                    .frame(height: 32, alignment: .leading)
                 Text(mode.title).font(.headline)
                 Text(mode.subtitle).font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 0)
@@ -433,6 +457,10 @@ struct ListeningSession: View {
                 .tint(mic.listening ? .red : .parley)
                 .keyboardShortcut(.defaultAction)
                 if mic.listening { Text("Đang nghe…").foregroundStyle(.secondary) }
+                Spacer()
+                Button("Bỏ qua câu này") { next() }
+                    .buttonStyle(.glass)
+                    .help("Chuyển sang câu tiếp mà không chấm (khi micro không dùng được)")
             } else {
                 Button("Nói lại") { autoStop?.cancel(); result = nil; mic.heard = nil }
                     .buttonStyle(.glass)
@@ -481,9 +509,8 @@ struct ListeningSession: View {
 
     private func check(_ clip: Clip, _ answer: String) {
         guard result == nil, !answer.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        let graded = run.grade(index: index, expected: clip.text, answer: answer)
+        let graded = run.grade(index: index, expected: clip.text, answer: answer, activity: activity)
         withAnimation(.snappy) { result = graded.tokens }
-        if let e = graded.event { activity.log(e) }
     }
 
     private func toggleMic(_ clip: Clip) async {

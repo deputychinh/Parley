@@ -30,5 +30,8 @@ As a learner I want to drill the sentences I actually heard in meetings so that 
 - Round 1 (independent): 6.5/10 — shadowing auto-stop timer never cancelled; "Nói lại" logged XP again and inflated the summary; scoring/XP rule untested in the view; a concurrency warning leaked through `-warnings-as-errors`; Space shortcut could steal spaces from the answer field; empty-history state untested; design.md stale; `wip` commit type.
   Fixed: `ListeningRun` (one XP event per sentence, latest attempt replaces the score) with tests; auto-stop is a stored `Task` cancelled on stop/retry/next/exit; `make build` fails on any `warning:` in the log and `SessionRow.title` is nonisolated; replay is ⌥R; curated clips computed once; empty-history screenshot (`listening-empty.png`, `SHOT_SEED=0`) and test; design.md updated. Not fixed: the `wip(listening)` commit message is already on the pushed branch (no force-push) — noted in the retro.
 
+- Round 2 (fresh): 7.5/10 — fresh-clone red gate; pass threshold untested between 60 % and 80 %; view XP call and `pool` fallback untested; shadowing dead end when the mic fails; last clip could outlast the file; history read on the main actor; mode card titles misaligned; "every one" for "everyone" marked wrong; W2 not in `make bench`.
+  Fixed: `ListeningRun.grade(…, activity:)` logs XP itself (`gradeLogsXPOncePerSentence`), `ListeningRun.pool` tested, 7/9 = 78 % fails (`justBelowEightyPercentFails`), "Bỏ qua câu này" in shadowing, playback stops at `min(clip.end, file duration)`, history loaded in a detached task, fixed-height card icons, `WordDiff.joinCompounds` (`splitCompoundIsNotAListeningError`), suite renamed `BenchSeededClipTests`.
+
 ## Score
 Pending review.

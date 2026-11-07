@@ -121,6 +121,37 @@ enum Coach {
     }
 }
 
+// MARK: - Engine (injectable so the conversation logic is testable without the model)
+
+struct CoachReply: Equatable {
+    var reply: String
+    var corrected: String
+    var natural: String
+    var tipVi: String
+}
+
+@MainActor protocol CoachEngine {
+    func turn(after ai: String, learner: String) async throws -> CoachReply
+}
+
+/// The real engine: one on-device `LanguageModelSession` per conversation (keeps context).
+@MainActor final class ModelCoach: CoachEngine {
+    private let session: LanguageModelSession
+    init(instructions: String) { session = LanguageModelSession(instructions: instructions) }
+
+    func turn(after ai: String, learner: String) async throws -> CoachReply {
+        let t = try await session.respond(to: "You said: \"\(ai)\"\nLearner: \"\(learner)\"", generating: CoachTurn.self).content
+        return CoachReply(reply: t.reply, corrected: t.corrected, natural: t.natural, tipVi: t.tipVi)
+    }
+
+    static func message(for error: Error) -> String {
+        if let e = error as? LanguageModelSession.GenerationError, case .exceededContextWindowSize = e {
+            return "Cuộc hội thoại đã quá dài với AI trên máy. Hãy kết thúc và bắt đầu lượt mới."
+        }
+        return "AI chưa trả lời được: \(error.localizedDescription)"
+    }
+}
+
 // MARK: - Session state
 
 struct ChatLine: Identifiable, Hashable {
@@ -141,15 +172,24 @@ final class ConversationModel {
     private(set) var lines: [ChatLine] = []
     var thinking = false
     var error: String?
-    @ObservationIgnored private var session: LanguageModelSession
+    @ObservationIgnored private let engine: CoachEngine
     @ObservationIgnored private let activity: ActivityStore?
 
-    init(scenario: Scenario, level: CEFR, activity: ActivityStore? = nil) {
+    init(scenario: Scenario, level: CEFR, activity: ActivityStore? = nil, engine: CoachEngine? = nil) {
         self.scenario = scenario
         self.level = level
         self.activity = activity
-        session = LanguageModelSession(instructions: Coach.instructions(scenario, level))
+        self.engine = engine ?? ModelCoach(instructions: Coach.instructions(scenario, level))
         lines = [ChatLine(who: .ai, text: scenario.opener)]
+    }
+
+    /// Saves a phrase from the feedback to vocabulary (meaning via offline translation); false if it is already there.
+    func save(_ phrase: String, to vocab: VocabStore, translate: (String) async -> String?) async -> Bool {
+        guard !vocab.contains(phrase) else { return false }
+        let meaning = await translate(phrase) ?? ""
+        vocab.add(VocabItem(term: phrase, meaning: meaning, termLanguage: "en-US", meaningLanguage: "vi", ipa: nil,
+                            example: phrase, exampleTranslation: meaning, session: nil))
+        return true
     }
 
     var learnerTurns: Int { lines.count { $0.who == .learner } }
@@ -165,7 +205,7 @@ final class ConversationModel {
         defer { thinking = false }
         let last = lines.dropLast().last { $0.who == .ai }?.text ?? scenario.opener
         do {
-            let turn = try await session.respond(to: "You said: \"\(last)\"\nLearner: \"\(text)\"", generating: CoachTurn.self).content
+            let turn = try await engine.turn(after: last, learner: text)
             if Coach.hasMistake(original: text, corrected: turn.corrected) { lines[index].corrected = turn.corrected }
             if Coach.showsNatural(original: text, corrected: turn.corrected, natural: turn.natural) { lines[index].natural = turn.natural }
             lines[index].tip = turn.tipVi.isEmpty ? nil : turn.tipVi
@@ -174,14 +214,8 @@ final class ConversationModel {
             lines.append(ChatLine(who: .ai, text: shown))
             activity?.log(.turn(spoken: spoken))
             return shown
-        } catch let e as LanguageModelSession.GenerationError {
-            if case .exceededContextWindowSize = e {
-                error = "Cuộc hội thoại đã quá dài với AI trên máy. Hãy kết thúc và bắt đầu lượt mới."
-            } else {
-                error = "AI chưa trả lời được: \(e.localizedDescription)"
-            }
         } catch {
-            self.error = "AI chưa trả lời được: \(error.localizedDescription)"
+            self.error = ModelCoach.message(for: error)
         }
         lines.remove(at: index) // let the learner edit and resend
         return nil
@@ -189,6 +223,11 @@ final class ConversationModel {
 }
 
 // MARK: - "Hội thoại AI" screen
+
+enum ConversationScreen: Equatable {
+    case unavailable, picker, session
+    static func pick(available: Bool, active: Bool) -> ConversationScreen { !available ? .unavailable : active ? .session : .picker }
+}
 
 struct ConversationView: View {
     let vocab: VocabStore
@@ -198,7 +237,7 @@ struct ConversationView: View {
 
     var body: some View {
         Group {
-            if !ExampleWriter.available {
+            if ConversationScreen.pick(available: ExampleWriter.available, active: model != nil) == .unavailable {
                 AIUnavailableView()
             } else if let model {
                 ConversationSession(model: model, vocab: vocab) {
@@ -314,7 +353,10 @@ struct ConversationSession: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            Button { finished ? onExit() : withAnimation(.smooth) { finished = true } } label: {
+            Button {
+                Task { _ = await mic.stop() }
+                finished ? onExit() : withAnimation(.smooth) { finished = true }
+            } label: {
                 Label(finished ? "Đóng" : "Kết thúc", systemImage: "xmark")
             }
             .buttonStyle(.glass)
@@ -365,6 +407,7 @@ struct ConversationSession: View {
                         .background(Color.parley.opacity(0.10), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                     Button { say(line.text) } label: { Label("Nghe", systemImage: "speaker.wave.2") }
                         .buttonStyle(.borderless).font(.caption)
+                        .accessibilityLabel("Nghe câu: \(line.text)")
                 }
                 Spacer(minLength: 60)
             }
@@ -390,7 +433,7 @@ struct ConversationSession: View {
                     Image(systemName: "pencil.circle.fill").foregroundStyle(.orange)
                 }
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("Câu sửa: \(c)")
+                .accessibilityLabel("Bạn nói: \(line.text). Câu sửa: \(c)")
             } else {
                 Label("Câu của bạn đúng ngữ pháp", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
             }
@@ -513,10 +556,7 @@ struct ConversationSession: View {
 
     private func save(_ phrase: String) async {
         let en = Locale.Language(identifier: "en"), vi = Locale.Language(identifier: "vi")
-        let meaning = await Translator.translate(phrase, from: en, to: vi) ?? ""
-        vocab.add(VocabItem(term: phrase, meaning: meaning, termLanguage: "en-US", meaningLanguage: "vi", ipa: nil,
-                            example: phrase, exampleTranslation: meaning, session: nil))
-        saved.insert(phrase)
+        if await model.save(phrase, to: vocab, translate: { await Translator.translate($0, from: en, to: vi) }) { saved.insert(phrase) }
     }
 }
 
@@ -543,10 +583,9 @@ enum AIEval {
         var hits = 0
         var times: [Double] = []
         for c in cases {
-            let session = LanguageModelSession(instructions: Coach.instructions(Scenario.all[0], .b1))
+            let engine = ModelCoach(instructions: Coach.instructions(Scenario.all[0], .b1))
             let t0 = Date()
-            let turn = try? await session.respond(to: "You said: \"What did you work on yesterday?\"\nLearner: \"\(c.text)\"",
-                                                  generating: CoachTurn.self).content
+            let turn = try? await engine.turn(after: "What did you work on yesterday?", learner: c.text)
             times.append(Date().timeIntervalSince(t0))
             let corrected = turn?.corrected ?? ""
             let fixed = Coach.hasMistake(original: c.text, corrected: corrected)

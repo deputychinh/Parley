@@ -254,6 +254,14 @@ enum TestData {
         #expect(try run([], env: ["PARLEY_DATA_DIR": "/tmp/parley-env"]) == "/tmp/parley-env")
     }
 
+    @Test func malformedDataDirFlagIsRefused() {
+        #expect(Model.dataDirArgumentError(["app", "--data-dir"]) != nil)
+        #expect(Model.dataDirArgumentError(["app", "--data-dir", "--route", "x"]) != nil)
+        #expect(Model.dataDirArgumentError(["app", "--data-dir", ""]) != nil)
+        #expect(Model.dataDirArgumentError(["app", "--data-dir", "/tmp/x"]) == nil)
+        #expect(Model.dataDirArgumentError(["app"]) == nil)
+    }
+
     @Test func dataDirResolution() {
         let fallback = URL(fileURLWithPath: "/default")
         #expect(Model.resolveDataDir(args: ["app"], env: [:], fallback: fallback) == fallback)

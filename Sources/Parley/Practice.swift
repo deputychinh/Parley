@@ -128,6 +128,7 @@ struct PracticeView: View {
             }
         }
         .navigationTitle("Học tập")
+        .problemBanner(store.problem)
         .task { if let m = DebugArgs.value("--open").flatMap(PracticeMode.init(rawValue:)), !store.items.isEmpty { start(m) } }
     }
 

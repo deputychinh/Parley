@@ -41,6 +41,7 @@ import Testing
     }
 
     @Test func naturalPhrasingOnlyWhenNew() {
+        #expect(!Coach.showsNatural(original: "I fixed it", corrected: "I fix it", natural: "I fixed it.")) // same as what was said
         #expect(Coach.showsNatural(original: "I fix bug.", corrected: "I fixed the bug.", natural: "I sorted out the bug."))
         #expect(!Coach.showsNatural(original: "I fix bug.", corrected: "I fixed the bug.", natural: "I fixed the bug"))
         #expect(!Coach.showsNatural(original: "I fixed the bug.", corrected: "I fixed the bug.", natural: "i fixed the bug"))
@@ -53,4 +54,69 @@ import Testing
     }
 
     @Test func xpForATurn() { #expect(XP.turn == 15) }
+}
+
+
+/// `ConversationModel` with a fake engine: send, XP, errors, saving phrases, screen choice (spec S4).
+@MainActor final class FakeCoach: CoachEngine {
+    var replies: [Result<CoachReply, Error>]
+    var seen: [(String, String)] = []
+    init(_ replies: [Result<CoachReply, Error>]) { self.replies = replies }
+    func turn(after ai: String, learner: String) async throws -> CoachReply {
+        seen.append((ai, learner))
+        return try replies.removeFirst().get()
+    }
+}
+
+@MainActor @Suite struct ConversationModelTests {
+    let s = Scenario.all[0]
+    func reply(_ text: String, corrected: String, natural: String = "", tip: String = "Mẹo") -> Result<CoachReply, Error> {
+        .success(CoachReply(reply: text, corrected: corrected, natural: natural, tipVi: tip))
+    }
+
+    @Test func turnsAddFeedbackAndXPByInputKind() async {
+        let a = ActivityStore(file: TestData.file("activity.json"))
+        let fake = FakeCoach([reply("Nice. Anything else?", corrected: "Yesterday I fixed the bug.", natural: "I sorted out the bug yesterday."),
+                              reply("Great!", corrected: "Today I will test it.")])
+        let m = ConversationModel(scenario: s, level: .b1, activity: a, engine: fake)
+        #expect(await m.send("  Yesterday I fix the bug. ", spoken: true) == "Nice. Anything else?")
+        #expect(await m.send("Today I will test it.", spoken: false) == "Great!")
+        #expect(fake.seen.map(\.0) == [s.opener, "Nice. Anything else?"])          // AI line the learner answered
+        #expect(m.lines.map(\.who) == [.ai, .learner, .ai, .learner, .ai])
+        #expect(m.lines[1].text == "Yesterday I fix the bug." && m.lines[1].corrected == "Yesterday I fixed the bug.")
+        #expect(m.lines[1].natural == "I sorted out the bug yesterday." && m.lines[1].tip == "Mẹo")
+        #expect(m.lines[3].corrected == nil)                                         // correct sentence: no correction
+        #expect(m.learnerTurns == 2 && m.corrections.count == 1)
+        #expect(a.data.days[StudyStore.day(.now)] == ["speaking": 15, "writing": 15])
+    }
+
+    @Test func modelErrorRemovesTheTurnAndEarnsNothing() async {
+        struct Boom: LocalizedError { var errorDescription: String? { "boom" } }
+        let a = ActivityStore(file: TestData.file("activity.json"))
+        let m = ConversationModel(scenario: s, level: .b1, activity: a, engine: FakeCoach([.failure(Boom())]))
+        #expect(await m.send("Hello there", spoken: false) == nil)
+        #expect(m.lines.count == 1 && m.error?.contains("boom") == true && !m.thinking)
+        #expect(a.data.days.isEmpty)
+    }
+
+    @Test func emptyInputIsNotSentAndEmptyReplyGetsAFallback() async {
+        let fake = FakeCoach([reply("   ", corrected: "Hi.")])
+        let m = ConversationModel(scenario: s, level: .b1, engine: fake)
+        #expect(await m.send("   ", spoken: false) == nil && fake.seen.isEmpty)
+        #expect(await m.send("Hi.", spoken: false) == "Sorry, could you say that again?")
+    }
+
+    @Test func savingAPhraseAddsItOnce() async {
+        let vocab = VocabStore(file: TestData.file("vocabulary.json"))
+        let m = ConversationModel(scenario: s, level: .b1, engine: FakeCoach([]))
+        #expect(await m.save("sort out", to: vocab) { _ in "giải quyết" })
+        #expect(await m.save("Sort out", to: vocab) { _ in "x" } == false)
+        #expect(vocab.items.map(\.term) == ["sort out"] && vocab.items[0].meaning == "giải quyết")
+    }
+
+    @Test func screenChoice() {
+        #expect(ConversationScreen.pick(available: false, active: true) == .unavailable) // AC4.5
+        #expect(ConversationScreen.pick(available: true, active: false) == .picker)
+        #expect(ConversationScreen.pick(available: true, active: true) == .session)
+    }
 }

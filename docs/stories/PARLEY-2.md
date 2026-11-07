@@ -33,5 +33,8 @@ As a learner I want to see how much I studied each day, per skill, so that I kee
 - Round 1 (independent): 5.0/10 — data loss when an `.unreadable.json` already existed (shared by all stores), save errors swallowed, XP call sites untested (deleting them kept tests green), `met` reload untested, design.md stale, heatmap bars / 84 VoiceOver cells, empty skill rows, ring "not met" after raising the goal, branch unpushed.
   Fixed: `StoreFile` (unique aside name, read-only when the move fails, `problem` shown) for all four stores; `XPEvent` mapping + stores log XP themselves (`XPWiringTests` per store); `metSurvivesARestart`; square 16 px heatmap cells with one VoiceOver summary; zero-XP skills hidden; ring uses `metToday`; design.md updated; branch pushed.
 
+- Round 2 (fresh): 8.0/10 — `make ci` red on a fresh clone (`tee` before `.build` existed); only ActivityStore's `problem` was shown; sidebar ring ignored `metToday`; GrammarQuiz call site untested; c481e29 bundled three items.
+  Fixed: `mkdir -p .build` in `make build` (checked on a fresh clone); `.problemBanner` on Từ vựng, Học tập, Mỗi ngày, Ngữ pháp and Phát âm screens; sidebar ring uses `metToday`. Not fixed: the GrammarQuiz → `study.answerGrammar` closure stays a one-line view seam (the store method it calls is tested).
+
 ## Score
 Pending review.

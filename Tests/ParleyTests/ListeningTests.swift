@@ -78,11 +78,17 @@ import Testing
         let d = WordDiff.diff(expected: "Let's start, it’s late.", typed: "lets start its late")
         #expect(WordDiff.score(d) == 1)
         let e = WordDiff.diff(expected: "Good morning everyone, let's start", typed: "good morning every one lets start")
-        #expect(e == [T(word: "Good", kind: .correct), T(word: "morning", kind: .correct), T(word: "everyone,", kind: .wrong("every")),
-                      T(word: "one", kind: .extra), T(word: "let's", kind: .correct), T(word: "start", kind: .correct)])
+        #expect(e.allSatisfy { $0.kind == .correct } && e.count == 5) // "every one" joined, "lets" = "let's"
     }
 
-    @Test func emptyAnswerMissesEverything() {
+    @Test func splitCompoundIsNotAListeningError() {
+        let d = WordDiff.diff(expected: "Good morning everyone", typed: "good morning every one")
+        #expect(WordDiff.score(d) == 1 && d.count == 3)
+        // a real second word is kept apart
+        #expect(WordDiff.diff(expected: "every one of them", typed: "every one of them").allSatisfy { $0.kind == .correct })
+    }
+
+        @Test func emptyAnswerMissesEverything() {
         let d = WordDiff.diff(expected: "memory leak", typed: "")
         #expect(d == [T(word: "memory", kind: .missing), T(word: "leak", kind: .missing)] && WordDiff.score(d) == 0)
         #expect(WordDiff.score(WordDiff.diff(expected: "", typed: "hello")) == 0)
@@ -104,7 +110,7 @@ import Testing
 }
 
 /// End to end on real files: the seed records the session with `say`; every line becomes a playable clip.
-@Suite struct SeededClipTests {
+@Suite struct BenchSeededClipTests { // W2 runs in `make bench` too
     @Test func seededSessionGivesFivePlayableClips() throws {
         let dir = FileManager.default.temporaryDirectory.appending(path: "parley-clips-\(UUID().uuidString)")
         try Seed.write(to: dir)
@@ -129,25 +135,25 @@ import Testing
 }
 
 /// Review findings on PARLEY-3: one XP event per sentence, retries replace the score, pass boundary, skill per mode.
-@Suite struct ListeningRunTests {
+@MainActor @Suite struct ListeningRunTests {
     @Test func firstAnswerEarnsXPRetryReplacesScore() {
         var run = ListeningRun(dictation: true)
-        let first = run.grade(index: 0, expected: "one two three four five", answer: "one two")
+        let first = run.grade(index: 0, expected: "one two three four five", answer: "one two", activity: nil)
         #expect(first.event == .listening(dictation: true, pass: false))
-        let retry = run.grade(index: 0, expected: "one two three four five", answer: "one two three four five")
+        let retry = run.grade(index: 0, expected: "one two three four five", answer: "one two three four five", activity: nil)
         #expect(retry.event == nil)                      // no second XP for the same sentence
         #expect(run.answered == 1 && run.passed == 1)    // the latest attempt counts, never 2 of 1
-        _ = run.grade(index: 1, expected: "a b c d e", answer: "a b c d")
+        _ = run.grade(index: 1, expected: "a b c d e", answer: "a b c d", activity: nil)
         #expect(run.answered == 2 && run.passed == 2 && abs(run.average - 0.9) < 1e-9)
     }
 
     @Test func passIsAtEightyPercentAndSkillFollowsMode() {
         var shadow = ListeningRun(dictation: false)
-        #expect(shadow.grade(index: 0, expected: "one two three four five", answer: "one two three four").event
+        #expect(shadow.grade(index: 0, expected: "one two three four five", answer: "one two three four", activity: nil).event
                 == .listening(dictation: false, pass: true))   // exactly 80 %
         #expect(XPEvent.listening(dictation: false, pass: true).skill == .speaking)
         var dict = ListeningRun(dictation: true)
-        #expect(dict.grade(index: 0, expected: "one two three four five", answer: "one two three").event
+        #expect(dict.grade(index: 0, expected: "one two three four five", answer: "one two three", activity: nil).event
                 == .listening(dictation: true, pass: false))   // 60 %
     }
 
@@ -156,7 +162,28 @@ import Testing
         #expect(ListeningRun.listenLimit(clipDuration: 6, words: 3) == 6 * 1.6 + 2)
     }
 
-    @Test func emptyHistoryMeansCuratedOnly() {
-        #expect(Clips.fromHistory([]).isEmpty && !Clips.curated().isEmpty)
+    @Test func poolFallsBackToCuratedSentences() {
+        let real = [Clip(id: "a", text: "one two three", translation: "", audio: URL(fileURLWithPath: "/x.m4a"), start: 0, end: 1, origin: "s")]
+        let curated = Clips.curated()
+        #expect(ListeningRun.pool(meeting: real, useMeeting: true, curated: curated) == real)
+        #expect(ListeningRun.pool(meeting: real, useMeeting: false, curated: curated) == curated)
+        #expect(ListeningRun.pool(meeting: [], useMeeting: true, curated: curated) == curated) // no history → curated
+        #expect(Clips.fromHistory([]).isEmpty && !curated.isEmpty)
+    }
+
+    @Test func gradeLogsXPOncePerSentence() {
+        let a = ActivityStore(file: TestData.file("activity.json"))
+        var run = ListeningRun(dictation: true)
+        _ = run.grade(index: 0, expected: "one two three", answer: "one two three", activity: a)
+        _ = run.grade(index: 0, expected: "one two three", answer: "one two three", activity: a) // retry
+        var shadow = ListeningRun(dictation: false)
+        _ = shadow.grade(index: 0, expected: "one two three", answer: "one", activity: a)
+        #expect(a.data.days[StudyStore.day(.now)] == ["listening": 10, "speaking": 2])
+    }
+
+    @Test func justBelowEightyPercentFails() {
+        var run = ListeningRun(dictation: true)
+        let nine = "a b c d e f g h i"
+        #expect(run.grade(index: 0, expected: nine, answer: "a b c d e f g", activity: nil).event == .listening(dictation: true, pass: false)) // 7/9 = 78 %
     }
 }

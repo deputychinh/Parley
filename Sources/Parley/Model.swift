@@ -31,6 +31,15 @@ final class Model {
     nonisolated static let defaultDataDir = URL.documentsDirectory.appending(path: "Parley")
     nonisolated static let dataDir = resolveDataDir(args: CommandLine.arguments, env: ProcessInfo.processInfo.environment)
 
+    /// A `--data-dir` flag without a usable folder would silently fall back to the owner's real data — refuse instead.
+    nonisolated static func dataDirArgumentError(_ args: [String]) -> String? {
+        guard let i = args.firstIndex(of: "--data-dir") else { return nil }
+        guard args.indices.contains(i + 1), !args[i + 1].isEmpty, !args[i + 1].hasPrefix("-") else {
+            return "--data-dir needs a folder path"
+        }
+        return nil
+    }
+
     /// `--data-dir <path>` wins over `PARLEY_DATA_DIR`, which wins over the default; empty values are ignored.
     nonisolated static func resolveDataDir(args: [String], env: [String: String],
                                            fallback: URL = defaultDataDir) -> URL {

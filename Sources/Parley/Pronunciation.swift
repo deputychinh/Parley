@@ -170,6 +170,7 @@ struct PronunciationView: View {
             }
         }
         .navigationTitle("Phát âm của tôi")
+        .problemBanner(store.problem, vocab.problem)
     }
 
     private func row(_ w: SpokenWord) -> some View {

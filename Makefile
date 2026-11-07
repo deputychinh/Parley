@@ -6,14 +6,14 @@ SWIFT_FLAGS := -Xswiftc -warnings-as-errors
 
 SHELL := /bin/bash
 build:            ## release build; warnings are errors (also concurrency warnings the flag lets through)
-	set -o pipefail; swift build -c release $(SWIFT_FLAGS) 2>&1 | tee .build/build.log
+	mkdir -p .build && set -o pipefail; swift build -c release $(SWIFT_FLAGS) 2>&1 | tee .build/build.log
 	@! grep -n 'warning:' .build/build.log || (echo "build warnings (see above) — fix them"; exit 1)
 
 test:             ## unit tests (Swift Testing); default stores point at a temp folder, never ~/Documents/Parley
 	PARLEY_DATA_DIR="$$(mktemp -d "$${TMPDIR:-/tmp}/parley-test.XXXXXX")" swift test $(SWIFT_FLAGS)
 
 offline-guard:    ## ADR 0001: no network code in the app
-	@! grep -rnE 'URLSession|NSURLConnection|CFNetwork' Sources/ || (echo "network code found (ADR 0001)"; exit 1)
+	@! grep -rnE 'URLSession|NSURLConnection|CFNetwork|NWConnection|NWListener|URLRequest|import Network|https?://' Sources/ || (echo "network code found (ADR 0001)"; exit 1)
 
 ci: offline-guard build test
 

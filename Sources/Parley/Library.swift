@@ -412,6 +412,7 @@ struct DailyView: View {
             .frame(maxWidth: .infinity)
         }
         .navigationTitle("Mỗi ngày")
+        .problemBanner(study.problem, vocab.problem)
         .task { study.refresh(vocab: vocab) }
         .onChange(of: goal) { study.refresh(vocab: vocab) }
     }
@@ -851,6 +852,7 @@ struct GrammarView: View {
             }
         }
         .navigationTitle(open?.title ?? "Ngữ pháp")
+        .problemBanner(study.problem)
         .task { if let id = DebugArgs.value("--open") { open = Library.grammar.first { $0.id == id } } }
     }
 

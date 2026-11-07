@@ -392,6 +392,27 @@ struct SkillBar: View {
     }
 }
 
+/// A store's load/save problem (unreadable file moved aside, read-only, save failed), shown above the screen.
+struct ProblemBanner: ViewModifier {
+    let problem: String?
+    func body(content: Content) -> some View {
+        content.safeAreaInset(edge: .top, spacing: 0) {
+            if let problem {
+                Label(problem, systemImage: "exclamationmark.triangle.fill")
+                    .font(.callout)
+                    .foregroundStyle(.orange)
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.orange.opacity(0.10))
+            }
+        }
+    }
+}
+
+extension View {
+    func problemBanner(_ problems: String?...) -> some View { modifier(ProblemBanner(problem: problems.compactMap { $0 }.first)) }
+}
+
 /// Sidebar icon: today's progress as a small ring.
 struct MiniRing: View {
     let fraction: Double

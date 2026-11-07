@@ -23,5 +23,8 @@ Backlog row PARLEY-9. Findings from PARLEY-1 round 3 (8.5/10).
 ## Review rounds
 - Round 1 (with PARLEY-2): 7.0/10 — `--data-dir` arg path untested, shot.sh orphaned a late-starting instance and leaked window state, no story/CHANGELOG, unpushed. Fixed as above.
 
+- Round 2 (fresh): 9.0/10 — passed, but `make ci` was red on a fresh clone, a malformed `--data-dir` silently fell back to the real folder, and shot-test could misjudge another session's instances.
+  Fixed: `mkdir -p .build`; `Model.dataDirArgumentError` makes the app exit 2 on `--data-dir` without a folder (`malformedDataDirFlagIsRefused`); shot-test checks the decoy started and only judges PIDs that appeared during its run, cleaning its PNG on any exit.
+
 ## Score
 Pending review.

@@ -264,7 +264,7 @@ struct Sidebar: View {
                 Label {
                     Text("Tiến độ")
                 } icon: {
-                    MiniRing(fraction: Double(activity.todayXP) / Double(max(activity.goal, 1)))
+                    MiniRing(fraction: activity.metToday ? 1 : Double(activity.todayXP) / Double(max(activity.goal, 1)))
                 }
                 .badge(Text(activity.streak > 0 ? "🔥 \(activity.streak)" : "\(activity.todayXP)/\(activity.goal)"))
                 .help("Hôm nay \(activity.todayXP)/\(activity.goal) XP · chuỗi \(activity.streak) ngày")
@@ -931,6 +931,7 @@ struct VocabularyView: View {
             }
         }
         .navigationTitle("Từ vựng")
+        .problemBanner(store.problem)
     }
 
     private func vocabTable(_ rows: [VocabItem]) -> some View {
