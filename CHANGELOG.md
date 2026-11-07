@@ -5,6 +5,7 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 ## [Unreleased]
 
 ### Added
+- *Luyện nghe*: dictation with word-by-word feedback and shadowing scored by on-device speech recognition, on the real audio of your saved meetings (or 187 curated sentences), at 0.75× or 1×. (PARLEY-3)
 - *Tiến độ*: XP per skill per day, daily goal (10–200 XP), streak, 12-week heatmap, skill bars; sidebar ring + 🔥 streak. (PARLEY-2)
 - Swift Testing suite (`make test`) and `make ci` gate (offline guard, warnings as errors). (PARLEY-1)
 - `--data-dir` / `PARLEY_DATA_DIR`, `--seed <dir>` sample data and `make shot` screenshots that never touch the real data folder. (PARLEY-1)

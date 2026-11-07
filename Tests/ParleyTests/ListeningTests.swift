@@ -74,6 +74,14 @@ import Testing
         #expect(WordDiff.score(d) == 4.0 / 6.0) // extra words don't count against the expected total
     }
 
+    @Test func apostrophesDontCount() {
+        let d = WordDiff.diff(expected: "Let's start, it’s late.", typed: "lets start its late")
+        #expect(WordDiff.score(d) == 1)
+        let e = WordDiff.diff(expected: "Good morning everyone, let's start", typed: "good morning every one lets start")
+        #expect(e == [T(word: "Good", kind: .correct), T(word: "morning", kind: .correct), T(word: "everyone,", kind: .wrong("every")),
+                      T(word: "one", kind: .extra), T(word: "let's", kind: .correct), T(word: "start", kind: .correct)])
+    }
+
     @Test func emptyAnswerMissesEverything() {
         let d = WordDiff.diff(expected: "memory leak", typed: "")
         #expect(d == [T(word: "memory", kind: .missing), T(word: "leak", kind: .missing)] && WordDiff.score(d) == 0)
@@ -107,5 +115,15 @@ import Testing
         let seconds = Double(file.length) / file.processingFormat.sampleRate
         #expect(clips.allSatisfy { $0.start < $0.end && $0.end <= seconds + Clips.maxLength })
         #expect(zip(clips, clips.dropFirst()).allSatisfy { $0.end <= $1.start + 0.2 }) // clips don't overlap the next sentence
+
+        // benchmarks/plan.md W2: open + seek to the last clip < 300 ms
+        let last = try #require(clips.last)
+        let elapsed = ContinuousClock().measure {
+            let p = try? AVAudioPlayer(contentsOf: last.audio!)
+            p?.prepareToPlay()
+            p?.currentTime = last.start
+        }
+        print("BenchClipStart: \(elapsed)")
+        #expect(elapsed < .milliseconds(300))
     }
 }

@@ -65,7 +65,7 @@ enum WordDiff {
     /// nothing are inserted as `extra`. Comparison ignores case and punctuation (`Answer.normalize`).
     static func diff(expected: String, typed: String) -> [Token] {
         let exp = words(expected), got = words(typed)
-        let a = exp.map { Answer.normalize($0) }, b = got.map { Answer.normalize($0) }
+        let a = exp.map(key), b = got.map(key)
         var t = Array(repeating: Array(repeating: 0, count: b.count + 1), count: a.count + 1) // LCS lengths of suffixes
         for i in stride(from: a.count - 1, through: 0, by: -1) {
             for j in stride(from: b.count - 1, through: 0, by: -1) {
@@ -105,6 +105,11 @@ enum WordDiff {
     }
 
     static let pass = 0.8
+
+    /// Case, punctuation and apostrophes don't count: "lets" for "let's" is a typing slip, not a listening error.
+    static func key(_ w: String) -> String {
+        Answer.normalize(w).replacingOccurrences(of: "'", with: "").replacingOccurrences(of: "’", with: "")
+    }
 
     private static func words(_ s: String) -> [String] {
         s.split(whereSeparator: \.isWhitespace).map(String.init).filter { !Answer.normalize($0).isEmpty }
@@ -236,7 +241,8 @@ struct ListeningView: View {
     }
 
     private func start(_ mode: ListeningMode) {
-        let clips = Array(pool.shuffled().prefix(10))
+        // Debug `--type` (screenshots): keep the order so the first sentence is predictable.
+        let clips = Array((DebugArgs.has("--type") ? pool : pool.shuffled()).prefix(10))
         guard !clips.isEmpty else { return }
         withAnimation(.smooth) { session = ListeningPlan(mode: mode, clips: clips) }
     }
@@ -321,7 +327,11 @@ struct ListeningSession: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .onAppear { if let c = clips.first { player.play(c, speed: speed) } }
+        .onAppear {
+            guard let c = clips.first else { return }
+            player.play(c, speed: speed)
+            if let t = DebugArgs.value("--type") { typed = t; check(c, t) } // screenshots of the feedback state
+        }
         .onDisappear {
             player.stop()
             Task { _ = await mic.stop() }
