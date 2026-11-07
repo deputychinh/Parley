@@ -224,5 +224,17 @@ import Testing
         #expect(a.data.days[StudyStore.day(.now)] == ["reading": 10] && a.data.days[StudyStore.day(tomorrow)] == ["reading": 10])
     }
 
-    @Test func generatorIsOffForThisRelease() { #expect(!ReadingStore.generatorEnabled) }
+    @Test func generatorIsOffForThisRelease() {
+        #expect(!ReadingStore.generatorEnabled && !ReadingStore.showsGenerator())
+        #expect(ReadingStore.showsGenerator(enabled: true))
+    }
+
+    @Test func earnedTodayIsVisible() {
+        let s = ReadingStore(file: TestData.file("reading.json"), activity: ActivityStore(file: TestData.file("a.json")))
+        #expect(!s.earnedToday("p"))
+        s.beginVisit("p")
+        var v = ReadingQuiz(q)
+        s.log(v.choose(0, "a"), passage: "p")
+        #expect(s.earnedToday("p") && !s.earnedToday("p", now: .now.addingTimeInterval(86_400)))
+    }
 }

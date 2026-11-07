@@ -189,28 +189,33 @@ final class ReadingStore {
 
     /// Off for v0.2.0: the on-device model could not reliably write passages with correct quizzes (PARLEY-6 review,
     /// 0 of 4 real runs). The writer and its rules stay tested; the UI comes back with backlog item PARLEY-19.
-    static let generatorEnabled = false
+    nonisolated static let generatorEnabled = false
 
     /// Reading XP from `ReadingQuiz.choose` (10 right / 2 wrong; nil = already earned in this visit), and at most once
     /// per passage per day — leaving and reopening a passage earns nothing more.
     func log(_ event: XPEvent?, passage id: String, now: Date = .now) {
-        guard let event else { return }
-        let today = StudyStore.day(now)
-        var seen = data.xpDay ?? [:]
-        if let last = seen[id], last == today, !(pendingToday[id] ?? false) { return }
-        pendingToday[id] = true
+        guard let event, visits[id] != .doneToday else { return }
+        visits[id] = .earningThisVisit // the visit's remaining questions still count
         activity?.log(event, now: now)
-        seen[id] = today
+        var seen = data.xpDay ?? [:]
+        seen[id] = StudyStore.day(now)
         data.xpDay = seen
         save()
     }
-    /// Passages that earned XP in this app session today (their remaining questions still count).
-    @ObservationIgnored private var pendingToday: [String: Bool] = [:]
 
-    /// A new visit to a passage: questions answered now only count if this passage hasn't earned XP today.
+    enum Visit { case earningThisVisit, doneToday }
+    @ObservationIgnored private var visits: [String: Visit] = [:]
+
+    /// Called when a passage opens: if it already earned XP today (this run or an earlier one), this visit earns none.
     func beginVisit(_ id: String, now: Date = .now) {
-        if data.xpDay?[id] != StudyStore.day(now) { pendingToday[id] = nil } else if pendingToday[id] == true { pendingToday[id] = false }
+        let earnedToday = data.xpDay?[id] == StudyStore.day(now)
+        visits[id] = earnedToday ? .doneToday : nil
     }
+
+    func earnedToday(_ id: String, now: Date = .now) -> Bool { data.xpDay?[id] == StudyStore.day(now) }
+
+    /// Whether the reading list shows the AI generator card (off for v0.2.0).
+    nonisolated static func showsGenerator(enabled: Bool = generatorEnabled) -> Bool { enabled }
 
     func finish(_ id: String, score: Int) {
         data.best[id] = max(data.best[id] ?? 0, score)
@@ -316,7 +321,7 @@ struct ReadingView: View {
                             }
                     }
                 }
-                if ReadingStore.generatorEnabled { generator }
+                if ReadingStore.showsGenerator() { generator }
             }
             .padding(24)
             .frame(maxWidth: 900, alignment: .leading)
@@ -456,6 +461,10 @@ struct PassageView: View {
     private var quizPanel: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Câu hỏi").font(.headline)
+            if store.earnedToday(passage.id), quiz.answers.isEmpty {
+                Label("Hôm nay bài này đã được tính XP — làm lại để ôn, không cộng thêm.", systemImage: "info.circle")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
             ForEach(Array(questions.enumerated()), id: \.offset) { i, q in
                 VStack(alignment: .leading, spacing: 8) {
                     Text("\(i + 1). \(q.prompt)").font(.callout.weight(.semibold)).fixedSize(horizontal: false, vertical: true)

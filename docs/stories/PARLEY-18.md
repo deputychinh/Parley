@@ -20,5 +20,9 @@ is spent and the on-device model could not show a usable passage in review (0 of
 Screenshots: the display was locked in this cycle ("could not create image from window"); `reading.png` /
 `reading-passage.png` must be retaken before the demo.
 
+## Review rounds
+- Round 1 (independent): 8.0/10 — CHANGELOG still advertised AI passages; the view's generator condition and `beginVisit` untested; a 3-state `[String: Bool]`; no hint when a reopened passage earns nothing.
+  Fixed: CHANGELOG line; `ReadingStore.showsGenerator()` (tested) drives the card; `Visit` enum (`.earningThisVisit` / `.doneToday`); `earnedToday` (tested) shows "Hôm nay bài này đã được tính XP…" above the questions.
+
 ## Score
 Pending review.
