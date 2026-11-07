@@ -83,14 +83,18 @@ enum WritingRules {
         return nil
     }
 
-    /// Drops model mistakes that aren't real: no change, or "original" words that aren't in the learner's text.
+    /// Words a fix may drop without changing meaning ("more faster" → "faster", "discussed about" → "discussed").
+    static let droppable: Set<String> = ["more", "most", "the", "a", "an", "to", "of", "about", "very", "much", "so", "for", "on", "in", "at"]
+
+    /// Keeps only mistakes that can be applied safely: the original occurs exactly once as whole words, the fix is a
+    /// real change in English, and it doesn't drop meaningful words ("we was" → "were" loses the subject).
     static func clean(_ mistakes: [(original: String, fix: String, explanation: String)], in text: String) -> [Mistake] {
         var seen = Set<String>()
         return mistakes.compactMap { m in
             let o = m.original.trimmingCharacters(in: .whitespacesAndNewlines)
             let f = m.fix.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !o.isEmpty, !f.isEmpty, !isVietnamese(f), WordDiff.key(o) != WordDiff.key(f),
-                  text.range(of: o, options: [.caseInsensitive, .diacriticInsensitive]) != nil,
+                  occurrences(of: o, in: text) == 1, !dropsMeaning(original: o, fix: f),
                   seen.insert(o.lowercased()).inserted else { return nil }
             return Mistake(original: o, fix: f, explanation: m.explanation.trimmingCharacters(in: .whitespacesAndNewlines))
         }
@@ -113,13 +117,30 @@ enum WritingRules {
         return apply(mistakes, to: base)
     }
 
-    /// Replaces each mistake's first whole-word occurrence (case-insensitive), in order — "I learn" never matches
-    /// inside "I learned", so applying a fix twice is a no-op.
+    /// Whole-word, case-insensitive matches of `phrase` — the one matcher `clean` and `apply` share.
+    static func wholeWordRanges(of phrase: String, in text: String) -> [Range<String.Index>] {
+        let pattern = "(?<![\\p{L}\\p{N}'])" + NSRegularExpression.escapedPattern(for: phrase) + "(?![\\p{L}\\p{N}'])"
+        guard let re = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { return [] }
+        return re.matches(in: text, range: NSRange(text.startIndex..., in: text)).compactMap { Range($0.range, in: text) }
+    }
+
+    static func occurrences(of phrase: String, in text: String) -> Int { wholeWordRanges(of: phrase, in: text).count }
+
+    /// True when the fix drops a word from the original that carries meaning (not in `droppable`).
+    static func dropsMeaning(original: String, fix: String) -> Bool {
+        WordDiff.diff(expected: fix, typed: original).contains { t in
+            if case .extra = t.kind { return !droppable.contains(WordDiff.key(t.word)) }
+            return false
+        }
+    }
+
+    /// Replaces each mistake where it occurs as whole words — only when it occurs exactly once, so an ambiguous span
+    /// is never guessed, applying a fix twice is a no-op and a word inside another word is never touched.
     static func apply(_ mistakes: [Mistake], to text: String) -> String {
         var out = text
         for m in mistakes {
-            let pattern = "(?<![\\p{L}\\p{N}'])" + NSRegularExpression.escapedPattern(for: m.original) + "(?![\\p{L}\\p{N}'])"
-            if let r = out.range(of: pattern, options: [.regularExpression, .caseInsensitive]) { out.replaceSubrange(r, with: m.fix) }
+            let found = wholeWordRanges(of: m.original, in: out)
+            if found.count == 1 { out.replaceSubrange(found[0], with: m.fix) }
         }
         return out
     }
@@ -167,11 +188,12 @@ final class WritingStore {
         save()
     }
 
-    /// Asks the on-device model for feedback and turns it into a clean entry.
-    static func review(_ text: String, prompt: String) async throws -> WritingEntry {
-        let session = LanguageModelSession(instructions: WritingRules.instructions)
-        let ask = "Task: \(prompt)\nLearner's text:\n\"\"\"\n\(text)\n\"\"\""
-        let c = try await session.respond(to: ask, generating: GeneratedCritique.self).content
+    /// Asks the on-device model for feedback (at most `timeout` seconds) and turns it into a clean entry.
+    static func review(_ text: String, prompt: String, timeout: Double = 45) async throws -> WritingEntry {
+        let ask = "Task: \(prompt)\nList every mistake you find (up to 8).\nLearner's text:\n\"\"\"\n\(text)\n\"\"\""
+        let c = try await withTimeout(timeout) {
+            try await LanguageModelSession(instructions: WritingRules.instructions).respond(to: ask, generating: GeneratedCritique.self).content
+        }
         let mistakes = WritingRules.clean(c.mistakes.map { ($0.original, $0.fix, $0.explanationVi) }, in: text)
         return WritingEntry(prompt: prompt, text: text,
                             corrected: WritingRules.correctedText(original: text, model: c.corrected, mistakes: mistakes),
@@ -197,6 +219,19 @@ final class WritingStore {
     }()
 }
 
+/// Runs `work`, failing with a Vietnamese error after `seconds` (the on-device model has no timeout of its own).
+func withTimeout<T: Sendable>(_ seconds: Double, _ work: @escaping @Sendable () async throws -> T) async throws -> T {
+    try await withThrowingTaskGroup(of: T.self) { group in
+        group.addTask { try await work() }
+        group.addTask {
+            try await Task.sleep(for: .seconds(seconds))
+            throw Err("AI trên máy không trả lời sau \(Int(seconds)) giây.")
+        }
+        defer { group.cancelAll() }
+        return try await group.next()!
+    }
+}
+
 // MARK: - "Luyện viết" screen
 
 struct WritingView: View {
@@ -204,13 +239,13 @@ struct WritingView: View {
     @State private var level = CEFR.b1
     @State private var prompt: WritingPrompt? = WritingPrompt.all.first { $0.level == .b1 }
     @State private var freeTopic = ""
-    @State private var text = ""
+    @SceneStorage("writingDraft") private var text = "" // a draft survives switching screens and relaunches
     @State private var reviewing = false
     @State private var error: String?
     @State private var shown: WritingEntry?
     @FocusState private var editorFocused: Bool
 
-    private var task: String { prompt?.task ?? (freeTopic.isEmpty ? "Free writing" : freeTopic) }
+    private var task: String { prompt?.task ?? (freeTopic.isEmpty ? "Chủ đề tự do" : freeTopic) }
 
     var body: some View {
         Group {
@@ -220,8 +255,16 @@ struct WritingView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
                         if let p = store.problem { Label(p, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange) }
+                        if !ExampleWriter.available {
+                            Label("Chưa bật Apple Intelligence nên chưa chấm được bài mới — bật trong System Settings → Apple Intelligence & Siri. Bài cũ vẫn xem được.",
+                                  systemImage: "sparkles")
+                                .foregroundStyle(.orange)
+                        }
                         if let shown {
-                            WritingFeedback(entry: shown) { withAnimation(.smooth) { self.shown = nil } }
+                            WritingFeedback(entry: shown, onDelete: {
+                                store.remove(shown.id)
+                                withAnimation(.smooth) { self.shown = nil }
+                            }) { withAnimation(.smooth) { self.shown = nil } }
                         } else {
                             editor
                         }
@@ -334,12 +377,16 @@ struct WritingView: View {
 
 struct WritingFeedback: View {
     let entry: WritingEntry
+    var onDelete: () -> Void = {}
     let onBack: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 12) {
                 BackButton(title: "Viết bài mới", action: onBack)
+                Button(role: .destructive, action: onDelete) { Label("Xoá bài này", systemImage: "trash") }
+                    .buttonStyle(.glass)
+                    .help("Xoá bài này khỏi lịch sử")
                 Spacer()
                 Text("Trình độ ước tính").foregroundStyle(.secondary)
                 Text(entry.level).font(.title2.weight(.bold)).foregroundStyle(Color.parley)

@@ -54,7 +54,11 @@ import Testing
     }
 
     @Test func applyReplacesFirstOccurrenceInOrder() {
-        #expect(WritingRules.apply([Mistake(original: "IS", fix: "are", explanation: "")], to: "they is here, it is") == "they are here, it is")
+        #expect(WritingRules.apply([Mistake(original: "IS", fix: "are", explanation: "")], to: "they is here") == "they are here")
+        // ambiguous span: never guessed ("This is fine and they is here" must not become "This are …")
+        #expect(WritingRules.apply([Mistake(original: "is", fix: "are", explanation: "")], to: "This is fine and they is here")
+                == "This is fine and they is here")
+        #expect(WritingRules.apply([Mistake(original: "learn", fix: "learned", explanation: "")], to: "I relearn it") == "I relearn it") // lookbehind
         #expect(WritingRules.apply([Mistake(original: "zzz", fix: "a", explanation: "")], to: "abc") == "abc")
         let learn = [Mistake(original: "I learn", fix: "I learned", explanation: "")]
         #expect(WritingRules.apply(learn, to: "I learned it") == "I learned it")          // whole words only
@@ -62,7 +66,23 @@ import Testing
         #expect(WritingRules.apply([Mistake(original: "(a+b)", fix: "x", explanation: "")], to: "f (a+b) g") == "f x g") // regex chars
     }
 
+    @Test func cleanKeepsOnlySafeFixes() {
+        let text = "This is fine and they is here. Before the release we was busy. The page is more faster."
+        let m = WritingRules.clean([("they is", "they are", ""), ("is", "are", "ambiguous"), ("we was", "were", "drops the subject"),
+                                    ("more faster", "faster", "droppable word")], in: text)
+        #expect(m.map(\.original) == ["they is", "more faster"])
+        #expect(WritingRules.dropsMeaning(original: "we was", fix: "were"))
+        #expect(!WritingRules.dropsMeaning(original: "discussed about", fix: "discussed"))
+        #expect(WritingRules.occurrences(of: "is", in: "This is it, is it") == 2)
+    }
+
+    @Test func timeoutFailsSlowWork() async throws {
+        await #expect(throws: Err.self) { try await withTimeout(0.05) { try await Task.sleep(for: .seconds(5)); return 1 } }
+        #expect(try await withTimeout(1) { 7 } == 7)
+    }
+
     @Test func vietnameseDetection() {
+        #expect(WritingRules.isVietnamese("đi"))
         #expect(WritingRules.isVietnamese("nhiều lỗi") && WritingRules.isVietnamese("Đúng"))
         #expect(!WritingRules.isVietnamese("we were") && !WritingRules.isVietnamese("naïve"))
     }
