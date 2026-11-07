@@ -539,6 +539,11 @@ struct TopicsView: View {
             }
         }
         .navigationTitle(open?.title ?? category?.title ?? "Từ vựng theo chủ đề")
+        .task {
+            guard let id = DebugArgs.value("--open") else { return }
+            category = Library.categories.first { $0.id == id }
+            open = Library.topics.first { $0.id == id }
+        }
     }
 
     private func added(_ t: Topic) -> Int { t.words.count { vocab.contains($0.term) } }
@@ -834,6 +839,7 @@ struct GrammarView: View {
             }
         }
         .navigationTitle(open?.title ?? "Ngữ pháp")
+        .task { if let id = DebugArgs.value("--open") { open = Library.grammar.first { $0.id == id } } }
     }
 
     private var list: some View {

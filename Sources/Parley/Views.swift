@@ -40,7 +40,6 @@ struct ContentView: View {
     @AppStorage("includeMic") private var includeMic = true
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
-
     var body: some View {
         NavigationSplitView(columnVisibility: $columns) {
             Sidebar(model: model, vocab: vocab, study: study, route: $route)
@@ -72,12 +71,17 @@ struct ContentView: View {
         .onGeometryChange(for: Bool.self) { $0.size.width < 640 } action: { fold = $0 }
         .tint(.parley)
         .task { await model.loadLanguages() }
-        .task { // debug: `open … --args --autostart [--record-screen] | --open-video | --route <daily|topics|grammar|vocabulary|practice|pronunciation>`
+        .task { // debug: `open … --args --autostart [--record-screen] | --open-video | --route <daily|topics|grammar|vocabulary|practice|pronunciation|history>`
             let args = CommandLine.arguments
+            if DebugArgs.has("--mini") {
+                try? await Task.sleep(for: .seconds(1)) // scenes aren't ready on the very first frame
+                openWindow(id: "mini")
+            }
             if let i = args.firstIndex(of: "--route"), args.indices.contains(i + 1) {
                 let routes: [String: Route] = ["daily": .daily, "topics": .topics, "grammar": .grammar,
                                                "vocabulary": .vocabulary, "practice": .practice, "pronunciation": .pronunciation]
                 route = routes[args[i + 1]] ?? .live
+                if args[i + 1] == "history", let url = Model.history().first { route = .session(url) }
             }
             if CommandLine.arguments.contains("--open-video"),
                let url = Model.history().first(where: { FileManager.default.fileExists(atPath: Model.media($0, "screen.mov").path) }) {

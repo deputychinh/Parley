@@ -157,6 +157,15 @@ func selfTest(_ path: String) async throws {
     guard !heard.isEmpty, !translated.isEmpty else { throw Err("empty output") }
 }
 
+/// Debug/screenshot flags: `--open <lesson|category|topic|practice-mode id>`, `--select <word>`, `--mini`.
+enum DebugArgs {
+    static func value(_ flag: String) -> String? {
+        let a = CommandLine.arguments
+        return a.firstIndex(of: flag).flatMap { a.indices.contains($0 + 1) ? a[$0 + 1] : nil }
+    }
+    static func has(_ flag: String) -> Bool { CommandLine.arguments.contains(flag) }
+}
+
 struct ParleyApp: App {
     @NSApplicationDelegateAdaptor private var delegate: AppDelegate
 

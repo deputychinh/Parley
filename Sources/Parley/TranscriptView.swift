@@ -81,6 +81,14 @@ struct TranscriptView: NSViewRepresentable {
             tv.scrollToEndOfDocument(nil)
         }
         c.lastHighlight = highlighted
+        if isSource, !c.debugSelected, let word = DebugArgs.value("--select") {
+            let r = (storage.string as NSString).range(of: word)
+            if r.location != NSNotFound {
+                c.debugSelected = true
+                tv.setSelectedRange(r)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { c.lookUp(in: tv) }
+            }
+        }
     }
 
     // MARK: Styling
@@ -141,6 +149,7 @@ struct TranscriptView: NSViewRepresentable {
         var offsets: [Int] = []
         var fontSize = 0.0
         var lastHighlight: Int?
+        var debugSelected = false
         private let popover = NSPopover()
 
         func click(_ event: NSEvent, in tv: NSTextView) {

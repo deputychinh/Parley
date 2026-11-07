@@ -2,17 +2,49 @@
 
 Phiên dịch realtime mọi âm thanh trên máy Mac (Zoom/Meet/Teams, YouTube, video…) và giọng của bạn qua micro — **hoàn toàn offline**, chọn được cặp ngôn ngữ bất kỳ mà Apple hỗ trợ. Kèm bộ công cụ học từ vựng, ngữ pháp và phát âm tiếng Anh.
 
-![Phiên dịch trực tiếp](docs/screenshots/live.png)
+![Phiên song ngữ](docs/screenshots/history.png)
 
 ## Ảnh chụp màn hình
 
-| Mỗi ngày — 20 từ mới/ngày | Từ vựng theo chủ đề |
-|---|---|
-| ![Mỗi ngày](docs/screenshots/daily.png) | ![Chủ đề](docs/screenshots/topics.png) |
+> Ảnh chụp từ app thật, dùng dữ liệu mẫu (một buổi họp IT, 12 từ đã lưu).
 
-| Lộ trình ngữ pháp A1 → C1 |
-|---|
-| ![Ngữ pháp](docs/screenshots/grammar.png) |
+### Phiên dịch & lịch sử
+| Sẵn sàng phiên dịch | Cấp quyền lần đầu |
+|---|---|
+| ![Phiên dịch trực tiếp](docs/screenshots/live.png) | ![Cấp quyền](docs/screenshots/permission.png) |
+| Chọn cặp ngôn ngữ trên thanh công cụ, bấm **Bắt đầu**. | Lần đầu app hướng dẫn bật *Screen & System Audio Recording*. |
+
+| Phiên đã lưu — song ngữ theo thời gian | Bôi đen để tra từ |
+|---|---|
+| ![Lịch sử](docs/screenshots/history.png) | ![Tra từ](docs/screenshots/word-lookup.png) |
+| 🔊 = âm thanh máy (người khác nói), 🎤 = micro (bạn nói). Bấm một dòng để nghe lại. | Nghĩa, IPA, nút nghe đọc, câu gốc + bản dịch, **Thêm vào từ vựng**. |
+
+### Từ vựng
+| Từ vựng của tôi | Mỗi ngày — 20 từ mới/ngày |
+|---|---|
+| ![Từ vựng](docs/screenshots/vocabulary.png) | ![Mỗi ngày](docs/screenshots/daily.png) |
+| Bảng từ đã lưu: IPA, nghĩa, câu ví dụ, ngày thêm, đã thuộc. | Kế hoạch tới 10.000 từ: "Đã biết" hoặc "Học từ này". |
+
+| Danh mục chủ đề | Chủ đề con (IT) | Từ trong chủ đề |
+|---|---|---|
+| ![Chủ đề](docs/screenshots/topics.png) | ![Công nghệ thông tin](docs/screenshots/topic-category.png) | ![Họp & phối hợp](docs/screenshots/topic-detail.png) |
+
+### Ngữ pháp
+| Lộ trình A1 → C1 | Một bài học |
+|---|---|
+| ![Ngữ pháp](docs/screenshots/grammar.png) | ![Bài Hiện tại hoàn thành](docs/screenshots/grammar-lesson.png) |
+| 49 bài, 245 câu bài tập, tìm kiếm theo tên bài. | Khi nào dùng, công thức, ví dụ có đọc mẫu, lỗi hay gặp, trắc nghiệm. |
+
+### Luyện tập & phát âm
+| Học tập — 6 chế độ + game | Thử thách tổng hợp |
+|---|---|
+| ![Học tập](docs/screenshots/practice.png) | ![Game](docs/screenshots/practice-game.png) |
+| Số từ cần ôn hôm nay, đang học, đã thuộc. | 3 mạng, combo, kỷ lục — trộn mọi cách học. |
+
+| Điền vào câu | Phát âm của tôi |
+|---|---|
+| ![Điền vào câu](docs/screenshots/practice-cloze.png) | ![Phát âm](docs/screenshots/pronunciation.png) |
+| Dùng câu thật bạn đã nghe trong cuộc họp, có gợi ý. | Từ máy nghe chưa rõ khi bạn nói; đọc đúng 3 lần liên tiếp để gỡ khỏi danh sách. |
 
 ## Tính năng
 - **Song ngữ realtime**: thẻ trái = ngôn ngữ đang nghe, thẻ phải = bản dịch. Chữ tím có con trỏ ▍ = đang nói.
@@ -76,7 +108,10 @@ Mẹo: dùng tai nghe để micro không thu lại tiếng loa.
 ### Tham số dòng lệnh (debug)
 ```bash
 open build/Parley.app --args --autostart [--record-screen]   # tự bắt đầu phiên
-open build/Parley.app --args --route grammar                  # mở thẳng một màn hình: daily|topics|grammar|vocabulary|practice|pronunciation
+open build/Parley.app --args --route grammar                  # mở thẳng một màn hình: daily|topics|grammar|vocabulary|practice|pronunciation|history
+open build/Parley.app --args --route grammar --open perfect   # mở một bài ngữ pháp / danh mục (it) / chủ đề (meetings) / chế độ luyện (mix, cloze…)
+open build/Parley.app --args --route history --select cache   # mở phiên gần nhất và tra sẵn một từ
+open build/Parley.app --args --mini                           # mở kèm cửa sổ mini
 ```
 
 ## Kiến trúc (chỉ dùng framework có sẵn của macOS 26+)
