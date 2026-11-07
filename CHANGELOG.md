@@ -9,6 +9,7 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 - `shot.sh` stops only its own instance and ignores saved window state; `make shot-test` proves it. (PARLEY-9)
 
 ### Added
+- *Hội thoại AI*: role-play 10 workplace and travel situations with Apple's on-device model at A2–C1; every turn is corrected (word diff), a more natural phrasing can be saved to vocabulary, and a summary lists what to remember. `make ai-eval` measures the coach. (PARLEY-4)
 - *Luyện nghe*: dictation with word-by-word feedback and shadowing scored by on-device speech recognition, on the real audio of your saved meetings (or 187 curated sentences), at 0.75× or 1×. (PARLEY-3)
 - *Tiến độ*: XP per skill per day, daily goal (10–200 XP), streak, 12-week heatmap, skill bars; sidebar ring + 🔥 streak. (PARLEY-2)
 - Swift Testing suite (`make test`) and `make ci` gate (offline guard, warnings as errors). (PARLEY-1)
