@@ -190,7 +190,7 @@ enum TestData {
 
     @Test func seedWritesSampleDataAtomically() throws {
         let dir = home.appending(path: "seed")
-        try Seed.write(to: dir)
+        try Seed.write(to: dir, audio: false)
         #expect(VocabStoreTests.load(dir.appending(path: "vocabulary.json")).count == 12)
         #expect(!Model.parse(try String(contentsOf: dir.appending(path: "\(Seed.sessionStamp).md"), encoding: .utf8)).isEmpty)
         #expect(throws: Err.self) { try Seed.write(to: dir) } // now non-empty → refused

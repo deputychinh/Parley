@@ -112,14 +112,15 @@ final class VocabStore {
 enum Speaker {
     private static let synth = AVSpeechSynthesizer()
 
-    static func speak(_ text: String, language: Locale.Language) {
+    /// `speed` multiplies the user's reading rate (Settings), e.g. 0.75 in listening practice.
+    static func speak(_ text: String, language: Locale.Language, speed: Double = 1) {
         synth.stopSpeaking(at: .immediate)
         let u = AVSpeechUtterance(string: text)
         let code = language.languageCode?.identifier ?? "en"
         u.voice = language.region.flatMap { AVSpeechSynthesisVoice(language: "\(code)-\($0.identifier)") }
             ?? AVSpeechSynthesisVoice.speechVoices().first { $0.language.hasPrefix(code) }
         let rate = UserDefaults.standard.object(forKey: "speechRate") as? Double ?? 0.85
-        u.rate = AVSpeechUtteranceDefaultSpeechRate * Float(rate)
+        u.rate = AVSpeechUtteranceDefaultSpeechRate * Float(rate * speed)
         synth.speak(u)
     }
 }

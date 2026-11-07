@@ -1,3 +1,4 @@
+import AVFoundation
 import Foundation
 
 /// `Parley --seed <dir>`: writes realistic sample data for screenshots and manual checks.
@@ -29,7 +30,8 @@ enum Seed {
         return URL(fileURLWithPath: args[i + 1])
     }
 
-    static func write(to dir: URL) throws {
+    /// `audio`: also record the session with the system voice (`say`), so listening practice has real clips.
+    static func write(to dir: URL, audio: Bool = true) throws {
         guard isAllowed(dir) else { throw Err("refusing to seed \(dir.path): use a new empty folder outside \(realFolder.path)") }
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
 
@@ -60,13 +62,17 @@ enum Seed {
         e.dateEncodingStrategy = .iso8601
         try e.encode(items).write(to: dir.appending(path: "vocabulary.json"), options: .atomic)
 
-        let lines: [(String, String, Double)] = [
+        var lines: [(String, String, Double)] = [
             ("Good morning everyone, let's start the weekly sync.", "Chào buổi sáng mọi người, hãy bắt đầu buổi họp tuần.", 0.5),
             ("We found a memory leak in the payment service yesterday.", "Hôm qua chúng tôi tìm thấy rò rỉ bộ nhớ trong dịch vụ thanh toán.", 4.6),
             ("The fix is ready, but we need one more day to test it.", "Bản sửa đã sẵn sàng, nhưng cần thêm một ngày để kiểm thử.", 9.4),
             ("Can we move the deadline to Friday?", "Chúng ta có thể dời hạn chót sang thứ Sáu không?", 14.0),
             ("Sure, I will follow up with the stakeholders after this call.", "Được, tôi sẽ trao đổi tiếp với các bên liên quan sau cuộc gọi.", 17.2),
         ]
+        if audio {
+            let offsets = try record(lines.map(\.0), to: dir.appending(path: "\(sessionStamp)-may.m4a"))
+            for i in lines.indices { lines[i].2 = offsets[i] }
+        }
         var md = "# Parley — \(sessionStamp)\n<!-- parley: en_US > vi -->\n\nGhi âm: `\(sessionStamp)-may.m4a` (âm thanh máy)\n\n"
         for (i, l) in lines.enumerated() {
             md += "**9:30:\(String(format: "%02d", 12 + i * 4)) AM** 🔊 \(l.0) <!-- t=\(l.2) -->\n> \(l.1)\n\n"
@@ -95,4 +101,41 @@ enum Seed {
     }
 
     static let sessionStamp = "2026-11-06_09-30-12"
+
+    /// Speaks each sentence with `say` into one AAC file (0.6 s gap) and returns where each sentence starts.
+    private static func record(_ sentences: [String], to url: URL) throws -> [Double] {
+        let tmp = FileManager.default.temporaryDirectory.appending(path: "parley-say-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+        var out: AVAudioFile?
+        var offsets: [Double] = []
+        var written: AVAudioFramePosition = 0
+        for (i, s) in sentences.enumerated() {
+            let part = tmp.appending(path: "\(i).aiff")
+            let say = Process()
+            say.executableURL = URL(fileURLWithPath: "/usr/bin/say")
+            say.arguments = ["-o", part.path, s]
+            try say.run()
+            say.waitUntilExit()
+            guard say.terminationStatus == 0 else { throw Err("say failed for sentence \(i)") }
+            let input = try AVAudioFile(forReading: part)
+            let format = input.processingFormat
+            if out == nil {
+                out = try AVAudioFile(forWriting: url, settings: [AVFormatIDKey: kAudioFormatMPEG4AAC, AVSampleRateKey: format.sampleRate,
+                                                                  AVNumberOfChannelsKey: format.channelCount],
+                                      commonFormat: format.commonFormat, interleaved: format.isInterleaved)
+            }
+            guard let out, let buf = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(input.length)),
+                  let gap = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(format.sampleRate * 0.6)) else {
+                throw Err("audio buffers")
+            }
+            try input.read(into: buf)
+            offsets.append(Double(written) / format.sampleRate)
+            try out.write(from: buf)
+            gap.frameLength = gap.frameCapacity // zero-filled = silence
+            try out.write(from: gap)
+            written += AVAudioFramePosition(buf.frameLength + gap.frameLength)
+        }
+        try? FileManager.default.removeItem(at: tmp)
+        return offsets
+    }
 }
