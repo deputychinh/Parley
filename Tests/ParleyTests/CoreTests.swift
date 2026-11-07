@@ -116,6 +116,12 @@ import Testing
 }
 
 @MainActor @Suite struct VocabStoreTests {
+    nonisolated static func load(_ url: URL) -> [VocabItem] {
+        let d = JSONDecoder()
+        d.dateDecodingStrategy = .iso8601
+        return (try? d.decode([VocabItem].self, from: Data(contentsOf: url))) ?? []
+    }
+
     @Test func unreadableFileIsMovedAsideNotOverwritten() throws {
         let url = TestData.file("vocabulary.json")
         try Data("not json".utf8).write(to: url)
@@ -133,5 +139,49 @@ enum TestData {
         let dir = FileManager.default.temporaryDirectory.appending(path: "parley-tests-\(UUID().uuidString)")
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir.appending(path: name)
+    }
+}
+
+/// AC1.2: tools never write into the owner's data folder.
+@Suite struct DataSafetyTests {
+    let home = FileManager.default.temporaryDirectory.appending(path: "parley-home-\(UUID().uuidString)")
+    var real: URL { home.appending(path: "Documents/Parley") }
+
+    @Test func seedRefusesTheRealFolderInAnySpelling() throws {
+        try FileManager.default.createDirectory(at: real, withIntermediateDirectories: true)
+        let link = home.appending(path: "link")
+        try FileManager.default.createSymbolicLink(at: link, withDestinationURL: real)
+        let docs = home.appending(path: "Documents")
+        for path in [real.path, real.path + "/", real.path + "/.", docs.path + "/x/../Parley", real.path.uppercased(),
+                     real.path + "/sub", link.path, docs.path] {
+            #expect(!Seed.isAllowed(URL(fileURLWithPath: path), real: real), "must refuse \(path)")
+        }
+    }
+
+    @Test func seedNeedsAMissingOrEmptyFolder() throws {
+        let fresh = home.appending(path: "fresh")
+        #expect(Seed.isAllowed(fresh, real: real))                 // missing → created
+        try FileManager.default.createDirectory(at: fresh, withIntermediateDirectories: true)
+        #expect(Seed.isAllowed(fresh, real: real))                 // empty
+        try Data("x".utf8).write(to: fresh.appending(path: "vocabulary.json"))
+        #expect(!Seed.isAllowed(fresh, real: real))                // someone's data → refuse
+    }
+
+    @Test func seedWritesSampleDataAtomically() throws {
+        let dir = home.appending(path: "seed")
+        try Seed.write(to: dir)
+        #expect(VocabStoreTests.load(dir.appending(path: "vocabulary.json")).count == 12)
+        #expect(!Model.parse(try String(contentsOf: dir.appending(path: "\(Seed.sessionStamp).md"), encoding: .utf8)).isEmpty)
+        #expect(throws: Err.self) { try Seed.write(to: dir) } // now non-empty → refused
+    }
+
+    @Test func dataDirResolution() {
+        let fallback = URL(fileURLWithPath: "/default")
+        #expect(Model.resolveDataDir(args: ["app"], env: [:], fallback: fallback) == fallback)
+        #expect(Model.resolveDataDir(args: ["app"], env: ["PARLEY_DATA_DIR": "/env"], fallback: fallback).path == "/env")
+        #expect(Model.resolveDataDir(args: ["app", "--data-dir", "/arg"], env: ["PARLEY_DATA_DIR": "/env"], fallback: fallback).path == "/arg")
+        #expect(Model.resolveDataDir(args: ["app", "--data-dir"], env: [:], fallback: fallback) == fallback)          // missing value
+        #expect(Model.resolveDataDir(args: ["app", "--data-dir", "--route"], env: [:], fallback: fallback) == fallback) // flag, not a path
+        #expect(Model.resolveDataDir(args: ["app"], env: ["PARLEY_DATA_DIR": ""], fallback: fallback) == fallback)
     }
 }

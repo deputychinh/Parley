@@ -15,9 +15,12 @@ verified without risking the owner's data.
 
 | AC | Evidence |
 | --- | --- |
-| AC1.1 | `make ci` → 14 tests in 6 suites passed; a failing `#expect` makes `swift test` (and `make ci`) exit non-zero |
-| AC1.2 | `VocabStoreTests`, `PronunciationStoreTests` use `TestData.file`; `Seed.write` guard; `ls -lT ~/Documents/Parley` unchanged after `make shot` |
-| AC1.3 | `scripts/shot.sh vocabulary _probe` → screenshot shows the 12 seeded words, not the owner's |
+| AC1.1 | `make ci` → 18 tests in 7 suites passed; mutation `86_400→86_000` in `VocabItem.intervals` makes `make test`/`make ci` exit 2 |
+| AC1.2 | `DataSafetyTests.seedRefusesTheRealFolderInAnySpelling` (exact, trailing `/`, `/.`, `..`, upper case, subfolder, symlink, parent) and `seedNeedsAMissingOrEmptyFolder`; mutation "guard only exact path" → test fails; `dataDirResolution` (`--data-dir` > `PARLEY_DATA_DIR` > default); stores tested with `TestData.file` |
+| AC1.3 | `scripts/shot.sh vocabulary _probe` → screenshot shows the 12 seeded words, not the owner's; `seedWritesSampleDataAtomically` |
+
+## Review rounds
+- Round 1 (independent): 7.0/10 — seed guard bypassable with a trailing slash; no tests for data-dir resolution; seed writes not atomic. Fixed: `Seed.isAllowed` (missing/empty folder outside the real one, resolved + case-folded), `Model.resolveDataDir`, atomic writes, `--seed` without a path exits 1. Rejected: "the seed already ran on the real folder" — that session file existed before `Seed.swift` was written (owner's sample data, mtime 2026-11-07 18:21); the seed reuses its stamp on purpose.
 
 ## Score
-Pending review.
+Pending final review.

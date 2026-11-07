@@ -3,9 +3,25 @@ import Foundation
 /// `Parley --seed <dir>`: writes realistic sample data for screenshots and manual checks.
 /// Refuses the real data folder so a typo can never overwrite the user's words.
 enum Seed {
+    /// The owner's data folder; nothing is ever seeded in or under it.
+    static let realFolder = URL.documentsDirectory.appending(path: "Parley")
+
+    /// Seeding is allowed only into a missing or empty folder outside `real` (compared after resolving symlinks,
+    /// `.`/`..`, trailing slashes and letter case — APFS is case-insensitive by default).
+    nonisolated static func isAllowed(_ dir: URL, real: URL = realFolder, fm: FileManager = .default) -> Bool {
+        func key(_ u: URL) -> String {
+            var path = u.resolvingSymlinksInPath().standardizedFileURL.path.lowercased()
+            while path.count > 1, path.hasSuffix("/") { path.removeLast() }
+            return path
+        }
+        let d = key(dir), r = key(real)
+        guard d != r, !d.hasPrefix(r + "/"), !r.hasPrefix(d + "/") else { return false } // also refuse ~/Documents itself
+        let contents = (try? fm.contentsOfDirectory(atPath: dir.path)) ?? []
+        return contents.isEmpty
+    }
+
     static func write(to dir: URL) throws {
-        let real = URL.documentsDirectory.appending(path: "Parley").standardizedFileURL
-        guard dir.standardizedFileURL != real else { throw Err("refusing to seed the real data folder \(real.path)") }
+        guard isAllowed(dir) else { throw Err("refusing to seed \(dir.path): use a new empty folder outside \(realFolder.path)") }
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
 
         let words: [(String, String, String)] = [
@@ -33,7 +49,7 @@ enum Seed {
         let e = JSONEncoder()
         e.outputFormatting = [.prettyPrinted, .sortedKeys]
         e.dateEncodingStrategy = .iso8601
-        try e.encode(items).write(to: dir.appending(path: "vocabulary.json"))
+        try e.encode(items).write(to: dir.appending(path: "vocabulary.json"), options: .atomic)
 
         let lines: [(String, String, Double)] = [
             ("Good morning everyone, let's start the weekly sync.", "Chào buổi sáng mọi người, hãy bắt đầu buổi họp tuần.", 0.5),
@@ -46,7 +62,7 @@ enum Seed {
         for (i, l) in lines.enumerated() {
             md += "**9:30:\(String(format: "%02d", 12 + i * 4)) AM** 🔊 \(l.0) <!-- t=\(l.2) -->\n> \(l.1)\n\n"
         }
-        try Data(md.utf8).write(to: dir.appending(path: "\(sessionStamp).md"))
+        try Data(md.utf8).write(to: dir.appending(path: "\(sessionStamp).md"), options: .atomic)
     }
 
     static let sessionStamp = "2026-11-06_09-30-12"

@@ -16,7 +16,7 @@ Offline interpreter + English learning app for macOS 26+ (SwiftUI, SwiftPM execu
 ## Rules
 
 - **Never touch `~/Documents/Parley`** (the owner's data) from tests, scripts or screenshots: use `--data-dir <dir>` /
-  `PARLEY_DATA_DIR`, `TestData.file(_:)` in tests, `Parley --seed <dir>` for sample data. Seed refuses the real folder.
+  `PARLEY_DATA_DIR`, `TestData.file(_:)` in tests, `Parley --seed <dir>` for sample data (only into a missing or empty folder outside the real one — `Seed.isAllowed`).
   (`open --env` does not reach the app; pass `--data-dir` as an argument.)
 - Run the seed / CLI checks with `.build/release/Parley`, not the binary inside `build/Parley.app`: from a shell the
   bundled binary blocks on a TCC prompt because the repo lives under ~/Documents.
