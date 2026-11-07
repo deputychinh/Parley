@@ -106,6 +106,8 @@ Mẹo: dùng tai nghe để micro không thu lại tiếng loa.
 | ⌘, | Cài đặt |
 
 ### Tham số dòng lệnh (debug)
+> Chạy thử với dữ liệu mẫu (`--data-dir <thư mục>`) phải dùng bản `build/Parley-sandbox.app` (`make sandbox-app`) — bản thật sẽ từ chối, để không ghi vào cài đặt của bạn.
+
 ```bash
 open build/Parley.app --args --autostart [--record-screen]   # tự bắt đầu phiên
 open build/Parley.app --args --route grammar                  # mở thẳng một màn hình: daily|topics|grammar|vocabulary|practice|pronunciation|history

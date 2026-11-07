@@ -145,6 +145,26 @@ import Testing
 @Suite struct SandboxCleanupTests {
     @Test func staleDomainsAreFoundButNotOurOwn() {
         let names = ["parley.sandbox.111.plist", "parley.sandbox.plist", "parley.sandbox.222.plist", "com.david.parley.plist", "other.plist"]
-        #expect(AppDefaults.staleSandboxDomains(fileNames: names, own: "parley.sandbox.222") == ["parley.sandbox.111", "parley.sandbox"])
+        // 111 has exited, 333 is still running (another screenshot), 222 is us
+        let names2 = names + ["parley.sandbox.333.plist"]
+        #expect(AppDefaults.staleSandboxDomains(fileNames: names2, own: "parley.sandbox.222", isAlive: { $0 == 333 })
+                == ["parley.sandbox.111", "parley.sandbox"])
+    }
+
+    @Test func removeDomainDeletesTheFile() throws {
+        let prefs = FileManager.default.temporaryDirectory.appending(path: "parley-prefs-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: prefs, withIntermediateDirectories: true)
+        let file = prefs.appending(path: "parley.sandbox.999999.plist")
+        try Data("x".utf8).write(to: file)
+        AppDefaults.removeDomain("parley.sandbox.999999", prefs: prefs)
+        #expect(!FileManager.default.fileExists(atPath: file.path))
+    }
+
+    @Test func theRealAppRefusesToRunSandboxed() {
+        #expect(AppDefaults.refusesSandboxedRun(bundleID: "com.david.parley", sandboxed: true))
+        #expect(!AppDefaults.refusesSandboxedRun(bundleID: "com.david.parley.sandbox", sandboxed: true))
+        #expect(!AppDefaults.refusesSandboxedRun(bundleID: "com.david.parley", sandboxed: false))
+        #expect(!AppDefaults.refusesSandboxedRun(bundleID: nil, sandboxed: true)) // CLI binary (tests, --seed)
+        #expect(AppDefaults.processIsAlive(getpid()) && !AppDefaults.processIsAlive(999_999))
     }
 }

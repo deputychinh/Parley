@@ -8,6 +8,11 @@ enum Main {
         setvbuf(stdout, nil, _IOLBF, 0) // line-buffer so `open --stdout` logs appear live
         let args = CommandLine.arguments
         if let problem = Model.dataDirArgumentError(args) { print("FAIL:", problem); exit(2) } // never fall back to real data
+        if AppDefaults.refusesSandboxedRun(bundleID: Bundle.main.bundleIdentifier, sandboxed: AppDefaults.sandboxed), !args.contains("--seed"),
+           !args.contains("--print-data-dir") {
+            print("FAIL: --data-dir runs use build/Parley-sandbox.app (make sandbox-app), never the real app")
+            exit(2)
+        }
         if let i = args.firstIndex(of: "--file"), i + 1 < args.count {
             Task {
                 do { try await selfTest(args[i + 1]); exit(0) } catch { print("FAIL:", error.localizedDescription); exit(1) }
@@ -158,6 +163,7 @@ struct ParleyApp: App {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppDefaults.removeStaleSandboxDomains()
+        AppDefaults.cleanUpOnSIGTERM()
         Reminder.activity = activity
         activity.onGoalMet = { Reminder.reschedule() }
         Reminder.reschedule()

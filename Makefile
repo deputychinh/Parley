@@ -16,7 +16,8 @@ offline-guard:    ## ADR 0001: no network code in the app
 	@! grep -rnE 'URLSession|NSURLConnection|CFNetwork|NWConnection|NWListener|URLRequest|import Network|https?://' Sources/ || (echo "network code found (ADR 0001)"; exit 1)
 
 defaults-guard:   ## PARLEY-13: settings always go through AppDefaults.store (never the owner's domain in a sandboxed run)
-	@! grep -rn '@AppStorage(' Sources/ | grep -v 'store: AppDefaults.store' || (echo "@AppStorage must name store: AppDefaults.store"; exit 1)
+	@! grep -rn '@AppStorage(' Sources/ | grep -vE '@AppStorage\("[^"]+", store: AppDefaults\.store\)' || (echo "@AppStorage must name store: AppDefaults.store"; exit 1)
+	@! grep -rnE 'defaultAppStorage\(\.standard|CFPreferences' Sources/ || (echo "settings must go through AppDefaults.store"; exit 1)
 	@! grep -rnE 'UserDefaults(\(|\.standard)' Sources/ | grep -v 'AppDefaults.swift' || (echo "use AppDefaults.store"; exit 1)
 
 ci: offline-guard defaults-guard build test

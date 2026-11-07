@@ -16,6 +16,8 @@ Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [00
 | PARLEY-10 | v0.2.0 | Continue PARLEY-9: one `--data-dir` parser refusing `=`/empty/flag values (exit 2), shot-test ignoring `ParleyTests` helpers | S | done (9.5) |
 | PARLEY-11 | v0.2.0 | Debt from PARLEY-2: lowering the goal meets today (test), progress banner, refreshed narrow screenshot, status.md | S | done (9.5) |
 | PARLEY-12 | v0.2.0 | Debt from PARLEY-3: mic-stop race, clip end within the file, secondary skip button, recognition errors shown, W2 row | S | done (8.5) |
-| PARLEY-13 | v0.2.0 | Sandboxed runs (`--data-dir`) use their own defaults domain and never schedule reminders | S | doing |
-| PARLEY-14 | v0.2.0 | Debt from PARLEY-4: praise not offered as a phrase, model timeout, chat subtitle, button size, screenshots | S | doing |
+| PARLEY-13 | v0.2.0 | Sandboxed runs (`--data-dir`) use their own defaults domain and never schedule reminders | S | blocked → PARLEY-16 |
+| PARLEY-14 | v0.2.0 | Debt from PARLEY-4: praise not offered as a phrase, model timeout, chat subtitle, button size, screenshots | S | blocked → PARLEY-17 |
 | PARLEY-15 | v0.3.0 | Debt from PARLEY-7/8/12 final rounds: headerless `;` CSV tie and BOM before `#separator`, import off the main actor; reminder footer reset + time-zone change + goal-met wiring test; MicCheck `failure` reset, skip-while-listening race, failed-start cleanup test | M | todo |
+| PARLEY-16 | v0.2.0 | Continue PARLEY-13: real app refuses sandboxed runs, clean only finished runs' domains (files deleted), SIGTERM cleanup, stricter guard | S | doing |
+| PARLEY-17 | v0.2.0 | Continue PARLEY-14: one `modelTimeout` that returns on time even if the model ignores cancellation; session reset | S | doing |

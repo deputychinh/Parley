@@ -21,5 +21,7 @@ domain (`com.david.parley`), so they read the owner's settings and rebuilt the o
 - Round 2 (fresh): 8.5/10 — per-pid domains never removed; `defaults-guard` missed `store: .standard` and `UserDefaults(suiteName:)`; story said "parley.sandbox". Another reviewer found that shot runs still wrote the main window frame into `com.david.parley` (the owner check had filtered `NSWindow Frame` lines — that evidence was wrong).
   Fixed: screenshots and reviews run `build/Parley-sandbox.app` (`make sandbox-app`, bundle id `com.david.parley.sandbox`), so anything macOS saves lands in that app's domain; owner defaults verified **byte-identical, window frames included**, before/after three shot runs; stale `parley.sandbox*` domains removed at a sandboxed launch and the own domain at quit (`SandboxCleanupTests`); `defaults-guard` rejects any `@AppStorage(` without `store: AppDefaults.store` and any `UserDefaults(`/`.standard` outside AppDefaults.swift; no "blocked" footer in a sandbox. The domain is `parley.sandbox.<pid>`.
 
+- Round 3 (fresh, last allowed): 7.5/10 — requirements fit 0.5: a `--data-dir` run of the real app still saved window frames under com.david.parley; "removed" stale domains were only emptied; cleanup could wipe a running instance's domain; guard bypasses. **Blocked** under the round-3 rule → continued as PARLEY-16.
+
 ## Score
-Pending review.
+Blocked after round 3 (requirements fit 0.5); continued in PARLEY-16.

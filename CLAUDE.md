@@ -18,7 +18,9 @@ Offline interpreter + English learning app for macOS 26+ (SwiftUI, SwiftPM execu
 
 - **Never touch `~/Documents/Parley`** (the owner's data) from tests, scripts or screenshots: use `--data-dir <dir>` /
   `PARLEY_DATA_DIR`, `TestData.file(_:)` in tests, `Parley --seed <dir>` for sample data (only into a missing or empty folder outside the real one — `Seed.isAllowed`).
-  (`open --env` does not reach the app; pass `--data-dir` as an argument.)
+  (`open --env` does not reach the app; pass `--data-dir` as an argument.) Any GUI run with `--data-dir` — scripts,
+  reviews, manual checks — uses `build/Parley-sandbox.app` (`make sandbox-app`, bundle id `com.david.parley.sandbox`):
+  the real app refuses to start sandboxed, because macOS would save its window frames in the owner's settings.
 - Run the seed / CLI checks with `.build/release/Parley`, not the binary inside `build/Parley.app`: from a shell the
   bundled binary blocks on a TCC prompt because the repo lives under ~/Documents.
 - Offline only (ADR 0001): no network code in `Sources/`; AI = FoundationModels, checked with `available` first.
