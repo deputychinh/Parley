@@ -112,6 +112,8 @@ final class VocabStore {
 enum Speaker {
     private static let synth = AVSpeechSynthesizer()
 
+    static func stop() { synth.stopSpeaking(at: .immediate) }
+
     /// `speed` multiplies the user's reading rate (Settings), e.g. 0.75 in listening practice.
     static func speak(_ text: String, language: Locale.Language, speed: Double = 1) {
         synth.stopSpeaking(at: .immediate)

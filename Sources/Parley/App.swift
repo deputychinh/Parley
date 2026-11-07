@@ -13,6 +13,10 @@ enum Main {
             }
             dispatchMain()
         }
+        if args.contains("--ai-eval") { // `make ai-eval`: on-device model quality + latency (needs Apple Intelligence)
+            Task { @MainActor in exit(await AIEval.run() ? 0 : 1) }
+            dispatchMain()
+        }
         if args.contains("--seed") { // sample data for screenshots (scripts/shot.sh)
             guard let dir = Seed.folder(in: args) else { print("FAIL: --seed needs a folder"); exit(1) }
             do { try Seed.write(to: dir); exit(0) } catch { print("FAIL:", error.localizedDescription); exit(1) }

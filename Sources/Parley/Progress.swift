@@ -46,6 +46,7 @@ enum XP {
     static let correct = 10
     static let attempt = 2
     static let newWord = 5
+    static let turn = 15 // one conversation turn
     static func answer(_ ok: Bool) -> Int { ok ? correct : attempt }
 }
 
