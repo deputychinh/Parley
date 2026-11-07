@@ -68,7 +68,7 @@ struct ContentView: View {
         .navigationSubtitle(model.status)
         .modifier(CheckInAlert(model: model))
         .onChange(of: route) { if route == nil { route = .live } }
-        .toolbar { toolbar }
+        .toolbar { if route != .conversation { toolbar } } // the chat has its own mic
         // Narrow window → hide the sidebar and shorten toolbar labels (only when crossing the threshold).
         .onGeometryChange(for: Bool.self) { $0.size.width < 820 } action: { narrow in
             withAnimation(.smooth) { columns = narrow ? .detailOnly : .all }

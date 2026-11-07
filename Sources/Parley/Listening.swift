@@ -552,13 +552,18 @@ struct ListeningSession: View {
 
 struct DiffText: View {
     let tokens: [WordDiff.Token]
+    /// true = the expected text is a correction of the learner's (fixes in green, kept words plain).
+    var correction = false
     var body: some View {
         tokens.reduce(Text("")) { acc, t in
             let piece: Text
             switch t.kind {
-            case .correct: piece = Text(t.word).foregroundStyle(.green)
+            case .correct: piece = correction ? Text(t.word) : Text(t.word).foregroundStyle(.green)
+            case .wrong(let typed) where correction:
+                piece = Text("\(Text(typed).foregroundStyle(.secondary).strikethrough()) \(Text(t.word).foregroundStyle(.green).bold())")
             case .wrong(let typed):
                 piece = Text("\(Text(t.word).foregroundStyle(.red).underline()) \(Text("(\(typed))").foregroundStyle(.secondary).strikethrough())")
+            case .missing where correction: piece = Text(t.word).foregroundStyle(.green).bold()
             case .missing: piece = Text("[\(t.word)]").foregroundStyle(.orange).bold()
             case .extra: piece = Text(t.word).foregroundStyle(.secondary).strikethrough()
             }

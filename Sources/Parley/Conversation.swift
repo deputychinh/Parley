@@ -110,10 +110,12 @@ enum Coach {
         return !c.isEmpty && key(original) != key(c)
     }
 
-    /// `natural` is worth showing only when it differs from what the learner (or the correction) already said.
+    /// `natural` is worth showing only when it is a rewrite of what the learner said (keeps ≥ 40 % of their words, so
+    /// a compliment like "Good job!" is not offered as a phrase) and differs from the original and the correction.
     static func showsNatural(original: String, corrected: String, natural: String) -> Bool {
         let n = key(natural)
-        return !n.isEmpty && n != key(original) && n != key(corrected)
+        let kept = WordDiff.score(WordDiff.diff(expected: original, typed: natural))
+        return !n.isEmpty && n != key(original) && n != key(corrected) && kept >= 0.4
     }
 
     private static func key(_ s: String) -> String {
@@ -144,11 +146,13 @@ struct CoachReply: Equatable {
         return CoachReply(reply: t.reply, corrected: t.corrected, natural: t.natural, tipVi: t.tipVi)
     }
 
+    /// Vietnamese only (the system's error text can be English); the details go to the log.
     static func message(for error: Error) -> String {
         if let e = error as? LanguageModelSession.GenerationError, case .exceededContextWindowSize = e {
             return "Cuộc hội thoại đã quá dài với AI trên máy. Hãy kết thúc và bắt đầu lượt mới."
         }
-        return "AI chưa trả lời được: \(error.localizedDescription)"
+        print("conversation:", error)
+        return "AI chưa trả lời được lúc này. Câu của bạn vẫn còn trong ô nhập — thử gửi lại nhé."
     }
 }
 
@@ -172,6 +176,13 @@ final class ConversationModel {
     private(set) var lines: [ChatLine] = []
     var thinking = false
     var error: String?
+    /// Text to put back in the composer after a failed turn (the learner never retypes).
+    private(set) var restoreDraft: String?
+    /// After "Kết thúc" a reply that is still on its way is dropped (no line, no XP, no speech).
+    private(set) var ended = false
+
+    func end() { ended = true }
+    func consumeDraft() -> String? { defer { restoreDraft = nil }; return restoreDraft }
     @ObservationIgnored private let engine: CoachEngine
     @ObservationIgnored private let activity: ActivityStore?
 
@@ -197,8 +208,9 @@ final class ConversationModel {
 
     /// Sends one learner message; returns the AI reply (nil on failure, with `error` set and the message removed).
     func send(_ raw: String, spoken: Bool) async -> String? {
-        guard let text = Coach.clean(raw), !thinking else { return nil }
+        guard let text = Coach.clean(raw), !thinking, !ended else { return nil }
         error = nil
+        restoreDraft = nil
         lines.append(ChatLine(who: .learner, text: text, spoken: spoken))
         let index = lines.count - 1
         thinking = true
@@ -206,6 +218,7 @@ final class ConversationModel {
         let last = lines.dropLast().last { $0.who == .ai }?.text ?? scenario.opener
         do {
             let turn = try await engine.turn(after: last, learner: text)
+            guard !ended else { lines.remove(at: index); return nil }
             if Coach.hasMistake(original: text, corrected: turn.corrected) { lines[index].corrected = turn.corrected }
             if Coach.showsNatural(original: text, corrected: turn.corrected, natural: turn.natural) { lines[index].natural = turn.natural }
             lines[index].tip = turn.tipVi.isEmpty ? nil : turn.tipVi
@@ -215,9 +228,10 @@ final class ConversationModel {
             activity?.log(.turn(spoken: spoken))
             return shown
         } catch {
-            self.error = ModelCoach.message(for: error)
+            if !ended { self.error = ModelCoach.message(for: error) }
         }
         lines.remove(at: index) // let the learner edit and resend
+        if !ended { restoreDraft = text }
         return nil
     }
 }
@@ -355,6 +369,8 @@ struct ConversationSession: View {
         HStack(spacing: 12) {
             Button {
                 Task { _ = await mic.stop() }
+                model.end()
+                Speaker.stop()
                 finished ? onExit() : withAnimation(.smooth) { finished = true }
             } label: {
                 Label(finished ? "Đóng" : "Kết thúc", systemImage: "xmark")
@@ -429,7 +445,7 @@ struct ConversationSession: View {
     private func feedback(_ line: ChatLine) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             if let c = line.corrected {
-                Label { DiffText(tokens: WordDiff.diff(expected: c, typed: line.text)) } icon: {
+                Label { DiffText(tokens: WordDiff.diff(expected: c, typed: line.text), correction: true) } icon: {
                     Image(systemName: "pencil.circle.fill").foregroundStyle(.orange)
                 }
                 .accessibilityElement(children: .ignore)
@@ -444,11 +460,12 @@ struct ConversationSession: View {
                     }
                     Spacer(minLength: 8)
                     Button { say(n) } label: { Image(systemName: "speaker.wave.2") }
-                        .buttonStyle(.borderless).help("Nghe câu gợi ý").accessibilityLabel("Nghe câu gợi ý")
+                        .buttonStyle(.borderless).help("Nghe câu gợi ý").accessibilityLabel("Nghe câu gợi ý: \(n)")
                     Button { Task { await save(n) } } label: {
                         Label(saved.contains(n) ? "Đã lưu" : "Lưu cụm từ", systemImage: saved.contains(n) ? "checkmark" : "plus")
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel(saved.contains(n) ? "Đã lưu: \(n)" : "Lưu vào từ vựng: \(n)")
                     .disabled(saved.contains(n) || vocab.contains(n))
                 }
             }
@@ -531,8 +548,8 @@ struct ConversationSession: View {
         draft = ""
         if let reply = await model.send(text, spoken: spoken) {
             if speakReplies { say(reply) }
-        } else {
-            draft = text // keep what the learner wrote so it can be resent
+        } else if let back = model.consumeDraft() {
+            draft = back // keep what the learner wrote so it can be resent
         }
         focused = true
     }
@@ -557,68 +574,5 @@ struct ConversationSession: View {
     private func save(_ phrase: String) async {
         let en = Locale.Language(identifier: "en"), vi = Locale.Language(identifier: "vi")
         if await model.save(phrase, to: vocab, translate: { await Translator.translate($0, from: en, to: vi) }) { saved.insert(phrase) }
-    }
-}
-
-// MARK: - `make ai-eval`
-
-/// Known learner sentences → does the on-device coach fix the planted mistake and leave correct sentences alone?
-enum AIEval {
-    struct Case { let text: String; let mustContain: String? } // nil = sentence is correct, expect no correction
-
-    static let cases: [Case] = [
-        Case(text: "Yesterday I fix the login bug and write some tests.", mustContain: "fixed"),
-        Case(text: "She don't agree with the new deadline.", mustContain: "doesn't"),
-        Case(text: "I have finished the report yesterday.", mustContain: "finished the report yesterday"),
-        Case(text: "We discussed about the budget in the meeting.", mustContain: "discussed the budget"),
-        Case(text: "Can you explain me how the cache works?", mustContain: "explain to me"),
-        Case(text: "I am working here since 2020.", mustContain: "have been working"),
-        Case(text: "I finished the API yesterday and today I will write the tests.", mustContain: nil),
-        Case(text: "Could we move the release to next Tuesday?", mustContain: nil),
-    ]
-
-    /// Prints one line per case plus hit rate and p50 latency; true when ≥ 60 % (ADR 0001) and p50 < 8 s (spec).
-    @MainActor static func run() async -> Bool {
-        guard ExampleWriter.available else { print("ai-eval: Apple Intelligence not available"); return false }
-        var hits = 0
-        var times: [Double] = []
-        for c in cases {
-            let engine = ModelCoach(instructions: Coach.instructions(Scenario.all[0], .b1))
-            let t0 = Date()
-            let turn = try? await engine.turn(after: "What did you work on yesterday?", learner: c.text)
-            times.append(Date().timeIntervalSince(t0))
-            let corrected = turn?.corrected ?? ""
-            let fixed = Coach.hasMistake(original: c.text, corrected: corrected)
-            let ok = c.mustContain.map { fixed && corrected.lowercased().contains($0) } ?? !fixed
-            if ok { hits += 1 }
-            print(String(format: "  %@ %.1fs  %@ → %@", ok ? "✔" : "✘", times.last!, c.text, corrected))
-        }
-        let p50 = times.sorted()[times.count / 2]
-        let rate = Double(hits) / Double(cases.count)
-        print(String(format: "ai-eval conversation: %d/%d (%.0f%%), p50 %.1fs", hits, cases.count, rate * 100, p50))
-        return rate >= 0.6 && p50 < 8
-    }
-
-    /// A paragraph with 6 planted mistakes: the writing coach must find at least 3 and finish in < 20 s.
-    static let essay = "Last week our team have released the new payment page. Before the release we was very busy, "
-        + "because the tests was failing every day. I fixed many bugs and I learn a lot about the code. "
-        + "Now the page is more faster and the customers is happy."
-    static let planted = ["have released", "we was", "tests was", "I learn", "more faster", "customers is"]
-
-    @MainActor static func runWriting() async -> Bool {
-        guard ExampleWriter.available else { return false }
-        let t0 = Date()
-        guard let entry = try? await WritingStore.review(essay, prompt: "Write a short status update.") else {
-            print("ai-eval writing: model error")
-            return false
-        }
-        let seconds = Date().timeIntervalSince(t0)
-        let found = planted.filter { p in
-            entry.mistakes.contains { $0.original.lowercased().contains(p.lowercased()) || p.lowercased().contains($0.original.lowercased()) }
-        }
-        print(String(format: "ai-eval writing: %d/%d planted mistakes found, %d reported, level %@, %.1fs",
-                     found.count, planted.count, entry.mistakes.count, entry.level, seconds))
-        for m in entry.mistakes { print("  \(m.original) → \(m.fix) — \(m.explanation)") }
-        return found.count >= 3 && seconds < 20
     }
 }

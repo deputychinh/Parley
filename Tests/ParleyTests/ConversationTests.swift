@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import FoundationModels
 import Testing
 @testable import Parley
 
@@ -42,6 +43,8 @@ import Testing
 
     @Test func naturalPhrasingOnlyWhenNew() {
         #expect(!Coach.showsNatural(original: "I fixed it", corrected: "I fix it", natural: "I fixed it.")) // same as what was said
+        #expect(!Coach.showsNatural(original: "I fix login bug yesterday", corrected: "I fixed the login bug yesterday",
+                                    natural: "Great job, keep going!"))                                      // a compliment, not a rewrite
         #expect(Coach.showsNatural(original: "I fix bug.", corrected: "I fixed the bug.", natural: "I sorted out the bug."))
         #expect(!Coach.showsNatural(original: "I fix bug.", corrected: "I fixed the bug.", natural: "I fixed the bug"))
         #expect(!Coach.showsNatural(original: "I fixed the bug.", corrected: "I fixed the bug.", natural: "i fixed the bug"))
@@ -95,8 +98,32 @@ import Testing
         let a = ActivityStore(file: TestData.file("activity.json"))
         let m = ConversationModel(scenario: s, level: .b1, activity: a, engine: FakeCoach([.failure(Boom())]))
         #expect(await m.send("Hello there", spoken: false) == nil)
-        #expect(m.lines.count == 1 && m.error?.contains("boom") == true && !m.thinking)
+        #expect(m.lines.count == 1 && m.error == ModelCoach.message(for: Boom()) && !m.thinking)
+        #expect(m.error?.contains("boom") == false)                     // Vietnamese only, no system text
+        #expect(m.consumeDraft() == "Hello there" && m.consumeDraft() == nil) // the learner's words come back once
         #expect(a.data.days.isEmpty)
+    }
+
+    @Test func contextWindowHasItsOwnMessage() {
+        let e = LanguageModelSession.GenerationError.exceededContextWindowSize(.init(debugDescription: "full"))
+        #expect(ModelCoach.message(for: e).contains("quá dài"))
+    }
+
+    @Test func endingDropsAReplyStillOnItsWay() async {
+        let a = ActivityStore(file: TestData.file("activity.json"))
+        final class EndingCoach: CoachEngine {
+            weak var model: ConversationModel?
+            func turn(after ai: String, learner: String) async throws -> CoachReply {
+                model?.end() // the learner presses "Kết thúc" while the model is thinking
+                return CoachReply(reply: "Late reply", corrected: learner, natural: "", tipVi: "")
+            }
+        }
+        let coach = EndingCoach()
+        let m = ConversationModel(scenario: s, level: .b1, activity: a, engine: coach)
+        coach.model = m
+        #expect(await m.send("Hello", spoken: true) == nil)
+        #expect(m.lines.count == 1 && m.error == nil && m.consumeDraft() == nil && a.data.days.isEmpty)
+        #expect(await m.send("Again", spoken: false) == nil) // nothing is sent after the end
     }
 
     @Test func emptyInputIsNotSentAndEmptyReplyGetsAFallback() async {
