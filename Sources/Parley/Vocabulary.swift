@@ -43,9 +43,10 @@ struct VocabItem: Codable, Identifiable, Hashable {
 @Observable @MainActor
 final class VocabStore {
     private(set) var items: [VocabItem] = []
-    @ObservationIgnored private let url = Model.dataDir.appending(path: "vocabulary.json")
+    @ObservationIgnored private let url: URL
 
-    init() {
+    init(file: URL = Model.dataDir.appending(path: "vocabulary.json")) {
+        url = file
         guard let data = try? Data(contentsOf: url) else { return }
         do {
             items = try Self.decoder.decode([VocabItem].self, from: data)
@@ -89,7 +90,7 @@ final class VocabStore {
     }
 
     private func save() {
-        try? FileManager.default.createDirectory(at: Model.dataDir, withIntermediateDirectories: true)
+        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         try? Self.encoder.encode(items).write(to: url, options: .atomic)
     }
 

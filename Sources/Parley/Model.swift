@@ -26,7 +26,9 @@ final class Model {
     private(set) var stamp: String? // current session id, e.g. 2026-11-05_01-15-12
     var prepareConfig: TranslationSession.Configuration? // set → SwiftUI downloads the EN→VI pack
 
-    nonisolated static let dataDir = URL.documentsDirectory.appending(path: "Parley")
+    /// `~/Documents/Parley`; `--data-dir <path>` (or `PARLEY_DATA_DIR`) points screenshots and tests at a scratch folder instead.
+    nonisolated static let dataDir = (DebugArgs.value("--data-dir") ?? ProcessInfo.processInfo.environment["PARLEY_DATA_DIR"])
+        .map { URL(fileURLWithPath: $0) } ?? URL.documentsDirectory.appending(path: "Parley")
     /// Language being heard (speech recognition needs a region, e.g. en_US vs en_GB).
     var sourceLocale = Locale(identifier: UserDefaults.standard.string(forKey: "sourceLocale") ?? "en_US") {
         didSet { UserDefaults.standard.set(sourceLocale.identifier, forKey: "sourceLocale"); translator = nil; missingPack = false }

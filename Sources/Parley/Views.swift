@@ -1032,10 +1032,10 @@ struct MiniView: View {
                         ForEach(live, id: \.self) { s in
                             VStack(alignment: .leading, spacing: 3) {
                                 if showSource {
-                                    Label { Text(model.liveEN[s] ?? "") + Self.caret } icon: { Image(systemName: s.symbol).foregroundStyle(s.color) }
+                                    Label { Text("\(model.liveEN[s] ?? "")\(Self.caret)") } icon: { Image(systemName: s.symbol).foregroundStyle(s.color) }
                                         .font(.system(size: fontSize * 0.85)).foregroundStyle(.secondary)
                                 }
-                                (Text(model.liveVI[s] ?? "…") + (showSource ? Text("") : Self.caret))
+                                Text("\(model.liveVI[s] ?? "…")\(showSource ? Text("") : Self.caret)")
                                     .font(.system(size: fontSize, weight: .medium))
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
