@@ -5,6 +5,7 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 ## [Unreleased]
 
 ### Added
+- *Tiến độ*: XP per skill per day, daily goal (10–200 XP), streak, 12-week heatmap, skill bars; sidebar ring + 🔥 streak. (PARLEY-2)
 - Swift Testing suite (`make test`) and `make ci` gate (offline guard, warnings as errors). (PARLEY-1)
 - `--data-dir` / `PARLEY_DATA_DIR`, `--seed <dir>` sample data and `make shot` screenshots that never touch the real data folder. (PARLEY-1)
 

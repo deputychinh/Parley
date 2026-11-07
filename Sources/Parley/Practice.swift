@@ -268,6 +268,7 @@ struct PracticeSession: View {
     @State private var requeued: Set<UUID> = []
     @State private var mic = MicCheck()
     @FocusState private var focused: Bool
+    @Environment(ActivityStore.self) private var activity
 
     init(info: PracticeSessionInfo, store: VocabStore, onReplay: @escaping () -> Void, onExit: @escaping () -> Void) {
         mode = info.mode
@@ -647,6 +648,7 @@ struct PracticeSession: View {
         done += 1
         if ok { right += 1 }
         store.review(item.id, correct: ok)
+        activity.add(kinds.indices.contains(index) && kinds[index] == .speak ? .speaking : .vocabulary, xp: XP.answer(ok))
         if mode == .mix {
             withAnimation(.snappy) {
                 if ok {

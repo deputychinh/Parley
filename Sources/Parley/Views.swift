@@ -14,7 +14,7 @@ extension Source {
     var nsColor: NSColor { NSColor(color) }
 }
 
-enum Route: Hashable { case live, daily, topics, grammar, vocabulary, practice, pronunciation, session(URL) }
+enum Route: Hashable { case live, progress, daily, topics, grammar, vocabulary, practice, pronunciation, session(URL) }
 
 /// Soft tinted canvas behind the cards (content stays opaque; glass is reserved for toolbar controls per HIG).
 struct Backdrop: View {
@@ -48,6 +48,7 @@ struct ContentView: View {
             Group {
                 switch route ?? .live {
                 case .live: LiveView(model: model, vocab: vocab)
+                case .progress: ProgressScreen(vocab: vocab, study: study)
                 case .daily: DailyView(study: study, vocab: vocab)
                 case .topics: TopicsView(study: study, vocab: vocab)
                 case .grammar: GrammarView(study: study)
@@ -73,12 +74,17 @@ struct ContentView: View {
         .task { await model.loadLanguages() }
         .task { // debug: `open … --args --autostart [--record-screen] | --open-video | --route <daily|topics|grammar|vocabulary|practice|pronunciation|history>`
             let args = CommandLine.arguments
+            if let size = DebugArgs.value("--window-size")?.split(separator: ",").compactMap({ Double($0) }), size.count == 2 {
+                try? await Task.sleep(for: .milliseconds(300))
+                NSApp.windows.first { $0.identifier?.rawValue.hasPrefix("main") == true }?
+                    .setContentSize(NSSize(width: size[0], height: size[1])) // debug: narrow-layout screenshots
+            }
             if DebugArgs.has("--mini") {
                 try? await Task.sleep(for: .seconds(1)) // scenes aren't ready on the very first frame
                 openWindow(id: "mini")
             }
             if let i = args.firstIndex(of: "--route"), args.indices.contains(i + 1) {
-                let routes: [String: Route] = ["daily": .daily, "topics": .topics, "grammar": .grammar,
+                let routes: [String: Route] = ["progress": .progress, "daily": .daily, "topics": .topics, "grammar": .grammar,
                                                "vocabulary": .vocabulary, "practice": .practice, "pronunciation": .pronunciation]
                 route = routes[args[i + 1]] ?? .live
                 if args[i + 1] == "history", let url = Model.history().first { route = .session(url) }
@@ -235,6 +241,7 @@ struct Sidebar: View {
     let vocab: VocabStore
     let study: StudyStore
     @Binding var route: Route?
+    @Environment(ActivityStore.self) private var activity
 
     var body: some View {
         let _ = model.historyVersion
@@ -250,6 +257,14 @@ struct Sidebar: View {
                 .tag(Route.live)
             }
             Section("Học") {
+                Label {
+                    Text("Tiến độ")
+                } icon: {
+                    MiniRing(fraction: Double(activity.todayXP) / Double(max(activity.goal, 1)))
+                }
+                .badge(Text(activity.streak > 0 ? "🔥 \(activity.streak)" : "\(activity.todayXP)/\(activity.goal)"))
+                .help("Hôm nay \(activity.todayXP)/\(activity.goal) XP · chuỗi \(activity.streak) ngày")
+                .tag(Route.progress)
                 Label("Mỗi ngày", systemImage: "calendar.badge.plus")
                     .badge(study.data.day == StudyStore.day(.now) ? study.remainingToday : study.goal)
                     .tag(Route.daily)

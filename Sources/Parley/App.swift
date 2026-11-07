@@ -98,6 +98,7 @@ struct ParleyApp: App {
     var body: some Scene {
         Window(Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Parley", id: "main") {
             ContentView(model: delegate.model, vocab: delegate.vocab, study: delegate.study)
+                .environment(delegate.activity)
                 .frame(minWidth: 480, minHeight: 320)
         }
         .defaultSize(width: 1200, height: 740)
@@ -125,6 +126,7 @@ struct ParleyApp: App {
     let model = Model()
     let vocab = VocabStore()
     let study = StudyStore()
+    let activity = ActivityStore()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Task.detached(priority: .utility) { _ = Pronunciation.ipa("a") } // warm the 135k-word dictionary off the main thread

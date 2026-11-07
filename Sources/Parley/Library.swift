@@ -174,11 +174,14 @@ final class StudyStore {
 
     func knownCount(_ vocab: VocabStore) -> Int { vocab.items.count + data.known.count }
 
-    nonisolated static func day(_ date: Date) -> String {
+    nonisolated static func day(_ date: Date) -> String { dayFormatter.string(from: date) }
+    /// DateFormatter is thread-safe for formatting; creating one per call dominated progress aggregation.
+    nonisolated private static let dayFormatter: DateFormatter = {
         let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
         f.dateFormat = "yyyy-MM-dd"
-        return f.string(from: date)
-    }
+        return f
+    }()
 
     /// New day → new batch of `goal` words; also breaks the streak if yesterday's goal was missed.
     func refresh(vocab: VocabStore) {
@@ -361,6 +364,7 @@ struct DailyView: View {
     let study: StudyStore
     let vocab: VocabStore
     @AppStorage("dailyGoal") private var goal = 20
+    @Environment(ActivityStore.self) private var activity
     @AppStorage("startRank") private var startRank = 0
 
     var body: some View {
@@ -391,6 +395,7 @@ struct DailyView: View {
                 if study.completedToday { completeBanner }
                 ForEach(study.data.batch, id: \.self) { term in
                     DailyWordCard(term: term, card: study.data.cards[term], state: study.data.done[term]) { learned in
+                        if learned, study.data.done[term] == nil { activity.add(.vocabulary, xp: XP.newWord) }
                         withAnimation(.smooth) { study.resolve(term, learned: learned, vocab: vocab) }
                     }
                 }
@@ -1020,6 +1025,7 @@ struct GrammarQuiz: View {
     @State private var chosen: String?
     @State private var score = 0
     @State private var shakes = 0
+    @Environment(ActivityStore.self) private var activity
 
     var body: some View {
         Card(padding: 24) {
@@ -1096,6 +1102,7 @@ struct GrammarQuiz: View {
     private func choose(_ option: String, _ ex: GrammarExercise) {
         guard chosen == nil else { return }
         chosen = option
+        activity.add(.grammar, xp: XP.answer(option == ex.answer))
         if option == ex.answer { withAnimation { score += 1 } } else { withAnimation(.linear(duration: 0.4)) { shakes += 1 } }
     }
 

@@ -72,6 +72,26 @@ enum Seed {
             md += "**9:30:\(String(format: "%02d", 12 + i * 4)) AM** 🔊 \(l.0) <!-- t=\(l.2) -->\n> \(l.1)\n\n"
         }
         try Data(md.utf8).write(to: dir.appending(path: "\(sessionStamp).md"), options: .atomic)
+        try e.encode(sampleActivity(now: now)).write(to: dir.appending(path: "activity.json"), options: .atomic)
+    }
+
+    /// ~10 weeks of study: today under way (30/50), the 6 days before met the goal, scattered days earlier.
+    static func sampleActivity(now: Date) -> ActivityData {
+        var a = ActivityData()
+        let mix: [Skill] = [.vocabulary, .grammar, .listening, .speaking]
+        for back in 0..<70 {
+            let day = StudyStore.day(now.addingTimeInterval(Double(-back) * 86_400))
+            let xp = back == 0 ? 30 : back <= 6 ? 50 + (back * 13) % 40 : (back % 3 == 0 ? 0 : (back * 17) % 70)
+            guard xp > 0 else { continue }
+            var skills: [String: Int] = [:]
+            for (i, s) in mix.enumerated() where (back + i) % 2 == 0 || i == 0 { skills[s.rawValue] = xp / 2 / (i + 1) + 2 }
+            let scale = Double(xp) / Double(skills.values.reduce(0, +))
+            for k in skills.keys { skills[k] = Int((Double(skills[k]!) * scale).rounded()) }
+            skills[Skill.vocabulary.rawValue, default: 0] += xp - skills.values.reduce(0, +) // exact total
+            a.days[day] = skills
+            if xp >= a.goal { a.met.append(day) }
+        }
+        return a
     }
 
     static let sessionStamp = "2026-11-06_09-30-12"

@@ -132,6 +132,7 @@ struct PronunciationView: View {
     @State private var mic = MicCheck()
     @State private var active: String?
     @State private var results: [String: Bool] = [:]
+    @Environment(ActivityStore.self) private var activity
 
     var body: some View {
         Group {
@@ -241,6 +242,7 @@ struct PronunciationView: View {
     private func finish(_ w: SpokenWord) async {
         let heard = await mic.stop()
         let ok = Answer.score(heard: heard, expected: w.word) >= 1
+        activity.add(.speaking, xp: XP.answer(ok))
         if ok, (w.streak ?? 0) + 1 >= PronunciationStore.streakToClear {
             results[w.word] = true
             Speaker.speak(w.word, language: Locale(identifier: w.language).language)
