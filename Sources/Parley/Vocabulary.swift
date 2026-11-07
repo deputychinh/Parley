@@ -89,7 +89,7 @@ final class VocabStore {
         items.insert(contentsOf: fresh, at: 0)
         problem = nil
         save()
-        if problem != nil { items = before; return 0 }
+        guard problem == nil else { items = before; return 0 } // the save failed: keep memory and file in step
         return fresh.count
     }
 
@@ -131,6 +131,7 @@ enum Speaker {
     private static let synth = AVSpeechSynthesizer()
 
     static func stop() { synth.stopSpeaking(at: .immediate) }
+    static var isSpeaking: Bool { synth.isSpeaking }
 
     /// `speed` multiplies the user's reading rate (Settings), e.g. 0.75 in listening practice.
     static func speak(_ text: String, language: Locale.Language, speed: Double = 1) {

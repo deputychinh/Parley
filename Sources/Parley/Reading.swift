@@ -42,13 +42,34 @@ enum ReadingRules {
         }
     }
 
-    /// Vietnamese reason a passage can't be used; nil when it is fine.
+    static let questionCount = 3
+
+    /// Vietnamese reason a passage can't be used; nil when it is fine (AC6.3: exactly 3 valid questions).
     static func problem(with p: Passage) -> String? {
         let words = WritingRules.wordCount(p.text)
         if p.title.trimmingCharacters(in: .whitespaces).isEmpty { return "Bài đọc thiếu tiêu đề." }
         if words < minWords || words > maxWords { return "Bài đọc dài \(words) từ (cần \(minWords)–\(maxWords))." }
-        if validQuestions(p.questions).count < 2 { return "Bài đọc cần ít nhất 2 câu hỏi hợp lệ." }
+        if validQuestions(p.questions).count != questionCount { return "Bài đọc cần đúng \(questionCount) câu hỏi hợp lệ." }
         return nil
+    }
+
+    /// Target length per level for generated passages (A2 texts came back too short without it).
+    static func wordTarget(_ level: CEFR) -> ClosedRange<Int> {
+        switch level {
+        case .a2: 100...150
+        case .b1: 140...200
+        case .b2, .c1: 180...250
+        }
+    }
+
+    /// An explanation only counts when it is Vietnamese (the model sometimes answers in English).
+    static func vietnameseOrEmpty(_ s: String) -> String { WritingRules.isVietnamese(s) ? s : "" }
+
+    /// The options in a stable order that doesn't depend on how they were written (the right answer is often the
+    /// longest or listed first): sorted by a deterministic FNV-1a hash of passage id + option.
+    static func displayOrder(_ q: ReadingQuestion, seed: String) -> [String] {
+        func fnv(_ s: String) -> UInt64 { s.utf8.reduce(14695981039346656037) { ($0 ^ UInt64($1)) &* 1099511628211 } }
+        return q.options.sorted { (fnv(seed + $0), $0) < (fnv(seed + $1), $1) }
     }
 
     static func score(_ answers: [Int: String], _ questions: [ReadingQuestion]) -> Int {
@@ -74,6 +95,27 @@ enum ReadingRules {
     var answer: String
     @Guide(description: "One sentence in Vietnamese explaining where the answer is in the text")
     var explainVi: String
+}
+
+/// One visit to a passage's quiz: answers, and which questions already earned XP (a retry earns nothing).
+struct ReadingQuiz: Equatable {
+    let questions: [ReadingQuestion]
+    private(set) var answers: [Int: String] = [:]
+    private(set) var scored: Set<Int> = []
+
+    init(_ questions: [ReadingQuestion]) { self.questions = questions }
+
+    /// Records an answer; returns the XP event the first time question `i` is answered in this visit.
+    mutating func choose(_ i: Int, _ option: String) -> XPEvent? {
+        guard questions.indices.contains(i), answers[i] == nil else { return nil }
+        answers[i] = option
+        guard scored.insert(i).inserted else { return nil }
+        return .reading(ok: option == questions[i].answer)
+    }
+
+    mutating func retry() { answers = [:] }
+    var finished: Bool { answers.count == questions.count && !questions.isEmpty }
+    var score: Int { ReadingRules.score(answers, questions) }
 }
 
 // MARK: - Store (generated passages and best scores)
@@ -105,6 +147,7 @@ final class ReadingStore {
 
     /// One answered question: reading XP (10 right / 2 wrong).
     func answer(correct: Bool) { activity?.log(.reading(ok: correct)) }
+    func log(_ event: XPEvent?) { if let event { activity?.log(event) } }
 
     func finish(_ id: String, score: Int) {
         data.best[id] = max(data.best[id] ?? 0, score)
@@ -122,15 +165,25 @@ final class ReadingStore {
         save()
     }
 
-    /// Writes a new passage with the on-device model; throws a Vietnamese error when the result is unusable.
+    /// Writes a new passage with the on-device model (one automatic retry); throws a Vietnamese error when unusable.
     static func generate(topic: String, level: CEFR, now: Date = .now) async throws -> Passage {
-        let ask = "Write a reading passage for a Vietnamese adult learner at CEFR \(level.rawValue) (\(level.hint)) about: \(topic)."
+        do { return try await generateOnce(topic: topic, level: level, now: now) } catch {
+            print("reading: first attempt failed:", error)
+            return try await generateOnce(topic: topic, level: level, now: now)
+        }
+    }
+
+    private static func generateOnce(topic: String, level: CEFR, now: Date) async throws -> Passage {
+        let target = ReadingRules.wordTarget(level)
+        let ask = "Write a reading passage for a Vietnamese adult learner at CEFR \(level.rawValue) (\(level.hint)) about: \(topic). "
+            + "Use \(target.lowerBound) to \(target.upperBound) words in 3 or 4 paragraphs and American spelling. "
+            + "Write exactly 3 questions; only one option may be correct; explanations in Vietnamese."
         let g = try await withTimeout(60) {
             try await LanguageModelSession(instructions: "You write clear, accurate graded reading texts and fair comprehension questions.")
                 .respond(to: ask, generating: GeneratedPassage.self).content
         }
         let questions = ReadingRules.validQuestions(g.questions.map {
-            ReadingQuestion(prompt: $0.prompt, options: $0.options, answer: $0.answer, explainVi: $0.explainVi)
+            ReadingQuestion(prompt: $0.prompt, options: $0.options, answer: $0.answer, explainVi: ReadingRules.vietnameseOrEmpty($0.explainVi))
         })
         let p = Passage(id: "gen-\(Int(now.timeIntervalSince1970))", level: level.rawValue, title: g.title, topic: topic,
                         text: g.text.trimmingCharacters(in: .whitespacesAndNewlines), questions: questions, generated: true)
@@ -281,17 +334,25 @@ struct PassageView: View {
     let store: ReadingStore
     let vocab: VocabStore
     let onBack: () -> Void
-    @State private var answers: [Int: String] = [:]
+    @State private var quiz: ReadingQuiz
     @State private var reading = false
 
-    private var questions: [ReadingQuestion] { ReadingRules.validQuestions(passage.questions) }
+    init(passage: Passage, store: ReadingStore, vocab: VocabStore, onBack: @escaping () -> Void) {
+        self.passage = passage
+        self.store = store
+        self.vocab = vocab
+        self.onBack = onBack
+        _quiz = State(initialValue: ReadingQuiz(ReadingRules.validQuestions(passage.questions)))
+    }
+
+    private var questions: [ReadingQuestion] { quiz.questions }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
                 BackButton(title: "Bài đọc", action: { Speaker.stop(); onBack() })
                 Text(passage.level).font(.headline).foregroundStyle(Color.parley)
-                Text(passage.title).font(.title3.weight(.semibold)).lineLimit(1)
+                Text(passage.topic).foregroundStyle(.secondary).lineLimit(1)
                 Spacer()
                 Button {
                     if reading { Speaker.stop() } else { Speaker.speak(passage.text, language: Locale.Language(identifier: "en-US")) }
@@ -307,22 +368,28 @@ struct PassageView: View {
                     .background(.background, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Color.primary.opacity(0.08)))
                     .frame(minWidth: 320)
-                ScrollView { quiz }
+                ScrollView { quizPanel }
                     .frame(minWidth: 260, idealWidth: 340, maxWidth: 380)
             }
             .padding([.horizontal, .bottom], 20)
         }
         .onDisappear { Speaker.stop() }
+        .task(id: reading) { // the button returns to "Nghe cả bài" when the speech ends by itself
+            while reading, !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(400))
+                if !Speaker.isSpeaking { reading = false }
+            }
+        }
     }
 
-    private var quiz: some View {
+    private var quizPanel: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Câu hỏi").font(.headline)
             ForEach(Array(questions.enumerated()), id: \.offset) { i, q in
                 VStack(alignment: .leading, spacing: 8) {
                     Text("\(i + 1). \(q.prompt)").font(.callout.weight(.semibold)).fixedSize(horizontal: false, vertical: true)
-                    ForEach(q.options, id: \.self) { o in
-                        let picked = answers[i]
+                    ForEach(ReadingRules.displayOrder(q, seed: passage.id), id: \.self) { o in
+                        let picked = quiz.answers[i]
                         let tint: Color = picked == nil ? .parley : o == q.answer ? .green : o == picked ? .red : .secondary
                         Button { choose(i, o) } label: {
                             HStack {
@@ -339,25 +406,23 @@ struct PassageView: View {
                         .disabled(picked != nil)
                         .accessibilityLabel(picked == nil ? o : (o == q.answer ? "\(o), đáp án đúng" : o))
                     }
-                    if answers[i] != nil, !q.explainVi.isEmpty { Text(q.explainVi).font(.caption).foregroundStyle(.secondary) }
+                    if quiz.answers[i] != nil, !q.explainVi.isEmpty { Text(q.explainVi).font(.caption).foregroundStyle(.secondary) }
                 }
                 .padding(12)
                 .background(.background, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color.primary.opacity(0.08)))
             }
-            if answers.count == questions.count, !questions.isEmpty {
-                let s = ReadingRules.score(answers, questions)
+            if quiz.finished {
+                let s = quiz.score
                 Label("Đúng \(s)/\(questions.count) câu", systemImage: s == questions.count ? "trophy.fill" : "checkmark.seal.fill")
                     .font(.headline).foregroundStyle(Color.parley)
-                Button("Làm lại") { answers = [:] }.buttonStyle(.glass)
+                Button("Làm lại (không tính thêm XP)") { quiz.retry() }.buttonStyle(.glass)
             }
         }
     }
 
     private func choose(_ i: Int, _ option: String) {
-        guard answers[i] == nil else { return }
-        answers[i] = option
-        store.answer(correct: option == questions[i].answer)
-        if answers.count == questions.count { store.finish(passage.id, score: ReadingRules.score(answers, questions)) }
+        store.log(quiz.choose(i, option))
+        if quiz.finished { store.finish(passage.id, score: quiz.score) }
     }
 }

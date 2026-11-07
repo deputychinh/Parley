@@ -26,7 +26,7 @@ struct TranscriptView: NSViewRepresentable {
     var highlighted: Int?                 // line being played back
     var onLineClick: ((Int) -> Void)?     // click (no selection) on a line
     var showMeta = true                   // source icon + time above each paragraph (off for reading passages)
-    @AppStorage("fontSize") private var fontSize = 17.0
+    @AppStorage("fontSize", store: AppDefaults.store) private var fontSize = 17.0
 
     func makeCoordinator() -> Coordinator { Coordinator() }
 

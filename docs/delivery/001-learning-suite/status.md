@@ -5,7 +5,7 @@ Path: Full — because the request is open-ended and adds several features to an
 Appetite: 3 slices of agent work · started 2026-11-08 · **Spent: ~2.5 of 3 slices**
 Status: doing
 
-**Next action:** Reviews for PARLEY-6 (r1), PARLEY-7/8/10/11/12 (r2), PARLEY-13/14 (r1) on branch `parley-fix5`; then merge to main, verify-app + demo, tag v0.2.0.
+**Next action:** Re-review (fresh reviewers) on branch `parley-fix6`: PARLEY-6 r2, PARLEY-7 r3 (final), PARLEY-8 r3 (final), PARLEY-12 r3 (final), PARLEY-13 r2, PARLEY-14 r2. Shipped since last: PARLEY-10 9.5, PARLEY-11 9.5. Then verify-app + demo page, tag v0.2.0 on main.
 
 Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action.
 

@@ -374,8 +374,8 @@ struct BackButton: View {
 struct DailyView: View {
     let study: StudyStore
     let vocab: VocabStore
-    @AppStorage("dailyGoal") private var goal = 20
-    @AppStorage("startRank") private var startRank = 0
+    @AppStorage("dailyGoal", store: AppDefaults.store) private var goal = 20
+    @AppStorage("startRank", store: AppDefaults.store) private var startRank = 0
 
     var body: some View {
         ScrollView {

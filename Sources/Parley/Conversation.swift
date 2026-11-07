@@ -121,8 +121,8 @@ enum Coach {
     /// "…— good job!", "Great work", "Well done": feedback about the learner, not a way to say their sentence.
     static func isPraise(_ s: String) -> Bool {
         let k = " " + key(s) + " "
-        return ["good job", "great job", "great work", "well done", "nice work", "keep it up", "excellent", "perfect",
-                "good work", "you did"].contains { k.contains(" \($0) ") }
+        return ["good job", "great job", "great work", "well done", "nice work", "keep it up", "good work", "nice job",
+                "excellent work", "perfect job", "you did great", "you did well", "you did it"].contains { k.contains(" \($0) ") }
     }
 
     private static func key(_ s: String) -> String {
@@ -151,20 +151,10 @@ struct CoachReply: Equatable {
     /// One turn, cancelled after `ModelCoach.timeout` seconds so "Đang nghĩ…" can't hang.
     func turn(after ai: String, learner: String) async throws -> CoachReply {
         let session = self.session
-        let work = Task { @MainActor in
+        let t = try await mainActorTimeout(Self.timeout) {
             try await session.respond(to: "You said: \"\(ai)\"\nLearner: \"\(learner)\"", generating: CoachTurn.self).content
         }
-        let timer = Task { @MainActor in
-            try? await Task.sleep(for: .seconds(Self.timeout))
-            work.cancel()
-        }
-        defer { timer.cancel() }
-        do {
-            let t = try await work.value
-            return CoachReply(reply: t.reply, corrected: t.corrected, natural: t.natural, tipVi: t.tipVi)
-        } catch is CancellationError {
-            throw Err("AI trên máy không trả lời sau \(Int(Self.timeout)) giây.")
-        }
+        return CoachReply(reply: t.reply, corrected: t.corrected, natural: t.natural, tipVi: t.tipVi)
     }
 
     static let timeout = 30.0
@@ -177,6 +167,22 @@ struct CoachReply: Equatable {
         print("conversation:", error)
         return "AI chưa trả lời được lúc này. Câu của bạn vẫn còn trong ô nhập — thử gửi lại nhé."
     }
+}
+
+/// Runs main-actor work (non-Sendable model sessions) and fails with a Vietnamese error after `seconds`; the caller's
+/// cancellation is passed on to the work.
+@MainActor func mainActorTimeout<T>(_ seconds: Double, _ work: @escaping @MainActor () async throws -> T) async throws -> T {
+    let task = Task { @MainActor in try await work() }
+    let timer = Task { @MainActor in
+        try? await Task.sleep(for: .seconds(seconds))
+        task.cancel()
+    }
+    defer { timer.cancel() }
+    return try await withTaskCancellationHandler {
+        do { return try await task.value } catch is CancellationError {
+            throw Err("AI trên máy không trả lời sau \(Int(seconds)) giây.")
+        }
+    } onCancel: { task.cancel() }
 }
 
 // MARK: - Session state
@@ -362,7 +368,7 @@ struct ConversationSession: View {
     let model: ConversationModel
     let vocab: VocabStore
     let onExit: () -> Void
-    @AppStorage("conversationSpeak") private var speakReplies = true
+    @AppStorage("conversationSpeak", store: AppDefaults.store) private var speakReplies = true
     @State private var draft = ""
     @State private var mic = MicCheck()
     @State private var finished = false

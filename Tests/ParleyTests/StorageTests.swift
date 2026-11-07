@@ -128,8 +128,15 @@ import Testing
     @Test func testsRunSandboxedWithTheirOwnDefaults() {
         // `make test` sets PARLEY_DATA_DIR, so this process must not see the owner's defaults domain.
         #expect(AppDefaults.sandboxed && AppDefaults.store !== UserDefaults.standard)
-        AppDefaults.store.set(true, forKey: "reminderOn")
-        #expect(UserDefaults.standard.object(forKey: "reminderOn") as? Bool != true || UserDefaults.standard !== AppDefaults.store)
-        AppDefaults.store.removeObject(forKey: "reminderOn")
+        #expect(AppDefaults.sandboxSuite.hasPrefix("parley.sandbox.") && AppDefaults.sandboxSuite.hasSuffix("\(ProcessInfo.processInfo.processIdentifier)"))
+    }
+
+    /// The reminder guard: in a sandboxed process nothing reaches UNUserNotificationCenter (it would also crash
+    /// outside an app bundle, so removing a guard fails this test).
+    @MainActor @Test func sandboxedRunsNeverTouchNotifications() async {
+        Reminder.reschedule(activity: nil)
+        #expect(await Reminder.isDenied() == false)
+        #expect(await Reminder.requestPermission() == false)
+        try? await Task.sleep(for: .milliseconds(200))
     }
 }

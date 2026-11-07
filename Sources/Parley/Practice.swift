@@ -109,7 +109,7 @@ enum WordInfo {
 struct PracticeView: View {
     let store: VocabStore
     @State private var session: PracticeSessionInfo?
-    @AppStorage("bestScore") private var bestScore = 0
+    @AppStorage("bestScore", store: AppDefaults.store) private var bestScore = 0
 
     var body: some View {
         Group {
@@ -258,7 +258,7 @@ struct PracticeSession: View {
     @State private var score = 0
     @State private var shakes = 0
     @State private var newRecord = false
-    @AppStorage("bestScore") private var bestScore = 0
+    @AppStorage("bestScore", store: AppDefaults.store) private var bestScore = 0
     @State private var index = 0
     @State private var right = 0
     @State private var done = 0
@@ -855,7 +855,17 @@ struct Feedback: View {
 @Observable @MainActor
 final class MicCheck {
     var listening = false
+    var starting = false   // while the recognizer and audio engine come up: a second tap does nothing
     var stopping = false   // between "stop" and the recognizer's last result: buttons wait
+    var busy: Bool { starting || stopping }
+
+    enum StopAction: Equatable { case ignore, lastResult, stop }
+    /// What `stop()` does: nothing while starting or already stopping (never an older result), the last result when
+    /// not listening, otherwise a real stop.
+    nonisolated static func stopAction(listening: Bool, starting: Bool, stopping: Bool) -> StopAction {
+        if starting || stopping { return .ignore }
+        return listening ? .stop : .lastResult
+    }
     var heard: String?
     var error: String?
     @ObservationIgnored private var failure: String?
@@ -870,10 +880,15 @@ final class MicCheck {
     }
 
     func start(language: String) async {
+        guard !listening, !busy else { return }
+        starting = true
+        defer { starting = false }
         heard = nil
         error = nil
+        var started: Transcriber?
         do {
             let t = try await Transcriber.start(locale: Locale(identifier: language))
+            started = t
             collector = Task {
                 var out: [String] = []
                 do {
@@ -892,20 +907,30 @@ final class MicCheck {
             transcriber = t
             listening = true
         } catch {
+            // clean up what was started so nothing keeps running or leaks
+            collector?.cancel()
+            collector = nil
+            if let started { try? await started.finish() }
             self.error = "Không mở được micro: \(error.localizedDescription)"
         }
     }
 
     func stop() async -> String {
-        guard !stopping else { return "" } // a second stop while finishing never returns an older result
-        guard listening else { return heard ?? "" }
+        switch Self.stopAction(listening: listening, starting: starting, stopping: stopping) {
+        case .ignore: return ""
+        case .lastResult: return heard ?? ""
+        case .stop: break
+        }
         stopping = true
         defer { stopping = false }
         engine?.inputNode.removeTap(onBus: 0)
         engine?.stop()
         engine = nil
         listening = false
-        try? await transcriber?.finish()
+        do { try await transcriber?.finish() } catch {
+            print("mic finish:", error)
+            failure = failure ?? "Nhận dạng giọng nói bị lỗi — thử nói lại."
+        }
         transcriber = nil
         let text = await collector?.value ?? ""
         collector = nil

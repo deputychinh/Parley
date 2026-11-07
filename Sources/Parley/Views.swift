@@ -14,7 +14,13 @@ extension Source {
     var nsColor: NSColor { NSColor(color) }
 }
 
-enum Route: Hashable { case live, progress, daily, topics, grammar, vocabulary, practice, listening, conversation, writing, reading, pronunciation, session(URL) }
+enum Route: Hashable {
+    static func showsInterpreter(_ r: Route, running: Bool) -> Bool {
+        if running { return true }
+        if case .session = r { return true }
+        return r == .live
+    }
+ case live, progress, daily, topics, grammar, vocabulary, practice, listening, conversation, writing, reading, pronunciation, session(URL) }
 
 /// Soft tinted canvas behind the cards (content stays opaque; glass is reserved for toolbar controls per HIG).
 struct Backdrop: View {
@@ -39,7 +45,7 @@ struct ContentView: View {
     @State private var columns = NavigationSplitViewVisibility.all
     @State private var compact = false // toolbar too narrow for full language names → codes
     @State private var fold = false    // toolbar very narrow → secondary controls go into one ⋯ menu
-    @AppStorage("includeMic") private var includeMic = true
+    @AppStorage("includeMic", store: AppDefaults.store) private var includeMic = true
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.openSettings) private var openSettings
@@ -67,10 +73,10 @@ struct ContentView: View {
             }
             .background(Backdrop())
         }
-        .navigationSubtitle(route == .conversation ? "" : model.status)
+        .navigationSubtitle(showsInterpreter ? model.status : "")
         .modifier(CheckInAlert(model: model))
         .onChange(of: route) { if route == nil { route = .live } }
-        .toolbar { if route != .conversation { toolbar } } // the chat has its own mic
+        .toolbar { if showsInterpreter { toolbar } } // learning screens have their own controls
         // Narrow window → hide the sidebar and shorten toolbar labels (only when crossing the threshold).
         .onGeometryChange(for: Bool.self) { $0.size.width < 820 } action: { narrow in
             withAnimation(.smooth) { columns = narrow ? .detailOnly : .all }
@@ -119,6 +125,10 @@ struct ContentView: View {
             }
         }
     }
+
+    /// The interpreter's language bar, mic, screen toggle and Start/Stop belong to the live and history screens; while
+    /// recording they stay everywhere so the session can always be stopped.
+    private var showsInterpreter: Bool { Route.showsInterpreter(route ?? .live, running: model.running) }
 
     @ToolbarContentBuilder private var toolbar: some ToolbarContent {
         // Running: locked settings collapse into one read-only status strip (no glass for non-interactive items, per HIG).
@@ -436,7 +446,7 @@ struct TranscriptCard<Accessory: View, Content: View>: View {
 
 struct MeterGroup: View {
     let model: Model
-    @AppStorage("includeMic") private var includeMic = true
+    @AppStorage("includeMic", store: AppDefaults.store) private var includeMic = true
 
     var body: some View {
         HStack(spacing: 14) {
@@ -757,8 +767,8 @@ struct WordCard: View {
     @State private var meaning: String?
     @State private var failed = false
     @State private var bounce = 0
-    @AppStorage("showIPA") private var showIPA = true
-    @AppStorage("autoSpeak") private var autoSpeak = false
+    @AppStorage("showIPA", store: AppDefaults.store) private var showIPA = true
+    @AppStorage("autoSpeak", store: AppDefaults.store) private var autoSpeak = false
 
     /// The word in the language being learned, and that language.
     private var learnTerm: String { isSource ? term : (meaning ?? "") }
@@ -1047,8 +1057,8 @@ struct MiniView: View {
     static let caret = Text(" ▍").foregroundStyle(Color.parley)
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
-    @AppStorage("fontSize") private var fontSize = 17.0
-    @AppStorage("miniShowSource") private var showSource = true
+    @AppStorage("fontSize", store: AppDefaults.store) private var fontSize = 17.0
+    @AppStorage("miniShowSource", store: AppDefaults.store) private var showSource = true
 
     var body: some View {
         let start = max(0, model.lines.count - 40)
@@ -1144,13 +1154,13 @@ struct CheckInAlert: ViewModifier {
 // MARK: - Settings & commands
 
 struct SettingsView: View {
-    @AppStorage("fontSize") private var fontSize = 17.0
-    @AppStorage("includeMic") private var includeMic = true
-    @AppStorage("showIPA") private var showIPA = true
-    @AppStorage("autoSpeak") private var autoSpeak = false
-    @AppStorage("speechRate") private var speechRate = 0.85
-    @AppStorage("reminderOn") private var reminderOn = false
-    @AppStorage("reminderMinutes") private var reminderMinutes = Reminder.defaultMinutes
+    @AppStorage("fontSize", store: AppDefaults.store) private var fontSize = 17.0
+    @AppStorage("includeMic", store: AppDefaults.store) private var includeMic = true
+    @AppStorage("showIPA", store: AppDefaults.store) private var showIPA = true
+    @AppStorage("autoSpeak", store: AppDefaults.store) private var autoSpeak = false
+    @AppStorage("speechRate", store: AppDefaults.store) private var speechRate = 0.85
+    @AppStorage("reminderOn", store: AppDefaults.store) private var reminderOn = false
+    @AppStorage("reminderMinutes", store: AppDefaults.store) private var reminderMinutes = Reminder.defaultMinutes
     @State private var reminderDenied = false
 
     var body: some View {
@@ -1227,8 +1237,8 @@ struct SettingsView: View {
 struct ParleyCommands: Commands {
     let model: Model
     @Environment(\.openWindow) private var openWindow
-    @AppStorage("fontSize") private var fontSize = 17.0
-    @AppStorage("includeMic") private var includeMic = true
+    @AppStorage("fontSize", store: AppDefaults.store) private var fontSize = 17.0
+    @AppStorage("includeMic", store: AppDefaults.store) private var includeMic = true
 
     var body: some Commands {
         CommandMenu("Phiên dịch") {

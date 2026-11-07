@@ -13,8 +13,8 @@ Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [00
 | PARLEY-7 | v0.4.0 | Vocabulary CSV import/export | S | doing |
 | PARLEY-8 | v0.4.0 | Daily study reminder notification | S | doing |
 | PARLEY-9 | v0.2.0 | Debt from PARLEY-1 review: shot.sh stops only its own PID (trap on exit, window by PID); tests for StudyStore/PronunciationStore move-aside and the `--data-dir` hookup; one source for the default folder; Settings shows `Model.dataDir`; honest name for the seed-write test | S | blocked → PARLEY-10 |
-| PARLEY-10 | v0.2.0 | Continue PARLEY-9: one `--data-dir` parser refusing `=`/empty/flag values (exit 2), shot-test ignoring `ParleyTests` helpers | S | doing |
-| PARLEY-11 | v0.2.0 | Debt from PARLEY-2: lowering the goal meets today (test), progress banner, refreshed narrow screenshot, status.md | S | doing |
+| PARLEY-10 | v0.2.0 | Continue PARLEY-9: one `--data-dir` parser refusing `=`/empty/flag values (exit 2), shot-test ignoring `ParleyTests` helpers | S | done (9.5) |
+| PARLEY-11 | v0.2.0 | Debt from PARLEY-2: lowering the goal meets today (test), progress banner, refreshed narrow screenshot, status.md | S | done (9.5) |
 | PARLEY-12 | v0.2.0 | Debt from PARLEY-3: mic-stop race, clip end within the file, secondary skip button, recognition errors shown, W2 row | S | doing |
 | PARLEY-13 | v0.2.0 | Sandboxed runs (`--data-dir`) use their own defaults domain and never schedule reminders | S | doing |
 | PARLEY-14 | v0.2.0 | Debt from PARLEY-4: praise not offered as a phrase, model timeout, chat subtitle, button size, screenshots | S | doing |

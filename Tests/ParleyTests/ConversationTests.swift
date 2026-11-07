@@ -151,3 +151,20 @@ import Testing
         #expect(ConversationScreen.pick(available: true, active: true) == .session)
     }
 }
+
+
+/// PARLEY-14 review round 1: praise list without false positives, the shared main-actor timeout.
+@MainActor @Suite struct CoachRound2Tests {
+    @Test func realRewritesWithPraiseWordsAreKept() {
+        #expect(!Coach.isPraise("The service is excellent now"))
+        #expect(!Coach.isPraise("It was the perfect time to deploy"))
+        #expect(!Coach.isPraise("You did the review yesterday"))
+        #expect(Coach.isPraise("Nice job on the fix!") && Coach.isPraise("You did well."))
+    }
+
+    @Test func mainActorTimeoutFailsSlowWorkAndPassesFastWork() async throws {
+        await #expect(throws: Err.self) { try await mainActorTimeout(0.05) { try await Task.sleep(for: .seconds(5)); return 1 } }
+        #expect(try await mainActorTimeout(1) { 7 } == 7)
+        #expect(ModelCoach.timeout == 30)
+    }
+}

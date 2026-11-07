@@ -201,3 +201,14 @@ import Testing
         #expect(run.grade(index: 0, expected: nine, answer: "a b c d e f g", activity: nil).event == .listening(dictation: true, pass: false)) // 7/9 = 78 %
     }
 }
+
+
+/// PARLEY-12 review round 2: what stop() does in each state.
+@Suite struct MicStopActionTests {
+    @Test func stopIsIgnoredWhileStartingOrStopping() {
+        #expect(MicCheck.stopAction(listening: true, starting: false, stopping: false) == .stop)
+        #expect(MicCheck.stopAction(listening: true, starting: false, stopping: true) == .ignore)  // never an older result
+        #expect(MicCheck.stopAction(listening: false, starting: true, stopping: false) == .ignore)
+        #expect(MicCheck.stopAction(listening: false, starting: false, stopping: false) == .lastResult)
+    }
+}

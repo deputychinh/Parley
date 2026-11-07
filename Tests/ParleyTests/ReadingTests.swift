@@ -29,11 +29,11 @@ import Testing
     @Test func passageProblems() {
         let q = ReadingQuestion(prompt: "Q?", options: ["a", "b", "c", "d"], answer: "a", explainVi: "")
         let text = Array(repeating: "word", count: 100).joined(separator: " ")
-        var p = Passage(id: "x", level: "B1", title: "T", topic: "t", text: text, questions: [q, q])
+        var p = Passage(id: "x", level: "B1", title: "T", topic: "t", text: text, questions: [q, q, q])
         #expect(ReadingRules.problem(with: p) == nil)
-        p.questions = [q]
+        p.questions = [q, q]                                            // AC6.3: exactly 3
         #expect(ReadingRules.problem(with: p)?.contains("câu hỏi") == true)
-        p.questions = [q, q]; p.text = "too short"
+        p.questions = [q, q, q]; p.text = "too short"
         #expect(ReadingRules.problem(with: p)?.contains("từ") == true)
         p.text = text; p.title = " "
         #expect(ReadingRules.problem(with: p)?.contains("tiêu đề") == true)
@@ -73,4 +73,45 @@ import Testing
     }
 
     @Test func readingXPEvent() { #expect(XPEvent.reading(ok: true).skill == .reading && XPEvent.reading(ok: false).xp == 2) }
+}
+
+
+/// PARLEY-6 review round 1: XP once per question per visit, option order, generation rules.
+@Suite struct ReadingQuizTests {
+    let qs = [ReadingQuestion(prompt: "1", options: ["a", "b", "c", "d"], answer: "a", explainVi: ""),
+              ReadingQuestion(prompt: "2", options: ["a", "b", "c", "d"], answer: "b", explainVi: "")]
+
+    @Test func retryEarnsNoXP() {
+        var quiz = ReadingQuiz(qs)
+        #expect(quiz.choose(0, "a") == .reading(ok: true))
+        #expect(quiz.choose(0, "b") == nil)              // already answered
+        #expect(quiz.choose(1, "c") == .reading(ok: false))
+        #expect(quiz.finished && quiz.score == 1)
+        quiz.retry()
+        #expect(!quiz.finished && quiz.choose(0, "a") == nil && quiz.choose(1, "b") == nil) // no XP farming
+        #expect(quiz.finished && quiz.score == 2)
+        #expect(quiz.choose(5, "a") == nil)
+    }
+
+    @Test func optionOrderIsStableAndAPermutation() {
+        let q = ReadingQuestion(prompt: "?", options: ["short", "a much longer right answer", "mid size", "tiny"], answer: "a much longer right answer", explainVi: "")
+        let a = ReadingRules.displayOrder(q, seed: "p1")
+        #expect(a == ReadingRules.displayOrder(q, seed: "p1") && Set(a) == Set(q.options))
+        let firstPositions = Set((0..<12).map { ReadingRules.displayOrder(q, seed: "p\($0)").firstIndex(of: q.answer)! })
+        #expect(firstPositions.count > 1)                // the answer does not always land in the same place
+    }
+
+    @Test func generationRules() {
+        #expect(ReadingRules.wordTarget(.a2) == 100...150 && ReadingRules.wordTarget(.c1).lowerBound >= 180)
+        #expect(ReadingRules.vietnameseOrEmpty("The answer is in paragraph 2.") == "")
+        #expect(ReadingRules.vietnameseOrEmpty("Đoạn 2 có câu trả lời.") == "Đoạn 2 có câu trả lời.")
+        #expect(!Library.readings.contains { $0.text.contains("colour") || $0.text.contains("Organisation") })
+    }
+
+    @Test func interpreterToolbarOnlyWhereItBelongs() {
+        #expect(Route.showsInterpreter(.live, running: false))
+        #expect(Route.showsInterpreter(.session(URL(fileURLWithPath: "/x.md")), running: false))
+        #expect(!Route.showsInterpreter(.reading, running: false) && !Route.showsInterpreter(.conversation, running: false))
+        #expect(Route.showsInterpreter(.reading, running: true)) // a running session can always be stopped
+    }
 }

@@ -135,3 +135,41 @@ import Testing
         #expect(s.addMany(VocabTransfer.parse("leak,x\n", existing: []).items) == 0 && s.items.isEmpty)
     }
 }
+
+
+/// PARLEY-7 review round 2: Anki HTML and meta columns, whole-file failure, apostrophe round trip, failed save.
+@Suite struct AnkiAndRoundTripTests {
+    @Test func ankiHTMLAndMetaColumns() {
+        let text = "#separator:tab\n#html:true\n#notetype column:1\n#deck column:2\nBasic\tWork\trollback\tkhôi phục<br>quay lại\nBasic\tWork\testimate\t<b>ước lượng</b>&nbsp;x &amp; y\n"
+        let r = VocabTransfer.parse(text, existing: [])
+        #expect(r.items.map(\.term) == ["rollback", "estimate"] && r.duplicates == 0)
+        #expect(r.items[0].meaning == "khôi phục\nquay lại" && r.items[1].meaning == "ước lượng x & y")
+    }
+
+    @Test func wholeFileFailureHasItsOwnTitle() {
+        let r = VocabTransfer.parse("a,\"b", existing: [])
+        #expect(r.fatal && VocabTransfer.summary(r) == "Không nhập được tệp.")
+        #expect(!VocabTransfer.parse("a,b\n", existing: []).fatal)
+    }
+
+    @Test func leadingApostropheAndControlCharactersRoundTrip() {
+        for value in ["'=already quoted", "'hello", "\t=SUM(1)", "=x"] {
+            let v = VocabItem(term: "t\(value.count)", meaning: value, termLanguage: "en-US", meaningLanguage: "vi", example: "e", exampleTranslation: "")
+            let back = VocabTransfer.parse(VocabTransfer.export([v]), existing: []).items.first?.meaning
+            #expect(back == value.trimmingCharacters(in: .whitespacesAndNewlines) || back == value, "\(value) → \(back ?? "nil")")
+        }
+        #expect(VocabTransfer.safeCell("\t=1").hasPrefix("'"))
+    }
+}
+
+@MainActor @Suite struct AddManySaveFailureTests {
+    @Test func failedSaveRollsBackAndReportsNothingSaved() throws {
+        let url = TestData.file("vocabulary.json")
+        let s = VocabStore(file: url)                               // writable (no file yet)
+        let dir = url.deletingLastPathComponent()
+        try FileManager.default.setAttributes([.posixPermissions: 0o555], ofItemAtPath: dir.path) // the save will fail
+        defer { try? FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: dir.path) }
+        #expect(s.addMany(VocabTransfer.parse("leak,x\n", existing: []).items) == 0)
+        #expect(s.items.isEmpty && s.problem != nil)
+    }
+}

@@ -160,6 +160,11 @@ struct ParleyApp: App {
         Reminder.activity = activity
         activity.onGoalMet = { Reminder.reschedule() }
         Reminder.reschedule()
+        // keep the 7-day window and today's "còn X XP" text current while the app stays open
+        let nc = NotificationCenter.default
+        for name in [NSApplication.didBecomeActiveNotification, .NSCalendarDayChanged] {
+            nc.addObserver(forName: name, object: nil, queue: .main) { _ in MainActor.assumeIsolated { Reminder.reschedule() } }
+        }
         Task.detached(priority: .utility) { _ = Pronunciation.ipa("a") } // warm the 135k-word dictionary off the main thread
     }
 

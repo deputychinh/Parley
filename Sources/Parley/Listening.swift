@@ -234,7 +234,7 @@ struct ListeningView: View {
     @State private var meeting: [Clip] = []
     @State private var useMeeting = true
     @State private var session: ListeningPlan?
-    @AppStorage("listeningSpeed") private var speed = 1.0
+    @AppStorage("listeningSpeed", store: AppDefaults.store) private var speed = 1.0
 
     private var pool: [Clip] { ListeningRun.pool(meeting: meeting, useMeeting: useMeeting) }
 
@@ -466,13 +466,13 @@ struct ListeningSession: View {
                 .buttonStyle(.glassProminent)
                 .tint(mic.listening ? .red : .parley)
                 .keyboardShortcut(.defaultAction)
-                .disabled(mic.stopping)
+                .disabled(mic.busy)
                 if mic.listening { Text("Đang nghe…").foregroundStyle(.secondary) }
                 if mic.stopping { ProgressView().controlSize(.small) }
                 Spacer()
                 Button("Bỏ qua câu này") { next() }
                     .buttonStyle(.borderless)
-                    .disabled(mic.stopping)
+                    .disabled(mic.busy)
                     .help("Chuyển sang câu tiếp mà không chấm (khi micro không dùng được)")
             } else {
                 Button("Nói lại") { autoStop?.cancel(); result = nil; mic.heard = nil }

@@ -36,21 +36,42 @@ enum CSV {
         return order.max { (counts($0).first ?? 0) < (counts($1).first ?? 0) } ?? ","
     }
 
-    /// Anki's "Notes in Plain Text" starts with `#key:value` lines; returns the text after them, the number of
-    /// skipped lines and the separator they declare (tab, comma, semicolon, pipe, space).
-    static func stripAnkiHeader(_ text: String) -> (body: String, skipped: Int, separator: Character?) {
-        var lines = text.components(separatedBy: "\n")
-        var sep: Character?
+    struct AnkiHeader: Equatable {
         var skipped = 0
+        var separator: Character?
+        var html = false
+        var metaColumns: Set<Int> = []   // 0-based columns holding guid / notetype / deck / tags, not note fields
+    }
+
+    /// Anki's "Notes in Plain Text" starts with `#key:value` lines (`#separator:tab`, `#html:true`,
+    /// `#deck column:2`, …); returns the text after them and what they declare.
+    static func stripAnkiHeader(_ text: String) -> (body: String, header: AnkiHeader) {
+        var lines = text.components(separatedBy: "\n")
+        var h = AnkiHeader()
         while let first = lines.first, first.hasPrefix("#"), first.contains(":") {
-            let value = first.split(separator: ":", maxSplits: 1).last.map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
-            if first.lowercased().hasPrefix("#separator:") {
-                sep = ["tab": "\t", "comma": ",", "semicolon": ";", "pipe": "|", "space": " "][value ?? ""]
+            let parts = first.dropFirst().split(separator: ":", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+            let key = parts.first ?? "", value = parts.count > 1 ? parts[1] : ""
+            switch key {
+            case "separator": h.separator = ["tab": "\t", "comma": ",", "semicolon": ";", "pipe": "|", "space": " "][value]
+            case "html": h.html = value == "true"
+            case "guid column", "notetype column", "deck column", "tags column":
+                if let n = Int(value), n > 0 { h.metaColumns.insert(n - 1) }
+            default: break
             }
             lines.removeFirst()
-            skipped += 1
+            h.skipped += 1
         }
-        return (lines.joined(separator: "\n"), skipped, sep)
+        return (lines.joined(separator: "\n"), h)
+    }
+
+    /// Anki fields with `#html:true`: line-break tags become new lines, other tags go, common entities are decoded.
+    static func plainText(fromHTML s: String) -> String {
+        var t = s.replacingOccurrences(of: "<br\\s*/?>|</div>|</p>", with: "\n", options: [.regularExpression, .caseInsensitive])
+        t = t.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+        for (e, c) in [("&nbsp;", " "), ("&lt;", "<"), ("&gt;", ">"), ("&quot;", "\""), ("&#39;", "'"), ("&apos;", "'"), ("&amp;", "&")] {
+            t = t.replacingOccurrences(of: e, with: c)
+        }
+        return t.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// Rows with their 1-based starting line numbers; quoted fields may contain separators, quotes ("") and line breaks.
@@ -109,16 +130,18 @@ enum VocabTransfer {
         var items: [VocabItem] = []
         var duplicates = 0
         var errors: [String] = []   // "Dòng 7: thiếu từ."
+        var fatal = false           // the whole file could not be read (nothing imported)
     }
 
-    /// UTF-8 BOM first so Excel shows Vietnamese correctly; cells that a spreadsheet would run as a formula get a `'`.
+    /// UTF-8 BOM first so Excel shows Vietnamese correctly; cells that a spreadsheet would run as a formula (or that
+    /// already start with `'`) get one more `'`, which import removes again — a round trip never changes a value.
     static func export(_ items: [VocabItem]) -> String {
         "\u{FEFF}" + CSV.encode([header] + items.map {
             [$0.term, $0.meaning, $0.ipa ?? "", $0.example, $0.exampleTranslation].map(safeCell) + [$0.mastered ? "1" : "0"]
         })
     }
 
-    static let formulaStarts: Set<Character> = ["=", "+", "-", "@"]
+    static let formulaStarts: Set<Character> = ["=", "+", "-", "@", "\t", "\r", "'"]
     static func safeCell(_ s: String) -> String { s.first.map(formulaStarts.contains) == true ? "'" + s : s }
     static func unsafeCell(_ s: String) -> String {
         s.count > 1 && s.first == "'" && formulaStarts.contains(s[s.index(after: s.startIndex)]) ? String(s.dropFirst()) : s
@@ -129,13 +152,18 @@ enum VocabTransfer {
     /// Words already in `existing` (case-insensitive) or repeated in the file are skipped and counted.
     static func parse(_ text: String, existing: Set<String>, now: Date = .now) -> ImportResult {
         var result = ImportResult()
-        guard text.utf8.count <= maxBytes else { result.errors = ["Tệp lớn hơn 5 MB."]; return result }
-        let anki = CSV.stripAnkiHeader(text)
+        func fail(_ message: String) -> ImportResult { result.errors = [message]; result.fatal = true; return result }
+        guard text.utf8.count <= maxBytes else { return fail("Tệp lớn hơn 5 MB.") }
+        let (body, anki) = CSV.stripAnkiHeader(text)
         var rows: [(line: Int, fields: [String])]
-        do { rows = try CSV.parse(anki.body, separator: anki.separator) } catch { result.errors = [error.localizedDescription]; return result }
-        rows = rows.map { (line: $0.line + anki.skipped, fields: $0.fields) } // line numbers of the original file
-        guard !rows.isEmpty else { result.errors = ["Tệp không có dòng nào."]; return result }
-        guard rows.count <= maxRows + 1 else { result.errors = ["Tệp có hơn \(maxRows) dòng."]; return result }
+        do { rows = try CSV.parse(body, separator: anki.separator) } catch { return fail(error.localizedDescription) }
+        rows = rows.map { row in // original line numbers; Anki meta columns dropped; HTML fields made plain
+            let fields = row.fields.enumerated().filter { !anki.metaColumns.contains($0.offset) }
+                .map { anki.html ? CSV.plainText(fromHTML: $0.element) : $0.element }
+            return (line: row.line + anki.skipped, fields: fields)
+        }
+        guard !rows.isEmpty else { return fail("Tệp không có dòng nào.") }
+        guard rows.count <= maxRows + 1 else { return fail("Tệp có hơn \(maxRows) dòng.") }
 
         let names = rows[0].fields.map { $0.trimmingCharacters(in: .whitespaces).lowercased() }
         let aliases: [String: [String]] = [
@@ -176,6 +204,7 @@ enum VocabTransfer {
 
     /// One-line Vietnamese summary for the alert.
     static func summary(_ r: ImportResult) -> String {
+        if r.fatal { return "Không nhập được tệp." }
         var parts = ["Đã thêm \(r.items.count) từ"]
         if r.duplicates > 0 { parts.append("bỏ qua \(r.duplicates) từ trùng") }
         if !r.errors.isEmpty { parts.append("\(r.errors.count) dòng lỗi") }
