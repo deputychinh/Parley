@@ -9,6 +9,7 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 - `shot.sh` stops only its own instance and ignores saved window state; `make shot-test` proves it. (PARLEY-9)
 
 ### Added
+- *Cài đặt → Nhắc học*: an optional daily notification at a chosen time, only when today's XP goal is not met yet. (PARLEY-8)
 - *Từ vựng → Nhập / Xuất*: export the word list as CSV and import CSV/TSV from Anki or Excel (header by name or column order, duplicates skipped, line-numbered errors). (PARLEY-7)
 - *Luyện viết*: 12 prompts A2–C1 or a free topic; the on-device coach returns the corrected text (word diff), up to 8 mistakes with Vietnamese explanations and an estimated level; texts are kept in `writing.json`. (PARLEY-5)
 - *Hội thoại AI*: role-play 10 workplace and travel situations with Apple's on-device model at A2–C1; every turn is corrected (word diff), a more natural phrasing can be saved to vocabulary, and a summary lists what to remember. `make ai-eval` measures the coach. (PARLEY-4)

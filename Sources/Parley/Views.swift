@@ -41,6 +41,7 @@ struct ContentView: View {
     @AppStorage("includeMic") private var includeMic = true
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
+    @Environment(\.openSettings) private var openSettings
     var body: some View {
         NavigationSplitView(columnVisibility: $columns) {
             Sidebar(model: model, vocab: vocab, study: study, route: $route)
@@ -82,6 +83,11 @@ struct ContentView: View {
                 try? await Task.sleep(for: .milliseconds(300))
                 NSApp.windows.first { $0.identifier?.rawValue.hasPrefix("main") == true }?
                     .setContentSize(NSSize(width: size[0], height: size[1])) // debug: narrow-layout screenshots
+            }
+            if DebugArgs.has("--settings") { // screenshots of the Settings window alone
+                try? await Task.sleep(for: .seconds(1))
+                openSettings()
+                dismissWindow(id: "main")
             }
             if DebugArgs.has("--mini") {
                 try? await Task.sleep(for: .seconds(1)) // scenes aren't ready on the very first frame
@@ -1139,6 +1145,9 @@ struct SettingsView: View {
     @AppStorage("showIPA") private var showIPA = true
     @AppStorage("autoSpeak") private var autoSpeak = false
     @AppStorage("speechRate") private var speechRate = 0.85
+    @AppStorage("reminderOn") private var reminderOn = false
+    @AppStorage("reminderMinutes") private var reminderMinutes = Reminder.defaultMinutes
+    @State private var reminderDenied = false
 
     var body: some View {
         Form {
@@ -1170,6 +1179,29 @@ struct SettingsView: View {
                     }
                 }
             }
+            Section {
+                Toggle("Nhắc tôi học mỗi ngày", isOn: $reminderOn)
+                DatePicker("Lúc", selection: Binding(get: {
+                    Calendar.current.date(bySettingHour: reminderMinutes / 60, minute: reminderMinutes % 60, second: 0, of: .now) ?? .now
+                }, set: { d in
+                    let c = Calendar.current.dateComponents([.hour, .minute], from: d)
+                    reminderMinutes = (c.hour ?? 20) * 60 + (c.minute ?? 0)
+                }), displayedComponents: .hourAndMinute)
+                .disabled(!reminderOn)
+            } header: {
+                Text("Nhắc học")
+            } footer: {
+                Text(reminderDenied ? "macOS đang chặn thông báo của Parley — bật lại trong System Settings → Notifications."
+                                    : "Chỉ nhắc khi hôm nay chưa đạt mục tiêu XP.")
+                    .foregroundStyle(reminderDenied ? .orange : .secondary)
+            }
+            .onChange(of: reminderOn) {
+                Task {
+                    if reminderOn { reminderDenied = !(await Reminder.requestPermission()) }
+                    Reminder.reschedule()
+                }
+            }
+            .onChange(of: reminderMinutes) { Reminder.reschedule() }
             Section("Dữ liệu") {
                 LabeledContent("Thư mục", value: (Model.dataDir.path as NSString).abbreviatingWithTildeInPath)
                 Button("Mở trong Finder") {

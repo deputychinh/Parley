@@ -36,6 +36,7 @@ for _ in $(seq 1 40); do
 done
 [ -n "$ID" ] || { echo "Parley window not found"; exit 1; }
 sleep "${SHOT_DELAY:-2}"
+ID=$("$WID" "$PID" 2>/dev/null || echo "$ID")   # the window may have changed meanwhile (e.g. --settings)
 mkdir -p docs/screenshots
 screencapture -o -x -l "$ID" "docs/screenshots/$NAME.png"
 echo "docs/screenshots/$NAME.png (data: $DATA)"

@@ -153,6 +153,9 @@ struct ParleyApp: App {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        Reminder.activity = activity
+        activity.onGoalMet = { Reminder.reschedule() }
+        Reminder.reschedule()
         Task.detached(priority: .utility) { _ = Pronunciation.ipa("a") } // warm the 135k-word dictionary off the main thread
     }
 

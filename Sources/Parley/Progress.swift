@@ -97,6 +97,8 @@ final class ActivityStore {
     private(set) var problem: String?           // unreadable file or failed save, shown on the progress screen
     @ObservationIgnored private let url: URL
     @ObservationIgnored private var writable = true
+    /// Called once when today first reaches the goal (the reminder for today is then cancelled).
+    @ObservationIgnored var onGoalMet: (() -> Void)?
 
     init(file: URL = Model.dataDir.appending(path: "activity.json")) {
         url = file
@@ -132,7 +134,10 @@ final class ActivityStore {
     var streak: Int { Self.streak(met: Set(data.met), today: .now) }
 
     private func markMet(_ day: String) {
-        if xp(on: day) >= data.goal, !data.met.contains(day) { data.met.append(day) }
+        if xp(on: day) >= data.goal, !data.met.contains(day) {
+            data.met.append(day)
+            onGoalMet?()
+        }
     }
 
     private func save() {
