@@ -12,7 +12,27 @@ enum AppDefaults {
 
     nonisolated static let sandboxed = isSandbox(args: CommandLine.arguments, env: ProcessInfo.processInfo.environment)
 
-    /// `.standard` for the owner; a fresh `parley.sandbox` domain (wiped at launch) for sandboxed runs.
+    /// Domains left behind by earlier sandboxed runs (killed instances never reach `applicationWillTerminate`).
+    nonisolated static func staleSandboxDomains(fileNames: [String], own: String) -> [String] {
+        fileNames.filter { $0.hasPrefix("parley.sandbox") && $0.hasSuffix(".plist") }.map { String($0.dropLast(".plist".count)) }
+            .filter { $0 != own }
+    }
+
+    /// At launch of a sandboxed run: remove the domains earlier sandboxed runs left in ~/Library/Preferences.
+    static func removeStaleSandboxDomains() {
+        guard sandboxed else { return }
+        let prefs = URL.libraryDirectory.appending(path: "Preferences")
+        let names = (try? FileManager.default.contentsOfDirectory(atPath: prefs.path)) ?? []
+        for domain in staleSandboxDomains(fileNames: names, own: sandboxSuite) { UserDefaults.standard.removePersistentDomain(forName: domain) }
+    }
+
+    /// When a sandboxed run quits normally, its own domain goes too.
+    static func removeOwnSandboxDomain() {
+        guard sandboxed else { return }
+        UserDefaults.standard.removePersistentDomain(forName: sandboxSuite)
+    }
+
+    /// `.standard` for the owner; a fresh `parley.sandbox.<pid>` domain for sandboxed runs.
     nonisolated(unsafe) static let store: UserDefaults = {
         guard sandboxed, let d = UserDefaults(suiteName: sandboxSuite) else { return .standard }
         d.removePersistentDomain(forName: sandboxSuite)

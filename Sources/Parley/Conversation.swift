@@ -121,6 +121,7 @@ enum Coach {
     /// "…— good job!", "Great work", "Well done": feedback about the learner, not a way to say their sentence.
     static func isPraise(_ s: String) -> Bool {
         let k = " " + key(s) + " "
+        if [" i ", " we ", " my ", " our "].contains(where: k.contains) { return false } // the learner's own sentence
         return ["good job", "great job", "great work", "well done", "nice work", "keep it up", "good work", "nice job",
                 "excellent work", "perfect job", "you did great", "you did well", "you did it"].contains { k.contains(" \($0) ") }
     }
@@ -145,42 +146,68 @@ struct CoachReply: Equatable {
 
 /// The real engine: one on-device `LanguageModelSession` per conversation (keeps context).
 @MainActor final class ModelCoach: CoachEngine {
-    private let session: LanguageModelSession
-    init(instructions: String) { session = LanguageModelSession(instructions: instructions) }
+    typealias Responder = @MainActor (String) async throws -> CoachReply
+    private let instructions: String
+    private let timeout: Double
+    private let responder: Responder?           // tests inject one; nil = the on-device model
+    private var session: LanguageModelSession?  // recreated after a timeout (it may still be busy)
 
-    /// One turn, cancelled after `ModelCoach.timeout` seconds so "Đang nghĩ…" can't hang.
+    init(instructions: String, timeout: Double = ModelCoach.timeout, responder: Responder? = nil) {
+        self.instructions = instructions
+        self.timeout = timeout
+        self.responder = responder
+    }
+
+    /// One turn, cancelled after `timeout` seconds so "Đang nghĩ…" can't hang.
     func turn(after ai: String, learner: String) async throws -> CoachReply {
-        let session = self.session
-        let t = try await mainActorTimeout(Self.timeout) {
-            try await session.respond(to: "You said: \"\(ai)\"\nLearner: \"\(learner)\"", generating: CoachTurn.self).content
+        let prompt = "You said: \"\(ai)\"\nLearner: \"\(learner)\""
+        do {
+            return try await mainActorTimeout(timeout) { [self] in try await respond(prompt) }
+        } catch let e as TimeoutError {
+            session = nil
+            throw e
         }
+    }
+
+    private func respond(_ prompt: String) async throws -> CoachReply {
+        if let responder { return try await responder(prompt) }
+        let s = session ?? LanguageModelSession(instructions: instructions)
+        session = s
+        let t = try await s.respond(to: prompt, generating: CoachTurn.self).content
         return CoachReply(reply: t.reply, corrected: t.corrected, natural: t.natural, tipVi: t.tipVi)
     }
 
-    static let timeout = 30.0
+    nonisolated static let timeout = 30.0
 
     /// Vietnamese only (the system's error text can be English); the details go to the log.
     static func message(for error: Error) -> String {
         if let e = error as? LanguageModelSession.GenerationError, case .exceededContextWindowSize = e {
             return "Cuộc hội thoại đã quá dài với AI trên máy. Hãy kết thúc và bắt đầu lượt mới."
         }
+        if let t = error as? TimeoutError { return (t.errorDescription ?? "") + " Thử gửi lại nhé." }
         print("conversation:", error)
         return "AI chưa trả lời được lúc này. Câu của bạn vẫn còn trong ô nhập — thử gửi lại nhé."
     }
 }
 
-/// Runs main-actor work (non-Sendable model sessions) and fails with a Vietnamese error after `seconds`; the caller's
-/// cancellation is passed on to the work.
+@MainActor private final class TimeoutFlag { var fired = false }
+
+/// Runs main-actor work (non-Sendable model sessions). After `seconds` it throws `TimeoutError`; when the caller is
+/// cancelled the work is cancelled too and `CancellationError` is rethrown (not reported as a timeout).
 @MainActor func mainActorTimeout<T>(_ seconds: Double, _ work: @escaping @MainActor () async throws -> T) async throws -> T {
+    let flag = TimeoutFlag()
     let task = Task { @MainActor in try await work() }
     let timer = Task { @MainActor in
         try? await Task.sleep(for: .seconds(seconds))
+        guard !Task.isCancelled else { return }
+        flag.fired = true
         task.cancel()
     }
     defer { timer.cancel() }
     return try await withTaskCancellationHandler {
         do { return try await task.value } catch is CancellationError {
-            throw Err("AI trên máy không trả lời sau \(Int(seconds)) giây.")
+            if flag.fired { throw TimeoutError(seconds: seconds) }
+            throw CancellationError()
         }
     } onCancel: { task.cancel() }
 }

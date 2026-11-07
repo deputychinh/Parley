@@ -6,9 +6,10 @@ cd "$(dirname "$0")/.."
 DECOY=$(mktemp -d "${TMPDIR:-/tmp}/parley-decoy.XXXXXX")
 PNG=docs/screenshots/_shot-test.png
 trap 'pkill -f -- "MacOS/Parley --data-dir $DECOY" 2>/dev/null || true; mv -f "$PNG" "${TMPDIR:-/tmp}/" 2>/dev/null || true' EXIT
-APP="$PWD/build/Parley.app/Contents/MacOS/Parley( |$)"   # this checkout only: other clones, sessions and swift test are ignored
+APP="$PWD/build/Parley-sandbox.app/Contents/MacOS/Parley( |$)"   # this checkout only: other clones, sessions and swift test are ignored
 BEFORE=$(pgrep -f -- "$APP" | sort || true)
-open -n -a "$PWD/build/Parley.app" --args --data-dir "$DECOY" -ApplePersistenceIgnoreState YES
+scripts/sandbox-app.sh >/dev/null
+open -n -a "$PWD/build/Parley-sandbox.app" --args --data-dir "$DECOY" -ApplePersistenceIgnoreState YES
 DECOY_PID=""
 for _ in $(seq 1 40); do DECOY_PID=$(pgrep -f -- "MacOS/Parley --data-dir $DECOY" | head -1 || true); [ -n "$DECOY_PID" ] && break; sleep 0.25; done
 [ -n "$DECOY_PID" ] || { echo "FAIL: the decoy did not start"; exit 1; }

@@ -62,6 +62,17 @@ enum ReadingRules {
         }
     }
 
+    /// A generated answer must come from the text: at least half of its content words (or the whole short answer)
+    /// appear in it. The small on-device model sometimes asks about things the text never says.
+    static func supported(_ answer: String, by text: String) -> Bool {
+        let t = " " + text.lowercased() + " "
+        let stop: Set<String> = ["the", "and", "that", "this", "with", "from", "they", "their", "there", "about", "into", "have", "were", "will"]
+        let words = answer.lowercased().split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init).filter { $0.count > 3 && !stop.contains($0) }
+        guard !words.isEmpty else { return t.contains(answer.lowercased()) }
+        let found = words.count { w in t.contains(w) || t.contains(String(w.prefix(5))) }
+        return Double(found) / Double(words.count) >= 0.5
+    }
+
     /// An explanation only counts when it is Vietnamese (the model sometimes answers in English).
     static func vietnameseOrEmpty(_ s: String) -> String { WritingRules.isVietnamese(s) ? s : "" }
 
@@ -80,7 +91,7 @@ enum ReadingRules {
 @Generable struct GeneratedPassage {
     @Guide(description: "A short English title")
     var title: String
-    @Guide(description: "An English text of 150 to 220 words in 3 or 4 paragraphs separated by a blank line, written for the requested CEFR level")
+    @Guide(description: "An English text in 3 or 4 paragraphs separated by a blank line, at the length and CEFR level the request asks for")
     var text: String
     @Guide(description: "Exactly 3 comprehension questions about the text")
     var questions: [GeneratedQuestion]
@@ -118,6 +129,36 @@ struct ReadingQuiz: Equatable {
     var score: Int { ReadingRules.score(answers, questions) }
 }
 
+/// What a passage writer returns before the rules run.
+struct DraftPassage {
+    var title: String
+    var text: String
+    var questions: [ReadingQuestion]
+}
+
+@MainActor protocol PassageWriter {
+    func write(topic: String, level: CEFR) async throws -> DraftPassage
+}
+
+/// The on-device model as a passage writer (60 s limit).
+struct ModelPassageWriter: PassageWriter {
+    nonisolated static let timeout = 60.0
+
+    func write(topic: String, level: CEFR) async throws -> DraftPassage {
+        let target = ReadingRules.wordTarget(level)
+        let ask = "Write a reading passage for a Vietnamese adult learner at CEFR \(level.rawValue) (\(level.hint)) about: \(topic). "
+            + "Use \(target.lowerBound) to \(target.upperBound) words in 3 or 4 paragraphs and American spelling. "
+            + "Write exactly 3 questions whose answers are stated in the text; only one option may be correct; explanations in Vietnamese."
+        let g = try await withTimeout(Self.timeout) {
+            try await LanguageModelSession(instructions: "You write clear, accurate graded reading texts and fair comprehension questions.")
+                .respond(to: ask, generating: GeneratedPassage.self).content
+        }
+        return DraftPassage(title: g.title, text: g.text, questions: g.questions.map {
+            ReadingQuestion(prompt: $0.prompt, options: $0.options, answer: $0.answer, explainVi: $0.explainVi)
+        })
+    }
+}
+
 // MARK: - Store (generated passages and best scores)
 
 struct ReadingData: Codable, Equatable {
@@ -145,8 +186,7 @@ final class ReadingStore {
     /// Bundled passages first (by level), then the ones written on this Mac (newest first).
     var all: [Passage] { Library.readings + data.generated }
 
-    /// One answered question: reading XP (10 right / 2 wrong).
-    func answer(correct: Bool) { activity?.log(.reading(ok: correct)) }
+    /// Reading XP from `ReadingQuiz.choose` (10 right / 2 wrong; nil = already earned in this visit).
     func log(_ event: XPEvent?) { if let event { activity?.log(event) } }
 
     func finish(_ id: String, score: Int) {
@@ -165,28 +205,26 @@ final class ReadingStore {
         save()
     }
 
-    /// Writes a new passage with the on-device model (one automatic retry); throws a Vietnamese error when unusable.
-    static func generate(topic: String, level: CEFR, now: Date = .now) async throws -> Passage {
-        do { return try await generateOnce(topic: topic, level: level, now: now) } catch {
-            print("reading: first attempt failed:", error)
-            return try await generateOnce(topic: topic, level: level, now: now)
+    /// Writes a new passage (one retry when the result is unusable — not after a timeout, which already waited long).
+    static func generate(topic: String, level: CEFR, now: Date = .now, writer: PassageWriter? = nil) async throws -> Passage {
+        let writer = writer ?? ModelPassageWriter()
+        do { return try build(try await writer.write(topic: topic, level: level), topic: topic, level: level, now: now) }
+        catch let e as TimeoutError { throw e }
+        catch is CancellationError { throw CancellationError() }
+        catch {
+            print("reading: first attempt unusable:", error)
+            return try build(try await writer.write(topic: topic, level: level), topic: topic, level: level, now: now)
         }
     }
 
-    private static func generateOnce(topic: String, level: CEFR, now: Date) async throws -> Passage {
-        let target = ReadingRules.wordTarget(level)
-        let ask = "Write a reading passage for a Vietnamese adult learner at CEFR \(level.rawValue) (\(level.hint)) about: \(topic). "
-            + "Use \(target.lowerBound) to \(target.upperBound) words in 3 or 4 paragraphs and American spelling. "
-            + "Write exactly 3 questions; only one option may be correct; explanations in Vietnamese."
-        let g = try await withTimeout(60) {
-            try await LanguageModelSession(instructions: "You write clear, accurate graded reading texts and fair comprehension questions.")
-                .respond(to: ask, generating: GeneratedPassage.self).content
-        }
-        let questions = ReadingRules.validQuestions(g.questions.map {
+    /// The model's draft through the same rules as bundled passages, plus "answers come from the text".
+    static func build(_ d: DraftPassage, topic: String, level: CEFR, now: Date) throws -> Passage {
+        let text = d.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let questions = ReadingRules.validQuestions(d.questions.map {
             ReadingQuestion(prompt: $0.prompt, options: $0.options, answer: $0.answer, explainVi: ReadingRules.vietnameseOrEmpty($0.explainVi))
-        })
-        let p = Passage(id: "gen-\(Int(now.timeIntervalSince1970))", level: level.rawValue, title: g.title, topic: topic,
-                        text: g.text.trimmingCharacters(in: .whitespacesAndNewlines), questions: questions, generated: true)
+        }).filter { ReadingRules.supported($0.answer, by: text) }
+        let p = Passage(id: "gen-\(Int(now.timeIntervalSince1970))", level: level.rawValue, title: d.title, topic: topic,
+                        text: text, questions: questions, generated: true)
         if let problem = ReadingRules.problem(with: p) { throw Err("AI tạo bài chưa đạt: \(problem) Thử lại nhé.") }
         return p
     }
@@ -210,6 +248,7 @@ struct ReadingView: View {
     @State private var genLevel = CEFR.b1
     @State private var generating = false
     @State private var error: String?
+    @State private var job: Task<Void, Never>? // cancelled when the learner leaves the screen
 
     var body: some View {
         Group {
@@ -221,6 +260,7 @@ struct ReadingView: View {
             }
         }
         .navigationTitle(open?.title ?? "Đọc hiểu")
+        .onDisappear { job?.cancel() }
         .problemBanner(store.problem)
         .task {
             if let id = DebugArgs.value("--open"), let p = store.all.first(where: { $0.id == id }) { open = p }
@@ -269,10 +309,10 @@ struct ReadingView: View {
                     HStack {
                         TextField("Chủ đề, ví dụ: cloud computing, đi du lịch Nhật Bản…", text: $topic)
                             .textFieldStyle(.roundedBorder)
-                            .onSubmit { Task { await generate() } }
+                            .onSubmit { startGenerate() }
                         Picker("Trình độ", selection: $genLevel) { ForEach(CEFR.allCases) { Text($0.rawValue).tag($0) } }
                             .labelsHidden().frame(width: 80)
-                        Button { Task { await generate() } } label: { Label(generating ? "Đang viết…" : "Tạo bài", systemImage: "wand.and.stars") }
+                        Button { startGenerate() } label: { Label(generating ? "Đang viết…" : "Tạo bài", systemImage: "wand.and.stars") }
                             .buttonStyle(.glassProminent)
                             .disabled(generating || topic.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
@@ -286,6 +326,11 @@ struct ReadingView: View {
         }
     }
 
+    private func startGenerate() {
+        job?.cancel()
+        job = Task { await generate() }
+    }
+
     private func generate() async {
         let t = topic.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !t.isEmpty, !generating else { return }
@@ -297,8 +342,10 @@ struct ReadingView: View {
             store.add(p)
             topic = ""
             withAnimation(.smooth) { open = p }
+        } catch is CancellationError {
+            return
         } catch {
-            self.error = (error as? Err)?.localizedDescription ?? "AI chưa viết được bài — thử lại hoặc đổi chủ đề."
+            self.error = (error as? LocalizedError)?.errorDescription ?? "AI chưa viết được bài — thử lại hoặc đổi chủ đề."
         }
     }
 }
@@ -404,7 +451,7 @@ struct PassageView: View {
                         }
                         .buttonStyle(.plain)
                         .disabled(picked != nil)
-                        .accessibilityLabel(picked == nil ? o : (o == q.answer ? "\(o), đáp án đúng" : o))
+                        .accessibilityLabel(picked == nil ? o : o == q.answer ? "\(o), đáp án đúng" : o == picked ? "\(o), bạn chọn, chưa đúng" : o)
                     }
                     if quiz.answers[i] != nil, !q.explainVi.isEmpty { Text(q.explainVi).font(.caption).foregroundStyle(.secondary) }
                 }

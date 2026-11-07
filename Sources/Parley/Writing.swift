@@ -219,13 +219,19 @@ final class WritingStore {
     }()
 }
 
-/// Runs `work`, failing with a Vietnamese error after `seconds` (the on-device model has no timeout of its own).
+/// The on-device model did not answer in time (Vietnamese message; distinct from the caller cancelling).
+struct TimeoutError: LocalizedError, Equatable {
+    let seconds: Double
+    var errorDescription: String? { "AI trên máy không trả lời sau \(Int(seconds)) giây." }
+}
+
+/// Runs `work`, failing with `TimeoutError` after `seconds` (the on-device model has no timeout of its own).
 func withTimeout<T: Sendable>(_ seconds: Double, _ work: @escaping @Sendable () async throws -> T) async throws -> T {
     try await withThrowingTaskGroup(of: T.self) { group in
         group.addTask { try await work() }
         group.addTask {
             try await Task.sleep(for: .seconds(seconds))
-            throw Err("AI trên máy không trả lời sau \(Int(seconds)) giây.")
+            throw TimeoutError(seconds: seconds)
         }
         defer { group.cancelAll() }
         return try await group.next()!

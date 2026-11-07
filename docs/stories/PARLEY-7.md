@@ -25,6 +25,21 @@ As a learner I want to move my word list in and out of Parley (Anki, Excel, back
 ## Review rounds
 - Round 1 (independent): 7.5/10 — Anki "Notes in Plain Text" (`#separator:tab`, `#html:true`) imported junk; a `;` file with commas in meanings picked `,`; CRLF inside a field was exported unquoted (Swift's `\r\n` grapheme); formula cells (`= + - @`) exported raw; no BOM for Excel; a read-only store still reported "Đã thêm N từ".
   Fixed: `CSV.stripAnkiHeader` (honours `#separator`, keeps original line numbers); separator = consistent column count over the first rows, outside quotes, ties → tab, `;`, `,`; quoting checks `unicodeScalars`; `safeCell`/`unsafeCell` (`'` prefix, restored on import); BOM on export; `addMany` returns what it saved (0 when read-only or the save failed) and the alert says so. Tests: `TransferEdgeTests`, `ImportIntoReadOnlyStoreTests`.
+- Round 2 (fresh): 7.5/10 — Anki `#html:true` HTML and `#notetype/#deck column` imported as data; failed save not tested; whole-file failure looked like one bad row. Fixed in d2f2f23 (`AnkiAndRoundTripTests`, `AddManySaveFailureTests`, `ImportResult.fatal`).
+- Round 3 (fresh, last allowed): 8.0/10 — requirements fit 1, security 1, no zeros → shipped under the round-3 rule. Remaining (headerless `;` file tie, BOM before `#separator`, parse on the main actor) → PARLEY-15.
 
 ## Score
-Pending review.
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Test depth | 1 |
+| 3 | Reliability | 0.5 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 1 |
+| 6 | UX | 1 |
+| 7 | Accessibility | 1 |
+| 8 | Performance | 0.5 |
+| 9 | Docs | 0.5 |
+| 10 | Delivery | 0.5 |
+| | **Total** | **8.0 / 10** (round 3 cap; debt PARLEY-15) |

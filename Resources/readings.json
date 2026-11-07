@@ -6,9 +6,39 @@
     "topic": "Công việc",
     "text": "Last Monday I started a new job at a small software company. The office is near the river, so I go there by bike every morning. On my first day, my manager, Linh, showed me the building and introduced me to the team. There are six people in my team: four developers, one designer and one tester.\n\nOn Tuesday I got a laptop and an account for the company chat. I read a lot of documents and asked many questions. Everyone was patient and friendly. On Wednesday I fixed my first small bug. It was only one line of code, but I was very happy.\n\nWe have a short meeting every morning at nine o'clock. Each person says what they did yesterday and what they will do today. At first I was nervous about speaking English in the meeting, but now it is easier. Next week I will start working on a new feature.",
     "questions": [
-      { "prompt": "How does the writer get to the office?", "options": ["By bus", "By bike", "On foot", "By car"], "answer": "By bike", "explainVi": "Bài viết: \"I go there by bike every morning\"." },
-      { "prompt": "How many people are in the writer's team?", "options": ["Four", "Five", "Six", "Seven"], "answer": "Six", "explainVi": "\"There are six people in my team\" — bốn lập trình viên, một thiết kế, một kiểm thử." },
-      { "prompt": "What did the writer do on Wednesday?", "options": ["Got a laptop", "Met the manager", "Fixed a small bug", "Started a new feature"], "answer": "Fixed a small bug", "explainVi": "\"On Wednesday I fixed my first small bug.\"" }
+      {
+        "prompt": "How does the writer get to the office?",
+        "options": [
+          "By bus",
+          "By bike",
+          "On foot",
+          "By car"
+        ],
+        "answer": "By bike",
+        "explainVi": "Bài viết: \"I go there by bike every morning\"."
+      },
+      {
+        "prompt": "How many people are in the writer's team?",
+        "options": [
+          "Four",
+          "Five",
+          "Six",
+          "Seven"
+        ],
+        "answer": "Six",
+        "explainVi": "\"There are six people in my team\" — bốn lập trình viên, một thiết kế, một kiểm thử."
+      },
+      {
+        "prompt": "What did the writer do on Wednesday?",
+        "options": [
+          "Got a laptop",
+          "Met the manager",
+          "Fixed a small bug",
+          "Started a new feature"
+        ],
+        "answer": "Fixed a small bug",
+        "explainVi": "Đoạn 2: thứ Tư người viết sửa lỗi nhỏ đầu tiên (\"On Wednesday I fixed my first small bug\")."
+      }
     ]
   },
   {
@@ -18,9 +48,39 @@
     "topic": "Đời sống",
     "text": "Every Saturday morning, Minh and his sister go to the market near their home. They usually leave the house at seven o'clock, because the vegetables are fresh and the market is not crowded yet.\n\nMinh likes to buy fruit. This week he bought mangoes, bananas and a big watermelon. His sister prefers vegetables and fish. She always talks with the sellers and asks about the price before she buys anything. Sometimes she gets a small discount.\n\nAfter shopping, they sit at a small café at the corner of the market. Minh drinks iced coffee and his sister drinks tea. They talk about their week and plan meals for the next few days. Then they carry their heavy bags home. Minh says the market is more fun than the supermarket because it is full of people, colors and noise.",
     "questions": [
-      { "prompt": "Why do they go to the market early?", "options": ["The café closes at eight", "The vegetables are fresh and it is not crowded", "Their mother asks them to", "Prices are lower in the afternoon"], "answer": "The vegetables are fresh and it is not crowded", "explainVi": "\"because the vegetables are fresh and the market is not crowded yet\"." },
-      { "prompt": "What does Minh's sister do before she buys something?", "options": ["She asks about the price", "She pays by card", "She calls her brother", "She tastes the food"], "answer": "She asks about the price", "explainVi": "\"asks about the price before she buys anything\"." },
-      { "prompt": "Why does Minh like the market more than the supermarket?", "options": ["It is cheaper", "It is quieter", "It is full of people, colors and noise", "It is closer to home"], "answer": "It is full of people, colors and noise", "explainVi": "Câu cuối: chợ \"full of people, colors and noise\" nên vui hơn siêu thị." }
+      {
+        "prompt": "Why do they go to the market early?",
+        "options": [
+          "The café closes at eight",
+          "The vegetables are fresh and it is not crowded",
+          "Their mother asks them to",
+          "Prices are lower in the afternoon"
+        ],
+        "answer": "The vegetables are fresh and it is not crowded",
+        "explainVi": "Đoạn 1: rau còn tươi và chợ chưa đông (\"the vegetables are fresh and the market is not crowded yet\")."
+      },
+      {
+        "prompt": "What does Minh's sister do before she buys something?",
+        "options": [
+          "She asks about the price",
+          "She pays by card",
+          "She calls her brother",
+          "She tastes the food"
+        ],
+        "answer": "She asks about the price",
+        "explainVi": "Đoạn 2: chị luôn hỏi giá trước khi mua (\"asks about the price before she buys anything\")."
+      },
+      {
+        "prompt": "Why does Minh like the market more than the supermarket?",
+        "options": [
+          "It is cheaper",
+          "It is quieter",
+          "It is full of people, colors and noise",
+          "It is closer to home"
+        ],
+        "answer": "It is full of people, colors and noise",
+        "explainVi": "Câu cuối: chợ \"full of people, colors and noise\" nên vui hơn siêu thị."
+      }
     ]
   },
   {
@@ -30,9 +90,39 @@
     "topic": "Họp & phối hợp",
     "text": "Many teams now spend hours every week in online meetings, but a lot of that time is wasted. A few simple habits can make meetings shorter and more useful.\n\nFirst, send an agenda before the meeting. When people know the topics in advance, they can prepare and the discussion stays focused. Second, start on time, even if someone is late. Waiting for latecomers teaches everyone that the start time is not important.\n\nDuring the meeting, ask people to keep their cameras on if possible. Seeing faces makes it easier to notice when someone is confused or wants to speak. It also helps to choose one person to take notes and write down every decision and action item, with a name and a deadline next to each one.\n\nFinally, end the meeting a few minutes early. This gives people a short break before their next call. After the meeting, share the notes within an hour, while everyone still remembers what was decided.",
     "questions": [
-      { "prompt": "Why should you send an agenda before the meeting?", "options": ["So people can prepare and stay focused", "So the meeting can be longer", "Because managers require it", "To decide who takes notes"], "answer": "So people can prepare and stay focused", "explainVi": "\"they can prepare and the discussion stays focused\"." },
-      { "prompt": "What does waiting for late people teach the team?", "options": ["That meetings are fun", "That the start time is not important", "That cameras should be on", "That agendas are useless"], "answer": "That the start time is not important", "explainVi": "Chờ người đến muộn khiến mọi người nghĩ giờ bắt đầu không quan trọng." },
-      { "prompt": "What should the note-taker write next to each action item?", "options": ["The meeting length", "A name and a deadline", "The agenda topic", "A short summary"], "answer": "A name and a deadline", "explainVi": "\"with a name and a deadline next to each one\"." }
+      {
+        "prompt": "Why should you send an agenda before the meeting?",
+        "options": [
+          "So people can prepare and stay focused",
+          "So the meeting can be longer",
+          "Because managers require it",
+          "To decide who takes notes"
+        ],
+        "answer": "So people can prepare and stay focused",
+        "explainVi": "Đoạn 2: biết trước chủ đề thì mọi người chuẩn bị được và cuộc họp tập trung hơn."
+      },
+      {
+        "prompt": "What does waiting for late people teach the team?",
+        "options": [
+          "That meetings are fun",
+          "That the start time is not important",
+          "That cameras should be on",
+          "That agendas are useless"
+        ],
+        "answer": "That the start time is not important",
+        "explainVi": "Chờ người đến muộn khiến mọi người nghĩ giờ bắt đầu không quan trọng."
+      },
+      {
+        "prompt": "What should the note-taker write next to each action item?",
+        "options": [
+          "The meeting length",
+          "A name and a deadline",
+          "The agenda topic",
+          "A short summary"
+        ],
+        "answer": "A name and a deadline",
+        "explainVi": "Đoạn 3: ghi tên người phụ trách và hạn chót cạnh từng việc."
+      }
     ]
   },
   {
@@ -42,9 +132,39 @@
     "topic": "Sức khoẻ",
     "text": "When we want to learn something quickly, the first thing many of us cut is sleep. We stay up late to finish a course or review vocabulary. However, research suggests that this is often a mistake.\n\nWhile we sleep, the brain does not simply rest. It replays what we experienced during the day and moves important information into long-term memory. Students who sleep well after studying usually remember more the next day than students who stay awake for the same number of hours.\n\nSleep also affects attention. After a short night, it is harder to concentrate, and we make more careless mistakes. For language learners, this means that a tired brain notices fewer details, such as word endings or small differences in pronunciation.\n\nThe practical advice is simple: study a little every day, review new words in the evening, and then go to bed at a regular time. Fifteen minutes of practice followed by a good night's sleep can be worth more than an hour of tired study.",
     "questions": [
-      { "prompt": "What does the brain do during sleep, according to the text?", "options": ["It stops working completely", "It moves important information into long-term memory", "It forgets new words", "It only controls breathing"], "answer": "It moves important information into long-term memory", "explainVi": "Đoạn 2: não \"moves important information into long-term memory\"." },
-      { "prompt": "How does a short night affect language learners?", "options": ["They notice fewer details", "They speak faster", "They learn more words", "They need less practice"], "answer": "They notice fewer details", "explainVi": "\"a tired brain notices fewer details\"." },
-      { "prompt": "What is the main advice of the text?", "options": ["Study for many hours at night", "Study a little every day and sleep regularly", "Never review in the evening", "Sleep only on weekends"], "answer": "Study a little every day and sleep regularly", "explainVi": "Đoạn cuối: học một chút mỗi ngày, ôn buổi tối rồi ngủ đúng giờ." }
+      {
+        "prompt": "What does the brain do during sleep, according to the text?",
+        "options": [
+          "It stops working completely",
+          "It moves important information into long-term memory",
+          "It forgets new words",
+          "It only controls breathing"
+        ],
+        "answer": "It moves important information into long-term memory",
+        "explainVi": "Đoạn 2: não \"moves important information into long-term memory\"."
+      },
+      {
+        "prompt": "How does a short night affect language learners?",
+        "options": [
+          "They notice fewer details",
+          "They speak faster",
+          "They learn more words",
+          "They need less practice"
+        ],
+        "answer": "They notice fewer details",
+        "explainVi": "Đoạn 3: não mệt nhận ra ít chi tiết hơn, như đuôi từ hay khác biệt phát âm."
+      },
+      {
+        "prompt": "What is the main advice of the text?",
+        "options": [
+          "Study for many hours at night",
+          "Study a little every day and sleep regularly",
+          "Never review in the evening",
+          "Sleep only on weekends"
+        ],
+        "answer": "Study a little every day and sleep regularly",
+        "explainVi": "Đoạn cuối: học một chút mỗi ngày, ôn buổi tối rồi ngủ đúng giờ."
+      }
     ]
   },
   {
@@ -54,9 +174,39 @@
     "topic": "Công nghệ thông tin",
     "text": "Last month our payment service was unavailable for forty minutes during the evening peak. Around twelve percent of checkout attempts failed, and our support team received more than three hundred messages from frustrated customers.\n\nThe root cause turned out to be surprisingly ordinary. A configuration change reduced the size of the database connection pool, and nobody noticed because the change looked harmless in review. When traffic grew in the evening, requests began to wait for free connections, timed out, and were retried by the mobile app, which only made the queue longer.\n\nWe have since made three changes. Configuration is now validated by automated checks, so a pool size below a safe minimum fails the build. The mobile app retries with exponential backoff instead of immediately. Most importantly, we added an alert on checkout error rate, which would have woken us up within two minutes instead of the twenty it actually took.\n\nNo single person caused the outage, and we deliberately avoided looking for someone to blame. The goal of a post-mortem is to make the system safer, not to punish the people who operate it.",
     "questions": [
-      { "prompt": "What was the root cause of the outage?", "options": ["A hardware failure", "A smaller database connection pool after a config change", "A bug in the mobile app", "A cyber attack"], "answer": "A smaller database connection pool after a config change", "explainVi": "Đoạn 2: thay đổi cấu hình làm giảm kích thước connection pool." },
-      { "prompt": "Why did the app's retries make things worse?", "options": ["They used too much battery", "They made the queue of waiting requests longer", "They changed the configuration", "They sent messages to support"], "answer": "They made the queue of waiting requests longer", "explainVi": "\"retried by the mobile app, which only made the queue longer\"." },
-      { "prompt": "What is the purpose of a post-mortem, according to the writer?", "options": ["To find someone to blame", "To make the system safer", "To reduce costs", "To write documentation"], "answer": "To make the system safer", "explainVi": "Câu cuối: mục tiêu là làm hệ thống an toàn hơn, không phải trừng phạt." }
+      {
+        "prompt": "What was the root cause of the outage?",
+        "options": [
+          "A hardware failure",
+          "A smaller database connection pool after a config change",
+          "A bug in the mobile app",
+          "A cyber attack"
+        ],
+        "answer": "A smaller database connection pool after a config change",
+        "explainVi": "Đoạn 2: thay đổi cấu hình làm giảm kích thước connection pool."
+      },
+      {
+        "prompt": "Why did the app's retries make things worse?",
+        "options": [
+          "They used too much battery",
+          "They made the queue of waiting requests longer",
+          "They changed the configuration",
+          "They sent messages to support"
+        ],
+        "answer": "They made the queue of waiting requests longer",
+        "explainVi": "Đoạn 2: ứng dụng thử lại liên tục khiến hàng đợi càng dài thêm."
+      },
+      {
+        "prompt": "What is the purpose of a post-mortem, according to the writer?",
+        "options": [
+          "To find someone to blame",
+          "To make the system safer",
+          "To reduce costs",
+          "To write documentation"
+        ],
+        "answer": "To make the system safer",
+        "explainVi": "Câu cuối: mục tiêu là làm hệ thống an toàn hơn, không phải trừng phạt."
+      }
     ]
   },
   {
@@ -66,9 +216,39 @@
     "topic": "Công việc & kinh doanh",
     "text": "Most professionals know the feeling: a colleague or client asks for something reasonable, but you simply do not have the time. Saying yes to everything leads to missed deadlines and burnout, yet a blunt no can damage a relationship you have spent years building.\n\nNegotiation experts suggest a different approach. Instead of answering immediately, acknowledge the request and show that you understand why it matters. Then explain your current priorities honestly, and offer an alternative: a later date, a smaller version of the task, or a colleague who might be better placed to help.\n\nFor example, rather than saying \"I can't do this,\" you might say, \"I can see why this report is urgent. I'm committed to the release until Thursday, but I could prepare a short summary by Friday, or ask Nam whether he has time today.\"\n\nThis kind of answer protects your focus while keeping the conversation constructive. The other person leaves with a realistic plan instead of a refusal, and you are more likely to be trusted the next time you do say yes.",
     "questions": [
-      { "prompt": "What is the risk of saying yes to everything?", "options": ["Missed deadlines and burnout", "Losing clients", "Getting a promotion", "Learning new skills"], "answer": "Missed deadlines and burnout", "explainVi": "Đoạn 1: \"leads to missed deadlines and burnout\"." },
-      { "prompt": "What should you do first when you receive a request you cannot accept?", "options": ["Refuse immediately", "Acknowledge it and show you understand why it matters", "Ask your manager", "Ignore the message"], "answer": "Acknowledge it and show you understand why it matters", "explainVi": "Đoạn 2: ghi nhận yêu cầu và cho thấy bạn hiểu tầm quan trọng của nó." },
-      { "prompt": "Which is NOT one of the alternatives mentioned?", "options": ["A later date", "A smaller version of the task", "A colleague who could help", "A higher price"], "answer": "A higher price", "explainVi": "Bài chỉ nêu: hẹn ngày sau, làm phiên bản nhỏ hơn, hoặc nhờ đồng nghiệp." }
+      {
+        "prompt": "What is the risk of saying yes to everything?",
+        "options": [
+          "Missed deadlines and burnout",
+          "Losing clients",
+          "Getting a promotion",
+          "Learning new skills"
+        ],
+        "answer": "Missed deadlines and burnout",
+        "explainVi": "Đoạn 1: \"leads to missed deadlines and burnout\"."
+      },
+      {
+        "prompt": "What should you do first when you receive a request you cannot accept?",
+        "options": [
+          "Refuse immediately",
+          "Acknowledge it and show you understand why it matters",
+          "Ask your manager",
+          "Ignore the message"
+        ],
+        "answer": "Acknowledge it and show you understand why it matters",
+        "explainVi": "Đoạn 2: ghi nhận yêu cầu và cho thấy bạn hiểu tầm quan trọng của nó."
+      },
+      {
+        "prompt": "Which is NOT one of the alternatives mentioned?",
+        "options": [
+          "A later date",
+          "A smaller version of the task",
+          "A colleague who could help",
+          "A higher price"
+        ],
+        "answer": "A higher price",
+        "explainVi": "Bài chỉ nêu: hẹn ngày sau, làm phiên bản nhỏ hơn, hoặc nhờ đồng nghiệp."
+      }
     ]
   },
   {
@@ -78,9 +258,39 @@
     "topic": "Công nghệ",
     "text": "AI assistants have made it remarkably easy to produce a first draft of almost anything: an email, a test suite, a project proposal. For experienced professionals, this is a genuine gift, since the tedious part of the work shrinks while judgment remains firmly in human hands.\n\nThe picture is less straightforward for people who are still building their expertise. Skills such as structuring an argument or debugging an unfamiliar system are acquired precisely through the struggle that these tools remove. A junior developer who accepts generated code without fully understanding it may ship features faster in the short term, yet find themselves unable to reason about the system when something breaks in production.\n\nNone of this is an argument for abandoning the tools. It is, however, a case for using them deliberately. One effective practice is to attempt a problem unaided for a fixed period before consulting an assistant, and then to compare the two solutions critically. Another is to ask the tool to explain its reasoning, treating its answer as a hypothesis to be verified rather than an authority to be trusted.\n\nOrganizations have a role to play as well. Teams that reward only speed will inevitably encourage shortcuts; those that also value understanding, through code reviews that ask why rather than merely what, are likely to develop more resilient engineers.",
     "questions": [
-      { "prompt": "Why are AI shortcuts a particular risk for less experienced people?", "options": ["The tools are too expensive for them", "They skip the struggle through which skills are built", "They cannot use the tools at all", "Their managers forbid the tools"], "answer": "They skip the struggle through which skills are built", "explainVi": "Đoạn 2: kỹ năng hình thành chính nhờ quá trình vật lộn mà công cụ đã lấy mất." },
-      { "prompt": "How does the writer suggest treating an AI tool's explanation?", "options": ["As an authority to be trusted", "As a hypothesis to be verified", "As unnecessary detail", "As a replacement for code review"], "answer": "As a hypothesis to be verified", "explainVi": "\"treating its answer as a hypothesis to be verified rather than an authority to be trusted\"." },
-      { "prompt": "What kind of code review does the writer recommend?", "options": ["Faster reviews", "Reviews that ask why, not only what", "Reviews done only by AI", "No reviews for small changes"], "answer": "Reviews that ask why, not only what", "explainVi": "Đoạn cuối: \"code reviews that ask why rather than merely what\"." }
+      {
+        "prompt": "Why are AI shortcuts a particular risk for less experienced people?",
+        "options": [
+          "The tools are too expensive for them",
+          "They skip the struggle through which skills are built",
+          "They cannot use the tools at all",
+          "Their managers forbid the tools"
+        ],
+        "answer": "They skip the struggle through which skills are built",
+        "explainVi": "Đoạn 2: kỹ năng hình thành chính nhờ quá trình vật lộn mà công cụ đã lấy mất."
+      },
+      {
+        "prompt": "How does the writer suggest treating an AI tool's explanation?",
+        "options": [
+          "As an authority to be trusted",
+          "As a hypothesis to be verified",
+          "As unnecessary detail",
+          "As a replacement for code review"
+        ],
+        "answer": "As a hypothesis to be verified",
+        "explainVi": "Đoạn 3: coi lời giải thích của công cụ là giả thuyết cần kiểm chứng, không phải điều chắc chắn."
+      },
+      {
+        "prompt": "What kind of code review does the writer recommend?",
+        "options": [
+          "Faster reviews",
+          "Reviews that ask why, not only what",
+          "Reviews done only by AI",
+          "No reviews for small changes"
+        ],
+        "answer": "Reviews that ask why, not only what",
+        "explainVi": "Đoạn cuối: \"code reviews that ask why rather than merely what\"."
+      }
     ]
   },
   {
@@ -90,9 +300,39 @@
     "topic": "Năng suất",
     "text": "Open-plan offices and instant messaging were intended to make collaboration effortless, and in many respects they have succeeded. Questions are answered in seconds, and decisions no longer wait for the next scheduled meeting. The hidden price, however, is fragmented attention.\n\nStudies of knowledge workers consistently find that after an interruption it can take well over ten minutes to return fully to a complex task. Since many people are interrupted every few minutes, a significant share of the working day may be spent recovering focus rather than using it. Unsurprisingly, the work that suffers most is precisely the kind that demands sustained concentration: designing systems, writing carefully, or solving problems nobody has solved before.\n\nSome teams have responded by negotiating explicit agreements about availability. Mornings might be reserved for uninterrupted work, with notifications muted and meetings forbidden, while afternoons are left open for discussion. Others rely on asynchronous habits, such as writing questions in a shared document that colleagues answer when they reach a natural pause.\n\nSuch arrangements require trust, because they make people temporarily unreachable. Yet the teams that adopt them often report not only better output but also lower stress, suggesting that constant availability was never as essential as it seemed.",
     "questions": [
-      { "prompt": "What is the 'hidden price' of open offices and instant messaging?", "options": ["Higher rent", "Fragmented attention", "Slower decisions", "Fewer meetings"], "answer": "Fragmented attention", "explainVi": "Đoạn 1: cái giá ẩn là sự chú ý bị chia nhỏ." },
-      { "prompt": "Which kind of work suffers most from interruptions?", "options": ["Answering quick questions", "Work that needs sustained concentration", "Scheduling meetings", "Reading email"], "answer": "Work that needs sustained concentration", "explainVi": "\"the kind that demands sustained concentration\"." },
-      { "prompt": "What do teams with availability agreements often report?", "options": ["More meetings", "Better output and lower stress", "Less trust between colleagues", "Longer working hours"], "answer": "Better output and lower stress", "explainVi": "Đoạn cuối: kết quả tốt hơn và ít căng thẳng hơn." }
+      {
+        "prompt": "What is the 'hidden price' of open offices and instant messaging?",
+        "options": [
+          "Higher rent",
+          "Fragmented attention",
+          "Slower decisions",
+          "Fewer meetings"
+        ],
+        "answer": "Fragmented attention",
+        "explainVi": "Đoạn 1: cái giá ẩn là sự chú ý bị chia nhỏ."
+      },
+      {
+        "prompt": "Which kind of work suffers most from interruptions?",
+        "options": [
+          "Answering quick questions",
+          "Work that needs sustained concentration",
+          "Scheduling meetings",
+          "Reading email"
+        ],
+        "answer": "Work that needs sustained concentration",
+        "explainVi": "Đoạn 2: công việc cần tập trung lâu (thiết kế hệ thống, viết cẩn thận) bị ảnh hưởng nhiều nhất."
+      },
+      {
+        "prompt": "What do teams with availability agreements often report?",
+        "options": [
+          "More meetings",
+          "Better output and lower stress",
+          "Less trust between colleagues",
+          "Longer working hours"
+        ],
+        "answer": "Better output and lower stress",
+        "explainVi": "Đoạn cuối: kết quả tốt hơn và ít căng thẳng hơn."
+      }
     ]
   }
 ]

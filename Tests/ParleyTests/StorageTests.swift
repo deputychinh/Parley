@@ -140,3 +140,11 @@ import Testing
         try? await Task.sleep(for: .milliseconds(200))
     }
 }
+
+
+@Suite struct SandboxCleanupTests {
+    @Test func staleDomainsAreFoundButNotOurOwn() {
+        let names = ["parley.sandbox.111.plist", "parley.sandbox.plist", "parley.sandbox.222.plist", "com.david.parley.plist", "other.plist"]
+        #expect(AppDefaults.staleSandboxDomains(fileNames: names, own: "parley.sandbox.222") == ["parley.sandbox.111", "parley.sandbox"])
+    }
+}

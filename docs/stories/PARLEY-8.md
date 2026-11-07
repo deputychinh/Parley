@@ -23,6 +23,21 @@ As a learner I want a nudge at a time I choose, only on days I haven't studied e
 ## Review rounds
 - Round 1 (independent): 7.5/10 — screenshot/`--data-dir` instances rebuilt the owner's real reminders from sample data (shared defaults domain); quick off/on could leave stale reminders; permission denial not re-checked when Settings reopens; `requestAuthorization` errors hidden.
   Fixed: sandboxed runs never schedule or ask (PARLEY-13: own defaults domain, `Reminder.reschedule` returns early); rebuilds are serialized (each waits for the previous); `isDenied()` checked whenever Settings appears; permission errors logged. Known limit kept: today's "còn X XP" text is fixed when scheduled (rebuilt when the goal is met).
+- Round 2 (fresh): 8.0/10 — sandbox guard untested; reminders only rebuilt at launch/settings/goal. Fixed in d2f2f23 (activation + day-change observers, `sandboxedRunsNeverTouchNotifications`).
+- Round 3 (fresh, last allowed): 8.5/10 — shipped under the round-3 rule. Remaining (denied footer not reset when toggled off, time-zone change, goal-met wiring test) → PARLEY-15.
 
 ## Score
-Pending review.
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Test depth | 0.5 |
+| 3 | Reliability | 0.5 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 1 |
+| 6 | UX | 1 |
+| 7 | Accessibility | 1 |
+| 8 | Performance | 1 |
+| 9 | Docs | 1 |
+| 10 | Delivery | 0.5 |
+| | **Total** | **8.5 / 10** (round 3 cap; debt PARLEY-15) |

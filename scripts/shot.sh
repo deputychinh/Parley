@@ -19,7 +19,8 @@ MATCH="MacOS/Parley --data-dir $DATA"
 cleanup() { pkill -f -- "$MATCH" 2>/dev/null || true; }   # every instance started with our unique folder
 trap cleanup EXIT
 
-open -n -a "$PWD/build/Parley.app" --args --data-dir "$DATA" -ApplePersistenceIgnoreState YES \
+scripts/sandbox-app.sh >/dev/null   # own bundle id: window frames etc. never reach the owner's settings
+open -n -a "$PWD/build/Parley-sandbox.app" --args --data-dir "$DATA" -ApplePersistenceIgnoreState YES \
   --route "$ROUTE" --window-size "${SHOT_SIZE:-1200,740}" "$@"
 PID=""
 for _ in $(seq 1 40); do

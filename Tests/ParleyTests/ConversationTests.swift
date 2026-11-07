@@ -163,8 +163,38 @@ import Testing
     }
 
     @Test func mainActorTimeoutFailsSlowWorkAndPassesFastWork() async throws {
-        await #expect(throws: Err.self) { try await mainActorTimeout(0.05) { try await Task.sleep(for: .seconds(5)); return 1 } }
+        await #expect(throws: TimeoutError.self) { try await mainActorTimeout(0.05) { try await Task.sleep(for: .seconds(5)); return 1 } }
         #expect(try await mainActorTimeout(1) { 7 } == 7)
         #expect(ModelCoach.timeout == 30)
+    }
+}
+
+
+/// PARLEY-14 review round 2: the timeout inside the real engine, caller cancellation, first-person sentences.
+@MainActor @Suite struct ModelCoachTimeoutTests {
+    @Test func turnTimesOutWithItsOwnError() async {
+        let slow = ModelCoach(instructions: "x", timeout: 0.05) { _ in
+            try await Task.sleep(for: .seconds(5))
+            return CoachReply(reply: "late", corrected: "", natural: "", tipVi: "")
+        }
+        await #expect(throws: TimeoutError.self) { try await slow.turn(after: "Hi", learner: "Hello") }
+        #expect(ModelCoach.message(for: TimeoutError(seconds: 30)).contains("30 giây"))
+    }
+
+    @Test func fastResponderPassesThrough() async throws {
+        let fast = ModelCoach(instructions: "x", timeout: 1) { prompt in CoachReply(reply: prompt, corrected: "", natural: "", tipVi: "") }
+        #expect(try await fast.turn(after: "Hi", learner: "Hello").reply.contains("Learner: \"Hello\""))
+    }
+
+    @Test func callerCancellationIsNotATimeout() async {
+        let t = Task { @MainActor in try await mainActorTimeout(5) { try await Task.sleep(for: .seconds(5)); return 1 } }
+        try? await Task.sleep(for: .milliseconds(50))
+        t.cancel()
+        await #expect(throws: CancellationError.self) { try await t.value }
+    }
+
+    @Test func firstPersonSentencesAreNotPraise() {
+        #expect(!Coach.isPraise("I did a good job on the release"))
+        #expect(Coach.isPraise("Good job on the release!"))
     }
 }

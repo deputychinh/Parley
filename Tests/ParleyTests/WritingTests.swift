@@ -77,7 +77,7 @@ import Testing
     }
 
     @Test func timeoutFailsSlowWork() async throws {
-        await #expect(throws: Err.self) { try await withTimeout(0.05) { try await Task.sleep(for: .seconds(5)); return 1 } }
+        await #expect(throws: TimeoutError.self) { try await withTimeout(0.05) { try await Task.sleep(for: .seconds(5)); return 1 } }
         #expect(try await withTimeout(1) { 7 } == 7)
     }
 

@@ -1211,7 +1211,10 @@ struct SettingsView: View {
             }
             .onChange(of: reminderOn) {
                 Task {
-                    if reminderOn { reminderDenied = !(await Reminder.requestPermission()) }
+                    if reminderOn {
+                        let granted = await Reminder.requestPermission()
+                        reminderDenied = !AppDefaults.sandboxed && !granted
+                    }
                     Reminder.reschedule()
                 }
             }

@@ -51,8 +51,11 @@ import Testing
         let url = TestData.file("reading.json")
         let a = ActivityStore(file: TestData.file("activity.json"))
         let s = ReadingStore(file: url, activity: a)
-        s.answer(correct: true)
-        s.answer(correct: false)
+        var quiz = ReadingQuiz([ReadingQuestion(prompt: "1", options: ["a", "b", "c", "d"], answer: "a", explainVi: ""),
+                                ReadingQuestion(prompt: "2", options: ["a", "b", "c", "d"], answer: "a", explainVi: "")])
+        s.log(quiz.choose(0, "a"))
+        s.log(quiz.choose(1, "b"))
+        s.log(quiz.choose(1, "a")) // already answered: nothing
         s.finish("a2-new-job", score: 2)
         s.finish("a2-new-job", score: 1) // a worse retry keeps the best
         #expect(a.data.days[StudyStore.day(.now)] == ["reading": 12])
@@ -113,5 +116,69 @@ import Testing
         #expect(Route.showsInterpreter(.session(URL(fileURLWithPath: "/x.md")), running: false))
         #expect(!Route.showsInterpreter(.reading, running: false) && !Route.showsInterpreter(.conversation, running: false))
         #expect(Route.showsInterpreter(.reading, running: true)) // a running session can always be stopped
+    }
+}
+
+
+/// PARLEY-6 review round 2: generation through an injectable writer, answers from the text, Vietnamese explanations.
+@MainActor final class FakeWriter: PassageWriter {
+    var drafts: [Result<DraftPassage, Error>]
+    var calls = 0
+    init(_ drafts: [Result<DraftPassage, Error>]) { self.drafts = drafts }
+    func write(topic: String, level: CEFR) async throws -> DraftPassage {
+        calls += 1
+        return try drafts.removeFirst().get()
+    }
+}
+
+@MainActor @Suite struct ReadingGenerationTests {
+    let text = "Last week Lan visited a small farm near Da Lat. She picked strawberries in the morning and cooked lunch with the family. In the afternoon it rained, so everyone drank tea and talked about the harvest. Lan wants to visit again next spring with her friends from work. " + Array(repeating: "The farm was quiet and green.", count: 8).joined(separator: " ")
+    func q(_ prompt: String, _ answer: String, _ others: [String]) -> ReadingQuestion {
+        ReadingQuestion(prompt: prompt, options: [answer] + others, answer: answer, explainVi: "Đoạn 1 có câu trả lời.")
+    }
+    var good: DraftPassage {
+        DraftPassage(title: "A farm visit", text: text, questions: [
+            q("What did Lan pick?", "Strawberries", ["Apples", "Rice", "Flowers"]),
+            q("What happened in the afternoon?", "It rained", ["It snowed", "It was hot", "Nothing"]),
+            q("When does Lan want to come back?", "Next spring", ["Next winter", "Tomorrow", "Never"]),
+        ])
+    }
+
+    @Test func goodDraftBecomesAPassage() async throws {
+        let p = try await ReadingStore.generate(topic: "farm", level: .a2, writer: FakeWriter([.success(good)]))
+        #expect(p.generated == true && p.questions.count == 3 && p.level == "A2" && p.topic == "farm")
+    }
+
+    @Test func answersNotInTheTextAreRejectedThenRetriedOnce() async throws {
+        var bad = good
+        bad.questions[0] = q("What did Lan cook?", "Fried rice with chicken", ["Soup", "Bread", "Noodles"]) // never said
+        let writer = FakeWriter([.success(bad), .success(good)])
+        let p = try await ReadingStore.generate(topic: "farm", level: .a2, writer: writer)
+        #expect(writer.calls == 2 && p.questions.count == 3)
+        let twice = FakeWriter([.success(bad), .success(bad)])
+        await #expect(throws: Err.self) { try await ReadingStore.generate(topic: "farm", level: .a2, writer: twice) }
+    }
+
+    @Test func noRetryAfterATimeout() async {
+        let writer = FakeWriter([.failure(TimeoutError(seconds: 60)), .success(good)])
+        await #expect(throws: TimeoutError.self) { try await ReadingStore.generate(topic: "farm", level: .b1, writer: writer) }
+        #expect(writer.calls == 1)
+    }
+
+    @Test func englishExplanationsAreDropped() throws {
+        var d = good
+        d.questions[0].explainVi = "The answer is in paragraph one."
+        let p = try ReadingStore.build(d, topic: "farm", level: .a2, now: .now)
+        #expect(p.questions[0].explainVi.isEmpty && !p.questions[1].explainVi.isEmpty)
+    }
+
+    @Test func supportedAnswers() {
+        #expect(ReadingRules.supported("Strawberries", by: text))
+        #expect(ReadingRules.supported("Six", by: "There are six people."))
+        #expect(!ReadingRules.supported("Fried rice with chicken", by: text))
+    }
+
+    @Test func bundledExplanationsAreVietnamese() {
+        for p in Library.readings { for q in p.questions { #expect(WritingRules.isVietnamese(q.explainVi), "\(p.id): \(q.prompt)") } }
     }
 }

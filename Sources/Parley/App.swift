@@ -157,6 +157,7 @@ struct ParleyApp: App {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        AppDefaults.removeStaleSandboxDomains()
         Reminder.activity = activity
         activity.onGoalMet = { Reminder.reschedule() }
         Reminder.reschedule()
@@ -167,6 +168,8 @@ struct ParleyApp: App {
         }
         Task.detached(priority: .utility) { _ = Pronunciation.ipa("a") } // warm the 135k-word dictionary off the main thread
     }
+
+    func applicationWillTerminate(_ notification: Notification) { AppDefaults.removeOwnSandboxDomain() }
 
     // Keep running (and recording) when switching between the main and mini windows; ⌘Q quits.
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }

@@ -5,7 +5,7 @@ Path: Full — because the request is open-ended and adds several features to an
 Appetite: 3 slices of agent work · started 2026-11-08 · **Spent: ~2.5 of 3 slices**
 Status: doing
 
-**Next action:** Re-review (fresh reviewers) on branch `parley-fix6`: PARLEY-6 r2, PARLEY-7 r3 (final), PARLEY-8 r3 (final), PARLEY-12 r3 (final), PARLEY-13 r2, PARLEY-14 r2. Shipped since last: PARLEY-10 9.5, PARLEY-11 9.5. Then verify-app + demo page, tag v0.2.0 on main.
+**Next action:** Final reviews (round 3) for PARLEY-6, PARLEY-13, PARLEY-14 on branch `parley-fix8`; then verify-app (all ACs on main), demo page, tag v0.2.0. PARLEY-15 (debt) waits for the next slice.
 
 Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action.
 
@@ -45,6 +45,8 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 
 ## Progress log (one line per item or slice)
 
+- 2026-11-08 PARLEY-7 shipped 8.0, PARLEY-8 8.5, PARLEY-12 8.5 (round-3 rule; debt PARLEY-15); PARLEY-10 9.5, PARLEY-11 9.5
+- 2026-11-08 Correction: an earlier "owner defaults unchanged" check filtered NSWindow Frame lines; shot runs did write the main window frame to com.david.parley. Fixed by the sandbox app (PARLEY-13); verified byte-identical since.
 - 2026-11-08 PARLEY-5 — shipped 9.0/10 (r1 7.0, r2 9.0)
 - 2026-11-08 PARLEY-4 — shipped 7.5/10 (r1 7.0, r2 6.5, r3 7.5); debt PARLEY-14
 - 2026-11-08 PARLEY-6 built (22a5a01); PARLEY-13 opened from the PARLEY-8 review (shots touched the owner's reminders)

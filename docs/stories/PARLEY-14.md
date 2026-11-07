@@ -12,5 +12,10 @@
 Diff changes without a mistake card are not explained; changing the level resets a free topic; the writing legend says
 "đã sửa (bạn viết)" for red while red marks the fix.
 
+## Review rounds
+- Round 1 (independent): 7.5/10 — timeout untested (hand-written duplicate), praise list caught real rewrites. Fixed in d2f2f23 (`mainActorTimeout` + test, phrase-only praise list).
+- Round 2 (fresh): 8.0/10 — timeout not tested inside `turn`; caller cancellation reported as a timeout; session possibly busy after a timeout; "I did a good job…" treated as praise.
+  Fixed: `ModelCoach(responder:timeout:)` injectable (`ModelCoachTimeoutTests.turnTimesOutWithItsOwnError`, `fastResponderPassesThrough`); `TimeoutError` vs `CancellationError` (`callerCancellationIsNotATimeout`); the session is recreated after a timeout; first-person sentences are never praise.
+
 ## Score
 Pending review.
