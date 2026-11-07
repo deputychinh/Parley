@@ -49,6 +49,7 @@ enum XPEvent: Equatable {
     case newWord                               // "Học từ này" in the daily list
     case listening(dictation: Bool, pass: Bool) // dictation → listening, shadowing → speaking
     case turn(spoken: Bool)                    // one conversation turn: voice → speaking, typed → writing
+    case essay                                 // a text reviewed by the writing coach
 
     var skill: Skill {
         switch self {
@@ -58,6 +59,7 @@ enum XPEvent: Equatable {
         case .newWord: .vocabulary
         case .listening(let dictation, _): dictation ? .listening : .speaking
         case .turn(let spoken): spoken ? .speaking : .writing
+        case .essay: .writing
         }
     }
     var xp: Int {
@@ -66,6 +68,7 @@ enum XPEvent: Equatable {
         case .newWord: XP.newWord
         case .listening(_, let pass): XP.answer(pass)
         case .turn: XP.turn
+        case .essay: XP.essay
         }
     }
 }
@@ -76,6 +79,7 @@ enum XP {
     static let attempt = 2
     static let newWord = 5
     static let turn = 15 // one conversation turn
+    static let essay = 30 // one reviewed text
     static func answer(_ ok: Bool) -> Int { ok ? correct : attempt }
 }
 

@@ -559,4 +559,27 @@ enum AIEval {
         print(String(format: "ai-eval conversation: %d/%d (%.0f%%), p50 %.1fs", hits, cases.count, rate * 100, p50))
         return rate >= 0.6 && p50 < 8
     }
+
+    /// A paragraph with 6 planted mistakes: the writing coach must find at least 3 and finish in < 20 s.
+    static let essay = "Last week our team have released the new payment page. Before the release we was very busy, "
+        + "because the tests was failing every day. I fixed many bugs and I learn a lot about the code. "
+        + "Now the page is more faster and the customers is happy."
+    static let planted = ["have released", "we was", "tests was", "I learn", "more faster", "customers is"]
+
+    @MainActor static func runWriting() async -> Bool {
+        guard ExampleWriter.available else { return false }
+        let t0 = Date()
+        guard let entry = try? await WritingStore.review(essay, prompt: "Write a short status update.") else {
+            print("ai-eval writing: model error")
+            return false
+        }
+        let seconds = Date().timeIntervalSince(t0)
+        let found = planted.filter { p in
+            entry.mistakes.contains { $0.original.lowercased().contains(p.lowercased()) || p.lowercased().contains($0.original.lowercased()) }
+        }
+        print(String(format: "ai-eval writing: %d/%d planted mistakes found, %d reported, level %@, %.1fs",
+                     found.count, planted.count, entry.mistakes.count, entry.level, seconds))
+        for m in entry.mistakes { print("  \(m.original) → \(m.fix) — \(m.explanation)") }
+        return found.count >= 3 && seconds < 20
+    }
 }

@@ -18,7 +18,11 @@ enum Main {
             exit(0)
         }
         if args.contains("--ai-eval") { // `make ai-eval`: on-device model quality + latency (needs Apple Intelligence)
-            Task { @MainActor in exit(await AIEval.run() ? 0 : 1) }
+            Task { @MainActor in
+                let chat = await AIEval.run()
+                let writing = await AIEval.runWriting()
+                exit(chat && writing ? 0 : 1)
+            }
             dispatchMain()
         }
         if args.contains("--seed") { // sample data for screenshots (scripts/shot.sh)
@@ -105,7 +109,7 @@ struct ParleyApp: App {
 
     var body: some Scene {
         Window(Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Parley", id: "main") {
-            ContentView(model: delegate.model, vocab: delegate.vocab, study: delegate.study)
+            ContentView(model: delegate.model, vocab: delegate.vocab, study: delegate.study, writing: delegate.writing)
                 .environment(delegate.activity)
                 .frame(minWidth: 480, minHeight: 320)
         }
@@ -135,6 +139,7 @@ struct ParleyApp: App {
     let model: Model
     let vocab: VocabStore
     let study: StudyStore
+    let writing: WritingStore
 
     override init() {
         let activity = ActivityStore() // every store logs XP into it
@@ -142,6 +147,7 @@ struct ParleyApp: App {
         model = Model(activity: activity)
         vocab = VocabStore(activity: activity)
         study = StudyStore(activity: activity)
+        writing = WritingStore(activity: activity)
         super.init()
     }
 

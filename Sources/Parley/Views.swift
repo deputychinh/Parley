@@ -14,7 +14,7 @@ extension Source {
     var nsColor: NSColor { NSColor(color) }
 }
 
-enum Route: Hashable { case live, progress, daily, topics, grammar, vocabulary, practice, listening, conversation, pronunciation, session(URL) }
+enum Route: Hashable { case live, progress, daily, topics, grammar, vocabulary, practice, listening, conversation, writing, pronunciation, session(URL) }
 
 /// Soft tinted canvas behind the cards (content stays opaque; glass is reserved for toolbar controls per HIG).
 struct Backdrop: View {
@@ -33,6 +33,7 @@ struct ContentView: View {
     @Bindable var model: Model
     let vocab: VocabStore
     let study: StudyStore
+    let writing: WritingStore
     @State private var route: Route? = .live
     @State private var columns = NavigationSplitViewVisibility.all
     @State private var compact = false // toolbar too narrow for full language names → codes
@@ -56,6 +57,7 @@ struct ContentView: View {
                 case .practice: PracticeView(store: vocab)
                 case .listening: ListeningView()
                 case .conversation: ConversationView(vocab: vocab)
+                case .writing: WritingView(store: writing)
                 case .pronunciation: PronunciationView(store: model.pronunciation, vocab: vocab, target: model.target)
                 case .session(let url): SessionView(url: url, vocab: vocab).id(url)
                 }
@@ -86,7 +88,7 @@ struct ContentView: View {
                 openWindow(id: "mini")
             }
             if let i = args.firstIndex(of: "--route"), args.indices.contains(i + 1) {
-                let routes: [String: Route] = ["progress": .progress, "listening": .listening, "conversation": .conversation, "daily": .daily, "topics": .topics, "grammar": .grammar,
+                let routes: [String: Route] = ["progress": .progress, "listening": .listening, "conversation": .conversation, "writing": .writing, "daily": .daily, "topics": .topics, "grammar": .grammar,
                                                "vocabulary": .vocabulary, "practice": .practice, "pronunciation": .pronunciation]
                 route = routes[args[i + 1]] ?? .live
                 if args[i + 1] == "history", let url = Model.history().first { route = .session(url) }
@@ -284,6 +286,8 @@ struct Sidebar: View {
                     .tag(Route.listening)
                 Label("Hội thoại AI", systemImage: "bubble.left.and.text.bubble.right")
                     .tag(Route.conversation)
+                Label("Luyện viết", systemImage: "square.and.pencil")
+                    .tag(Route.writing)
                 Label("Phát âm của tôi", systemImage: "waveform.badge.mic")
                     .badge(model.pronunciation.needsWork.count)
                     .tag(Route.pronunciation)
