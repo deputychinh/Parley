@@ -25,6 +25,7 @@ struct TranscriptView: NSViewRepresentable {
     var placeholder = "…"
     var highlighted: Int?                 // line being played back
     var onLineClick: ((Int) -> Void)?     // click (no selection) on a line
+    var showMeta = true                   // source icon + time above each paragraph (off for reading passages)
     @AppStorage("fontSize") private var fontSize = 17.0
 
     func makeCoordinator() -> Coordinator { Coordinator() }
@@ -77,7 +78,7 @@ struct TranscriptView: NSViewRepresentable {
         c.offsets = offsets
         if let h = highlighted, h < offsets.count, h != c.lastHighlight {
             tv.scrollRangeToVisible(NSRange(location: offsets[h], length: 0)) // follow playback
-        } else if atBottom, highlighted == nil {
+        } else if atBottom, highlighted == nil, showMeta { // a reading passage starts at the top
             tv.scrollToEndOfDocument(nil)
         }
         c.lastHighlight = highlighted
@@ -115,7 +116,7 @@ struct TranscriptView: NSViewRepresentable {
     }
 
     private func paragraph(_ l: TranscriptLine, index: Int) -> NSAttributedString {
-        let p = NSMutableAttributedString(attributedString: meta(l.source, l.time))
+        let p = NSMutableAttributedString(attributedString: showMeta ? meta(l.source, l.time) : NSAttributedString())
         p.append(NSAttributedString(string: l.text.isEmpty ? placeholder : l.text, attributes: [
             .font: NSFont.systemFont(ofSize: fontSize),
             .foregroundColor: l.text.isEmpty ? NSColor.tertiaryLabelColor : NSColor.labelColor,

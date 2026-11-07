@@ -9,7 +9,7 @@ Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [00
 | PARLEY-3 | v0.2.0 | Listening on real meeting audio: dictation with word diff, shadowing with mic scoring, speed | L | done (7.5) |
 | PARLEY-4 | v0.3.0 | AI conversation role-play (on-device) with per-turn corrections | L | doing |
 | PARLEY-5 | v0.3.0 | Writing coach (on-device AI) with explained mistakes and history | M | doing |
-| PARLEY-6 | v0.4.0 | Graded reading: bundled + AI passages, lookup, questions | M | todo |
+| PARLEY-6 | v0.4.0 | Graded reading: bundled + AI passages, lookup, questions | M | doing |
 | PARLEY-7 | v0.4.0 | Vocabulary CSV import/export | S | doing |
 | PARLEY-8 | v0.4.0 | Daily study reminder notification | S | doing |
 | PARLEY-9 | v0.2.0 | Debt from PARLEY-1 review: shot.sh stops only its own PID (trap on exit, window by PID); tests for StudyStore/PronunciationStore move-aside and the `--data-dir` hookup; one source for the default folder; Settings shows `Model.dataDir`; honest name for the seed-write test | S | blocked → PARLEY-10 |

@@ -9,6 +9,7 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 - `shot.sh` stops only its own instance and ignores saved window state; `make shot-test` proves it. (PARLEY-9)
 
 ### Added
+- *Đọc hiểu*: 8 graded passages (A2–C1) with questions and explanations, any word looked up by selecting it, read-aloud, and new passages written by the on-device model on any topic. (PARLEY-6)
 - *Cài đặt → Nhắc học*: an optional daily notification at a chosen time, only when today's XP goal is not met yet. (PARLEY-8)
 - *Từ vựng → Nhập / Xuất*: export the word list as CSV and import CSV/TSV from Anki or Excel (header by name or column order, duplicates skipped, line-numbered errors). (PARLEY-7)
 - *Luyện viết*: 12 prompts A2–C1 or a free topic; the on-device coach returns the corrected text (word diff), up to 8 mistakes with Vietnamese explanations and an estimated level; texts are kept in `writing.json`. (PARLEY-5)

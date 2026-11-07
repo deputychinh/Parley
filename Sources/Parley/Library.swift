@@ -56,6 +56,8 @@ enum Library {
     static let categories: [Category] = load("categories")
     static let levels: [(code: String, title: String)] = [("A1", "Cơ bản"), ("A2", "Sơ cấp"), ("B1", "Trung cấp"), ("B2", "Trung cao cấp"), ("C1", "Nâng cao")]
     static let grammar: [GrammarLesson] = load("grammar")
+    /// Bundled graded reading passages (A2–C1) with comprehension questions.
+    static let readings: [Passage] = load("readings")
     /// ~8.8k most frequent English words (dictionary words only, no proper nouns), most frequent first.
     static let wordlist: [String] = {
         guard let text = try? String(contentsOf: url("wordlist", "txt"), encoding: .utf8) else { return [] }

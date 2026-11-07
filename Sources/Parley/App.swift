@@ -110,7 +110,7 @@ struct ParleyApp: App {
 
     var body: some Scene {
         Window(Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Parley", id: "main") {
-            ContentView(model: delegate.model, vocab: delegate.vocab, study: delegate.study, writing: delegate.writing)
+            ContentView(model: delegate.model, vocab: delegate.vocab, study: delegate.study, writing: delegate.writing, reading: delegate.reading)
                 .environment(delegate.activity)
                 .frame(minWidth: 480, minHeight: 320)
         }
@@ -141,6 +141,7 @@ struct ParleyApp: App {
     let vocab: VocabStore
     let study: StudyStore
     let writing: WritingStore
+    let reading: ReadingStore
 
     override init() {
         let activity = ActivityStore() // every store logs XP into it
@@ -149,6 +150,7 @@ struct ParleyApp: App {
         vocab = VocabStore(activity: activity)
         study = StudyStore(activity: activity)
         writing = WritingStore(activity: activity)
+        reading = ReadingStore(activity: activity)
         super.init()
     }
 
