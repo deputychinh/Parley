@@ -3,7 +3,7 @@
 Request (verbatim): "tiếp tục phát triển và hoàn thiện parley giúp tôi hãy làm cho nó thật hoàn hảo và đẩy đủ mọi tính năng hỗ trợ cho việc học tập và rèn luyện tiếng anh"
 Path: Full — because the request is open-ended and adds several features to an existing app (existing repo: no CLAUDE.md/Makefile/backlog, so those are created first)
 Appetite: 3 slices of agent work · started 2026-11-08 · **Spent: 3 of 3 slices (over; circuit breaker applied)**
-Status: doing
+Status: done
 
 **Next action:** Owner feedback on v0.2.0; then a new slice: PARLEY-15 (debt) and PARLEY-19 (AI reading). Retake reading/conversation screenshots when the display is unlocked.
 
@@ -82,3 +82,7 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 - 2026-11-08 Debt from final review rounds filed as PARLEY-15 (CSV ties/BOM, reminder footer/time zone, mic edge cases).
 
 ## Retro (every path; two lines for Quick and Bug)
+
+- Slowed us: building on stacked branches while reviews ran on clones worked, but bundled multi-item fix commits cost delivery points every round; owner-data safety needed four iterations (data dir → seed guard → settings domain → separate bundle id).
+- Caught late: an "unchanged owner settings" check that filtered out window-frame lines hid a real write — never filter an evidence diff; the on-device model's limits (reading quizzes) surfaced only in review with real runs.
+- Change: for macOS apps, run every scripted/screenshot instance under a separate bundle id from day one; add a real-model eval case before building an AI feature → CLAUDE.md (sandbox rule added); skill note for improve-skills.
