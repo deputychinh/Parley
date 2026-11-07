@@ -22,6 +22,20 @@ verified without risking the owner's data.
 ## Review rounds
 - Round 1 (independent): 7.0/10 — seed guard bypassable with a trailing slash; no tests for data-dir resolution; seed writes not atomic. Fixed: `Seed.isAllowed` (missing/empty folder outside the real one, resolved + case-folded), `Model.resolveDataDir`, atomic writes, `--seed` without a path exits 1. Rejected: "the seed already ran on the real folder" — that session file existed before `Seed.swift` was written (owner's sample data, mtime 2026-11-07 18:21); the seed reuses its stamp on purpose.
 - Round 2 (fresh reviewer): 8.0/10 — mutants survived (case-folding for a not-yet-existing subfolder, parent guard), `shot.sh` killed the owner's running Parley, unreadable folder counted as empty, CLI parsing untested. Fixed: tests for `REAL/NEW` and an empty parent (both mutants now fail the suite), `shot.sh` refuses to run while Parley is open, `isAllowed` only treats "no such file" as empty, `Seed.folder(in:)` tested.
+- Round 3 (fresh reviewer, last allowed round): 8.5/10 — gate rule applied: requirements fit 1, security 1, no zeros → shipped; remaining findings filed as PARLEY-9.
 
 ## Score
-Pending final review.
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Test depth | 0.5 |
+| 3 | Reliability | 0.5 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 0.5 |
+| 6 | UX | 1 |
+| 7 | Accessibility | 1 (no UI change) |
+| 8 | Performance | 1 (n/a) |
+| 9 | Docs | 1 |
+| 10 | Delivery | 1 |
+| | **Total** | **8.5 / 10** (round 3 cap; debt PARLEY-9) |
