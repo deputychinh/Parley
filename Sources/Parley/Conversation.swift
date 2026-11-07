@@ -115,7 +115,14 @@ enum Coach {
     static func showsNatural(original: String, corrected: String, natural: String) -> Bool {
         let n = key(natural)
         let kept = WordDiff.score(WordDiff.diff(expected: original, typed: natural))
-        return !n.isEmpty && n != key(original) && n != key(corrected) && kept >= 0.4
+        return !n.isEmpty && n != key(original) && n != key(corrected) && kept >= 0.4 && !isPraise(natural)
+    }
+
+    /// "…— good job!", "Great work", "Well done": feedback about the learner, not a way to say their sentence.
+    static func isPraise(_ s: String) -> Bool {
+        let k = " " + key(s) + " "
+        return ["good job", "great job", "great work", "well done", "nice work", "keep it up", "excellent", "perfect",
+                "good work", "you did"].contains { k.contains(" \($0) ") }
     }
 
     private static func key(_ s: String) -> String {
@@ -141,10 +148,26 @@ struct CoachReply: Equatable {
     private let session: LanguageModelSession
     init(instructions: String) { session = LanguageModelSession(instructions: instructions) }
 
+    /// One turn, cancelled after `ModelCoach.timeout` seconds so "Đang nghĩ…" can't hang.
     func turn(after ai: String, learner: String) async throws -> CoachReply {
-        let t = try await session.respond(to: "You said: \"\(ai)\"\nLearner: \"\(learner)\"", generating: CoachTurn.self).content
-        return CoachReply(reply: t.reply, corrected: t.corrected, natural: t.natural, tipVi: t.tipVi)
+        let session = self.session
+        let work = Task { @MainActor in
+            try await session.respond(to: "You said: \"\(ai)\"\nLearner: \"\(learner)\"", generating: CoachTurn.self).content
+        }
+        let timer = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(Self.timeout))
+            work.cancel()
+        }
+        defer { timer.cancel() }
+        do {
+            let t = try await work.value
+            return CoachReply(reply: t.reply, corrected: t.corrected, natural: t.natural, tipVi: t.tipVi)
+        } catch is CancellationError {
+            throw Err("AI trên máy không trả lời sau \(Int(Self.timeout)) giây.")
+        }
     }
+
+    static let timeout = 30.0
 
     /// Vietnamese only (the system's error text can be English); the details go to the log.
     static func message(for error: Error) -> String {
@@ -421,8 +444,8 @@ struct ConversationSession: View {
                     Text(line.text).textSelection(.enabled)
                         .padding(12)
                         .background(Color.parley.opacity(0.10), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    Button { say(line.text) } label: { Label("Nghe", systemImage: "speaker.wave.2") }
-                        .buttonStyle(.borderless).font(.caption)
+                    Button { say(line.text) } label: { Label("Nghe", systemImage: "speaker.wave.2").padding(.vertical, 4) }
+                        .buttonStyle(.borderless).font(.callout)
                         .accessibilityLabel("Nghe câu: \(line.text)")
                 }
                 Spacer(minLength: 60)

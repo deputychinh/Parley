@@ -173,8 +173,8 @@ final class StudyStore {
         problem = loaded.problem
     }
 
-    var goal: Int { UserDefaults.standard.object(forKey: "dailyGoal") as? Int ?? 20 }
-    var startRank: Int { UserDefaults.standard.object(forKey: "startRank") as? Int ?? 0 }
+    var goal: Int { AppDefaults.store.object(forKey: "dailyGoal") as? Int ?? 20 }
+    var startRank: Int { AppDefaults.store.object(forKey: "startRank") as? Int ?? 0 }
     var allTopics: [Topic] { Library.topics + data.customTopics }
     var remainingToday: Int { data.batch.count { data.done[$0] == nil } }
     var completedToday: Bool { !data.batch.isEmpty && remainingToday == 0 }

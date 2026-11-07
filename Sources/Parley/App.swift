@@ -112,6 +112,7 @@ struct ParleyApp: App {
         Window(Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Parley", id: "main") {
             ContentView(model: delegate.model, vocab: delegate.vocab, study: delegate.study, writing: delegate.writing, reading: delegate.reading)
                 .environment(delegate.activity)
+                .defaultAppStorage(AppDefaults.store)
                 .frame(minWidth: 480, minHeight: 320)
         }
         .defaultSize(width: 1200, height: 740)
@@ -120,6 +121,7 @@ struct ParleyApp: App {
         // Picture-in-picture style: floats above meeting apps, starts in the bottom-right corner.
         Window("Parley Mini", id: "mini") {
             MiniView(model: delegate.model)
+                .defaultAppStorage(AppDefaults.store)
         }
         .windowLevel(.floating)
         .windowStyle(.hiddenTitleBar)
@@ -131,7 +133,7 @@ struct ParleyApp: App {
             return WindowPlacement(CGPoint(x: screen.maxX - size.width - 20, y: screen.maxY - size.height - 20), size: size)
         }
 
-        Settings { SettingsView() }
+        Settings { SettingsView().defaultAppStorage(AppDefaults.store) }
     }
 }
 

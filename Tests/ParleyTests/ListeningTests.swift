@@ -183,6 +183,12 @@ import Testing
         #expect(a.data.days[StudyStore.day(.now)] == ["listening": 10, "speaking": 2])
     }
 
+    @Test func recognizerErrorIsNotReplacedByNothingHeard() {
+        #expect(MicCheck.emptyResultMessage(heard: "", error: "Nhận dạng giọng nói bị lỗi — thử nói lại.") == "Nhận dạng giọng nói bị lỗi — thử nói lại.")
+        #expect(MicCheck.emptyResultMessage(heard: "  ", error: nil)?.hasPrefix("Chưa nghe thấy gì") == true)
+        #expect(MicCheck.emptyResultMessage(heard: "hello", error: "x") == nil) // something was heard → grade it
+    }
+
     @Test func playbackStopsAtTheFileEnd() {
         #expect(Clip.playEnd(start: 10, end: 25, fileDuration: 20) == 20) // the last line's 15 s cap outlasts the file
         #expect(Clip.playEnd(start: 10, end: 14, fileDuration: 20) == 14)

@@ -20,5 +20,9 @@ As a learner I want a nudge at a time I choose, only on days I haven't studied e
 | --- | --- |
 | AC8.1 | `ReminderTests` (today before the time, skip when met / time passed incl. the exact minute, clamping, 7 days, body text), `GoalMetCallbackTests` (fires once); screenshot `settings.png`; delivery checked by hand (needs the signed app and notification permission) |
 
+## Review rounds
+- Round 1 (independent): 7.5/10 — screenshot/`--data-dir` instances rebuilt the owner's real reminders from sample data (shared defaults domain); quick off/on could leave stale reminders; permission denial not re-checked when Settings reopens; `requestAuthorization` errors hidden.
+  Fixed: sandboxed runs never schedule or ask (PARLEY-13: own defaults domain, `Reminder.reschedule` returns early); rebuilds are serialized (each waits for the previous); `isDenied()` checked whenever Settings appears; permission errors logged. Known limit kept: today's "còn X XP" text is fixed when scheduled (rebuilt when the goal is met).
+
 ## Score
 Pending review.

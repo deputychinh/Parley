@@ -37,6 +37,20 @@ tip prompt carries an example to keep explanations on the grammar rule.
   Fixed: `CoachEngine` protocol (`ModelCoach` = real model) and `ConversationModelTests` with a fake engine (feedback, XP by input kind, error path, empty input/reply, save phrase once); `ConversationScreen.pick` tested (AC4.5); offline guard also rejects `NWConnection`, `URLRequest`, `import Network` and `http(s)://` literals; labelled listen buttons and correction cards; mic stopped on "Kết thúc"; `natural == original` case tested.
 - Round 2 (fresh): 6.5/10 — a reply arriving after "Kết thúc" was still shown and read aloud; draft restore and the context-window message untested; raw (often English) system errors; "more natural" could be a compliment; corrected words drawn red; interpreter toolbar on the chat; unlabelled save/listen buttons; p50 stated too low (measured 2.0–3.5 s); Conversation.swift mixed the eval.
   Fixed: `ConversationModel.end()` drops in-flight replies (`endingDropsAReplyStillOnItsWay`), `restoreDraft`/`consumeDraft` in the model (tested), Vietnamese-only errors (`contextWindowHasItsOwnMessage`), `showsNatural` requires a rewrite (≥ 40 % of the learner's words), green correction palette (`DiffText(correction:)`), toolbar hidden on this screen, labelled buttons, `AIEval.swift` split out, eval errors logged. p50 measured 2.0–3.5 s across runs.
+- Round 3 (fresh, last allowed): 7.5/10 — requirements fit 1, security 1, no zeros → shipped under the round-3 rule. Findings (praise accepted as "natural", no model timeout, stale screenshots, interpreter subtitle on the chat, small listen buttons) → PARLEY-14.
 
 ## Score
-Pending review.
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Test depth | 0.5 |
+| 3 | Reliability | 0.5 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 1 |
+| 6 | UX | 0.5 |
+| 7 | Accessibility | 0.5 |
+| 8 | Performance | 1 |
+| 9 | Docs | 0.5 |
+| 10 | Delivery | 1 |
+| | **Total** | **7.5 / 10** (round 3 cap; debt PARLEY-14) |

@@ -78,13 +78,19 @@ final class VocabStore {
         save()
     }
 
-    /// Adds many words with one save (import); words already present are skipped.
-    func addMany(_ new: [VocabItem]) {
+    /// Adds many words with one save (import); words already present are skipped. Returns how many were saved
+    /// (0 when the store is read-only or the save failed, so the import never claims words it didn't keep).
+    @discardableResult func addMany(_ new: [VocabItem]) -> Int {
+        guard writable else { return 0 }
         var known = Set(items.map { $0.term.lowercased() })
         let fresh = new.filter { known.insert($0.term.lowercased()).inserted }
-        guard !fresh.isEmpty else { return }
+        guard !fresh.isEmpty else { return 0 }
+        let before = items
         items.insert(contentsOf: fresh, at: 0)
+        problem = nil
         save()
+        if problem != nil { items = before; return 0 }
+        return fresh.count
     }
 
     func remove(_ ids: Set<UUID>) {
@@ -133,7 +139,7 @@ enum Speaker {
         let code = language.languageCode?.identifier ?? "en"
         u.voice = language.region.flatMap { AVSpeechSynthesisVoice(language: "\(code)-\($0.identifier)") }
             ?? AVSpeechSynthesisVoice.speechVoices().first { $0.language.hasPrefix(code) }
-        let rate = UserDefaults.standard.object(forKey: "speechRate") as? Double ?? 0.85
+        let rate = AppDefaults.store.object(forKey: "speechRate") as? Double ?? 0.85
         u.rate = AVSpeechUtteranceDefaultSpeechRate * Float(rate * speed)
         synth.speak(u)
     }

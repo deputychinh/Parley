@@ -863,6 +863,12 @@ final class MicCheck {
     @ObservationIgnored private var transcriber: Transcriber?
     @ObservationIgnored private var collector: Task<String, Never>?
 
+    /// What to tell the learner after a stop: the recognizer's own error wins over "nothing heard".
+    nonisolated static func emptyResultMessage(heard: String, error: String?) -> String? {
+        guard heard.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        return error ?? "Chưa nghe thấy gì — kiểm tra micro (System Settings → Privacy & Security → Microphone) rồi thử lại."
+    }
+
     func start(language: String) async {
         heard = nil
         error = nil
@@ -891,7 +897,8 @@ final class MicCheck {
     }
 
     func stop() async -> String {
-        guard listening, !stopping else { return heard ?? "" }
+        guard !stopping else { return "" } // a second stop while finishing never returns an older result
+        guard listening else { return heard ?? "" }
         stopping = true
         defer { stopping = false }
         engine?.inputNode.removeTap(onBus: 0)

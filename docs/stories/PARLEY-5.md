@@ -35,6 +35,20 @@ wrong (e.g. "was → have"); the UI says so under the feedback.
 ## Review rounds
 - Round 1 (independent): 7.0/10 — `apply` could corrupt correct text ("This is" → "This are") and lose a subject ("we was" → "were"); `clean` (substring) and `apply` (whole word) disagreed; no timeout; the draft was lost on navigation; no reason shown when Apple Intelligence is off but history exists; delete only by context menu; "Free writing" in English; eval numbers overstated (measured 2–3 of 6).
   Fixed: one whole-word matcher for `clean` and `apply`; a mistake is kept only if its span occurs exactly once and the fix drops no meaningful word (`cleanKeepsOnlySafeFixes`, ambiguity and lookbehind cases in `applyReplacesFirstOccurrenceInOrder`); `withTimeout` 45 s (tested); `@SceneStorage` draft; fallback banner; "Xoá bài này" button; "Chủ đề tự do"; eval gate ≥ 2 of 6 with the measured spread 2–4 recorded.
+- Round 2 (fresh): **9.0/10 — ship gate passed** (requirements fit 1, security 1). Remaining notes (diff changes without a mistake card, Vietnamese-fix test, free topic kept on level change, legend colours) are cosmetic and listed in PARLEY-14's follow-up line.
 
 ## Score
-Pending review.
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Test depth | 0.5 |
+| 3 | Reliability | 1 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 1 |
+| 6 | UX | 0.5 |
+| 7 | Accessibility | 1 |
+| 8 | Performance | 1 |
+| 9 | Docs | 1 |
+| 10 | Delivery | 1 |
+| | **Total** | **9.0 / 10** (round 2) |

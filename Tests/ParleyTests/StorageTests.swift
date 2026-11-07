@@ -114,3 +114,22 @@ import Testing
         #expect(reloaded.data.met == [today] && reloaded.streak == 1 && reloaded.metToday)
     }
 }
+
+/// PARLEY-13: sandboxed runs (screenshots, reviews) never use the owner's settings or reminders.
+@Suite struct SandboxDefaultsTests {
+    @Test func sandboxIsDetectedFromFlagOrEnvironment() {
+        #expect(AppDefaults.isSandbox(args: ["app", "--data-dir", "/tmp/x"], env: [:]))
+        #expect(AppDefaults.isSandbox(args: ["app"], env: ["PARLEY_DATA_DIR": "/tmp/x"]))
+        #expect(AppDefaults.isSandbox(args: ["app", "--data-dir"], env: [:]))      // malformed still counts as sandbox
+        #expect(!AppDefaults.isSandbox(args: ["app"], env: [:]))
+        #expect(!AppDefaults.isSandbox(args: ["app"], env: ["PARLEY_DATA_DIR": ""]))
+    }
+
+    @Test func testsRunSandboxedWithTheirOwnDefaults() {
+        // `make test` sets PARLEY_DATA_DIR, so this process must not see the owner's defaults domain.
+        #expect(AppDefaults.sandboxed && AppDefaults.store !== UserDefaults.standard)
+        AppDefaults.store.set(true, forKey: "reminderOn")
+        #expect(UserDefaults.standard.object(forKey: "reminderOn") as? Bool != true || UserDefaults.standard !== AppDefaults.store)
+        AppDefaults.store.removeObject(forKey: "reminderOn")
+    }
+}

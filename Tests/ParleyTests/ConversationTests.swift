@@ -45,6 +45,10 @@ import Testing
         #expect(!Coach.showsNatural(original: "I fixed it", corrected: "I fix it", natural: "I fixed it.")) // same as what was said
         #expect(!Coach.showsNatural(original: "I fix login bug yesterday", corrected: "I fixed the login bug yesterday",
                                     natural: "Great job, keep going!"))                                      // a compliment, not a rewrite
+        #expect(!Coach.showsNatural(original: "Yesterday I fix the login bug and write some test",
+                                    corrected: "Yesterday I fixed the login bug and wrote some tests",
+                                    natural: "You fixed the login bug and wrote some tests — good job!"))   // praise that overlaps (seen in a review)
+        #expect(Coach.isPraise("Well done!") && !Coach.isPraise("I sorted out the login bug yesterday"))
         #expect(Coach.showsNatural(original: "I fix bug.", corrected: "I fixed the bug.", natural: "I sorted out the bug."))
         #expect(!Coach.showsNatural(original: "I fix bug.", corrected: "I fixed the bug.", natural: "I fixed the bug"))
         #expect(!Coach.showsNatural(original: "I fixed the bug.", corrected: "I fixed the bug.", natural: "i fixed the bug"))

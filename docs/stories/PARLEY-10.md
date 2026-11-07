@@ -14,5 +14,9 @@ From PARLEY-9 round 3 (7.0, blocked: requirements fit 0.5).
 | `=` form and missing value refused | `malformedDataDirFlagIsRefused`; `executableHonoursDataDirArgument` checks exit 2 for `["--data-dir"]` and `["--data-dir=/tmp/y"]` |
 | shot-test vs test helpers | `make shot-test` while `swift test` runs → ok |
 
+## Review rounds
+- Round 1 (independent): 8.0/10 — shot-test still failed when another session's shot instance started during the run; `resolveDataDir` returned the real folder for a malformed flag (safety rested on `Main`'s exit only); no CHANGELOG line.
+  Fixed: shot-test only considers instances launched from this checkout's `build/Parley.app`; a malformed flag resolves to a throw-away temp folder (`parley-invalid-data-dir`), tested; CHANGELOG line added.
+
 ## Score
 Pending review.

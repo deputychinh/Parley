@@ -9,17 +9,48 @@ enum CSV {
     static func encode(_ rows: [[String]], separator: Character = ",") -> String {
         rows.map { row in
             row.map { f in
-                f.contains(separator) || f.contains("\"") || f.contains("\n") || f.contains("\r")
+                // unicodeScalars: Swift treats "\r\n" as one Character, so `contains("\n")` would miss it
+                f.contains(separator) || f.contains("\"") || f.unicodeScalars.contains(where: { $0 == "\n" || $0 == "\r" })
                     ? "\"" + f.replacingOccurrences(of: "\"", with: "\"\"") + "\"" : f
             }.joined(separator: String(separator))
         }.joined(separator: "\r\n") + "\r\n"
     }
 
-    /// Tab, semicolon or comma — whichever appears most in the first line (Anki exports tabs, Excel in VN uses ";").
+    /// The separator that splits the first rows into the same number (≥ 2) of columns, counted outside quotes;
+    /// ties go to tab, then ";", then "," (Anki exports tabs; Excel in VN uses ";" and meanings often contain commas).
     static func separator(for text: String) -> Character {
-        let first = text.prefix { $0 != "\n" && $0 != "\r" }
-        let candidates: [Character] = [",", ";", "\t"]
-        return candidates.max { a, b in first.count(where: { $0 == a }) < first.count(where: { $0 == b }) } ?? ","
+        let lines = text.split(whereSeparator: \.isNewline).prefix(5).map(String.init)
+        func counts(_ sep: Character) -> [Int] {
+            lines.map { line in
+                var inQuotes = false, n = 0
+                for c in line { if c == "\"" { inQuotes.toggle() } else if c == sep, !inQuotes { n += 1 } }
+                return n
+            }
+        }
+        let order: [Character] = ["\t", ";", ","]
+        let consistent = order.filter { sep in let c = counts(sep); return !c.isEmpty && c[0] > 0 && Set(c).count == 1 }
+        if let best = consistent.max(by: { counts($0)[0] < counts($1)[0] }), counts(best)[0] > 0 {
+            // prefer the earlier candidate on equal column counts
+            return consistent.first { counts($0)[0] == counts(best)[0] } ?? best
+        }
+        return order.max { (counts($0).first ?? 0) < (counts($1).first ?? 0) } ?? ","
+    }
+
+    /// Anki's "Notes in Plain Text" starts with `#key:value` lines; returns the text after them, the number of
+    /// skipped lines and the separator they declare (tab, comma, semicolon, pipe, space).
+    static func stripAnkiHeader(_ text: String) -> (body: String, skipped: Int, separator: Character?) {
+        var lines = text.components(separatedBy: "\n")
+        var sep: Character?
+        var skipped = 0
+        while let first = lines.first, first.hasPrefix("#"), first.contains(":") {
+            let value = first.split(separator: ":", maxSplits: 1).last.map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+            if first.lowercased().hasPrefix("#separator:") {
+                sep = ["tab": "\t", "comma": ",", "semicolon": ";", "pipe": "|", "space": " "][value ?? ""]
+            }
+            lines.removeFirst()
+            skipped += 1
+        }
+        return (lines.joined(separator: "\n"), skipped, sep)
     }
 
     /// Rows with their 1-based starting line numbers; quoted fields may contain separators, quotes ("") and line breaks.
@@ -80,8 +111,17 @@ enum VocabTransfer {
         var errors: [String] = []   // "Dòng 7: thiếu từ."
     }
 
+    /// UTF-8 BOM first so Excel shows Vietnamese correctly; cells that a spreadsheet would run as a formula get a `'`.
     static func export(_ items: [VocabItem]) -> String {
-        CSV.encode([header] + items.map { [$0.term, $0.meaning, $0.ipa ?? "", $0.example, $0.exampleTranslation, $0.mastered ? "1" : "0"] })
+        "\u{FEFF}" + CSV.encode([header] + items.map {
+            [$0.term, $0.meaning, $0.ipa ?? "", $0.example, $0.exampleTranslation].map(safeCell) + [$0.mastered ? "1" : "0"]
+        })
+    }
+
+    static let formulaStarts: Set<Character> = ["=", "+", "-", "@"]
+    static func safeCell(_ s: String) -> String { s.first.map(formulaStarts.contains) == true ? "'" + s : s }
+    static func unsafeCell(_ s: String) -> String {
+        s.count > 1 && s.first == "'" && formulaStarts.contains(s[s.index(after: s.startIndex)]) ? String(s.dropFirst()) : s
     }
 
     /// Reads CSV/TSV text. With a header row (a column named term/word/front/từ), columns are matched by name;
@@ -90,8 +130,10 @@ enum VocabTransfer {
     static func parse(_ text: String, existing: Set<String>, now: Date = .now) -> ImportResult {
         var result = ImportResult()
         guard text.utf8.count <= maxBytes else { result.errors = ["Tệp lớn hơn 5 MB."]; return result }
-        let rows: [(line: Int, fields: [String])]
-        do { rows = try CSV.parse(text) } catch { result.errors = [error.localizedDescription]; return result }
+        let anki = CSV.stripAnkiHeader(text)
+        var rows: [(line: Int, fields: [String])]
+        do { rows = try CSV.parse(anki.body, separator: anki.separator) } catch { result.errors = [error.localizedDescription]; return result }
+        rows = rows.map { (line: $0.line + anki.skipped, fields: $0.fields) } // line numbers of the original file
         guard !rows.isEmpty else { result.errors = ["Tệp không có dòng nào."]; return result }
         guard rows.count <= maxRows + 1 else { result.errors = ["Tệp có hơn \(maxRows) dòng."]; return result }
 
@@ -112,7 +154,7 @@ enum VocabTransfer {
         for (line, f) in rows.dropFirst(hasHeader ? 1 : 0) {
             func value(_ i: Int?) -> String {
                 guard let i, f.indices.contains(i) else { return "" }
-                return f[i].trimmingCharacters(in: .whitespacesAndNewlines)
+                return unsafeCell(f[i].trimmingCharacters(in: .whitespacesAndNewlines))
             }
             let term = value(col.term)
             guard !term.isEmpty else { result.errors.append("Dòng \(line): thiếu từ."); continue }
@@ -170,8 +212,12 @@ enum VocabFiles {
         let size = (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
         guard size <= VocabTransfer.maxBytes else { return ("Tệp lớn hơn 5 MB.", []) }
         guard let text = try? String(contentsOf: url, encoding: .utf8) else { return ("Không đọc được tệp (cần UTF-8).", []) }
-        let r = VocabTransfer.parse(text, existing: Set(store.items.map(\.term)))
-        store.addMany(r.items)
+        var r = VocabTransfer.parse(text, existing: Set(store.items.map(\.term)))
+        let added = store.addMany(r.items)
+        guard added == r.items.count, store.problem == nil || added > 0 else {
+            return ("Không lưu được từ vựng: \(store.problem ?? "kho từ đang ở chế độ chỉ đọc").", r.errors)
+        }
+        r.items = Array(r.items.prefix(added))
         return (VocabTransfer.summary(r), r.errors)
     }
 }

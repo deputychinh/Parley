@@ -22,5 +22,9 @@ As a learner I want to move my word list in and out of Parley (Anki, Excel, back
 | AC7.1 | `CSVTests.encodeQuotesOnlyWhenNeeded`, `VocabTransferTests.exportThenImportRoundTrips` (commas, quotes, mastered) |
 | AC7.2 | `parseHandlesQuotesLineBreaksBOMAndBlankLines`, `separatorDetection`, `ankiTSVWithoutHeaderUsesColumnOrder`, `headerByNameInAnyOrderAndVietnameseNames`, `duplicatesAndErrorsAreReportedWithLineNumbers`, `badFilesImportNothing` (empty, unterminated quote, > 5 MB, > 20 000 rows), `VocabAddManyTests`; screenshot `vocabulary-import.png` |
 
+## Review rounds
+- Round 1 (independent): 7.5/10 — Anki "Notes in Plain Text" (`#separator:tab`, `#html:true`) imported junk; a `;` file with commas in meanings picked `,`; CRLF inside a field was exported unquoted (Swift's `\r\n` grapheme); formula cells (`= + - @`) exported raw; no BOM for Excel; a read-only store still reported "Đã thêm N từ".
+  Fixed: `CSV.stripAnkiHeader` (honours `#separator`, keeps original line numbers); separator = consistent column count over the first rows, outside quotes, ties → tab, `;`, `,`; quoting checks `unicodeScalars`; `safeCell`/`unsafeCell` (`'` prefix, restored on import); BOM on export; `addMany` returns what it saved (0 when read-only or the save failed) and the alert says so. Tests: `TransferEdgeTests`, `ImportIntoReadOnlyStoreTests`.
+
 ## Score
 Pending review.

@@ -6,7 +6,7 @@ cd "$(dirname "$0")/.."
 DECOY=$(mktemp -d "${TMPDIR:-/tmp}/parley-decoy.XXXXXX")
 PNG=docs/screenshots/_shot-test.png
 trap 'pkill -f -- "MacOS/Parley --data-dir $DECOY" 2>/dev/null || true; mv -f "$PNG" "${TMPDIR:-/tmp}/" 2>/dev/null || true' EXIT
-APP="MacOS/Parley( |$)"   # not MacOS/ParleyTests (a concurrent swift test)
+APP="$PWD/build/Parley.app/Contents/MacOS/Parley( |$)"   # this checkout only: other clones, sessions and swift test are ignored
 BEFORE=$(pgrep -f -- "$APP" | sort || true)
 open -n -a "$PWD/build/Parley.app" --args --data-dir "$DECOY" -ApplePersistenceIgnoreState YES
 DECOY_PID=""

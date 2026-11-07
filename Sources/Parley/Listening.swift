@@ -532,8 +532,8 @@ struct ListeningSession: View {
             let at = index
             let heard = await mic.stop()
             guard at == index, clips.indices.contains(at), clips[at] == clip else { return } // moved on meanwhile
-            if heard.trimmingCharacters(in: .whitespaces).isEmpty {
-                mic.error = "Chưa nghe thấy gì — kiểm tra micro (System Settings → Privacy & Security → Microphone) rồi thử lại."
+            if let message = MicCheck.emptyResultMessage(heard: heard, error: mic.error) {
+                mic.error = message
             } else {
                 check(clip, heard)
             }

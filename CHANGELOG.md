@@ -5,6 +5,12 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 ## [Unreleased]
 
 ### Fixed
+- Screenshot and review runs (`--data-dir`) can no longer change the owner's settings or reminders. (PARLEY-13)
+- `--data-dir` without a folder (or `--data-dir=x`) stops the app instead of using the real data folder. (PARLEY-10)
+- Vocabulary import understands Anki "Notes in Plain Text" headers and `;`-separated files with commas; export keeps line breaks, adds a BOM for Excel and neutralizes formula cells. (PARLEY-7)
+- Setting a lower daily goal counts today as met at once. (PARLEY-11)
+- Listening: no double grading while the microphone stops; recognizer errors are shown. (PARLEY-12)
+- Conversation: compliments are not offered as phrases to save; a stuck model reply times out after 30 s. (PARLEY-14)
 - Learning data can't be lost to a damaged file any more: every store moves an unreadable file aside under a unique name, refuses to overwrite it if it can't, and shows save errors. (PARLEY-2)
 - `shot.sh` stops only its own instance and ignores saved window state; `make shot-test` proves it. (PARLEY-9)
 

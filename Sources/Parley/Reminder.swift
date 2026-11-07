@@ -34,17 +34,23 @@ enum Reminder {
     /// The app's activity log, set at launch so Settings can reschedule without holding the store.
     @MainActor static weak var activity: ActivityStore?
 
-    /// Rebuilds the pending reminders from the saved settings (off → removes them).
+    /// Rebuilds the pending reminders from the saved settings (off → removes them). Never in a sandboxed run.
     @MainActor static func reschedule() { reschedule(activity: activity) }
 
+    /// The previous rebuild; each new one waits for it, so a quick off/on can't leave stale reminders behind.
+    @MainActor private static var last: Task<Void, Never>?
+
     @MainActor static func reschedule(activity: ActivityStore?) {
-        let d = UserDefaults.standard
+        guard !AppDefaults.sandboxed else { return }
+        let d = AppDefaults.store
         let on = d.bool(forKey: "reminderOn")
         let minutes = d.object(forKey: "reminderMinutes") as? Int ?? defaultMinutes
         let met = activity?.metToday ?? false
         let remaining = activity.map { max($0.goal - $0.todayXP, 0) }
         let dates = on ? fireDates(now: .now, minutes: minutes, metToday: met) : []
-        Task { @MainActor in
+        let previous = last
+        last = Task { @MainActor in
+            await previous?.value
             let center = UNUserNotificationCenter.current()
             let ours = await center.pendingNotificationRequests().map(\.identifier).filter { $0.hasPrefix(idPrefix) }
             center.removePendingNotificationRequests(withIdentifiers: ours)
@@ -62,8 +68,18 @@ enum Reminder {
         }
     }
 
+    /// True when macOS currently blocks Parley's notifications (checked each time Settings opens).
+    @MainActor static func isDenied() async -> Bool {
+        guard !AppDefaults.sandboxed else { return false }
+        return await UNUserNotificationCenter.current().notificationSettings().authorizationStatus == .denied
+    }
+
     /// Asks for permission when the user turns reminders on; false when macOS says no.
     @MainActor static func requestPermission() async -> Bool {
-        (try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])) ?? false
+        guard !AppDefaults.sandboxed else { return false }
+        do { return try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) } catch {
+            print("reminder permission:", error.localizedDescription)
+            return false
+        }
     }
 }

@@ -271,7 +271,10 @@ enum TestData {
         #expect(Model.dataDirArgumentError(["app", "--data-dir", "/tmp/x"]) == nil)
         #expect(Model.dataDirArgumentError(["app"]) == nil)
         #expect(Model.dataDirArgumentError(["app", "--data-dir=/tmp/y"]) != nil)              // `=` form refused
-        #expect(Model.resolveDataDir(args: ["app", "--data-dir=/tmp/y"], env: [:], fallback: URL(fileURLWithPath: "/d")).path == "/d")
+        // malformed → a throw-away folder, never the default (real) one
+        let bad = Model.resolveDataDir(args: ["app", "--data-dir=/tmp/y"], env: ["PARLEY_DATA_DIR": "/tmp/env"], fallback: URL(fileURLWithPath: "/d"))
+        #expect(bad.lastPathComponent == "parley-invalid-data-dir" && bad.path != "/d")
+        #expect(Model.resolveDataDir(args: ["app", "--data-dir"], env: [:], fallback: URL(fileURLWithPath: "/d")).lastPathComponent == "parley-invalid-data-dir")
     }
 
     @Test func dataDirResolution() {
@@ -279,8 +282,8 @@ enum TestData {
         #expect(Model.resolveDataDir(args: ["app"], env: [:], fallback: fallback) == fallback)
         #expect(Model.resolveDataDir(args: ["app"], env: ["PARLEY_DATA_DIR": "/env"], fallback: fallback).path == "/env")
         #expect(Model.resolveDataDir(args: ["app", "--data-dir", "/arg"], env: ["PARLEY_DATA_DIR": "/env"], fallback: fallback).path == "/arg")
-        #expect(Model.resolveDataDir(args: ["app", "--data-dir"], env: [:], fallback: fallback) == fallback)          // missing value
-        #expect(Model.resolveDataDir(args: ["app", "--data-dir", "--route"], env: [:], fallback: fallback) == fallback) // flag, not a path
+        #expect(Model.resolveDataDir(args: ["app", "--data-dir"], env: [:], fallback: fallback) != fallback)          // missing value → never the real folder
+        #expect(Model.resolveDataDir(args: ["app", "--data-dir", "--route"], env: [:], fallback: fallback) != fallback) // flag, not a path
         #expect(Model.resolveDataDir(args: ["app"], env: ["PARLEY_DATA_DIR": ""], fallback: fallback) == fallback)
     }
 }

@@ -50,17 +50,19 @@ final class Model {
     /// `--data-dir <path>` wins over `PARLEY_DATA_DIR`, which wins over the default; empty values are ignored.
     nonisolated static func resolveDataDir(args: [String], env: [String: String],
                                            fallback: URL = defaultDataDir) -> URL {
+        // A malformed flag must never land on the real folder (Main also exits 2): use a throw-away folder instead.
+        if case .failure = dataDirFlag(args) { return FileManager.default.temporaryDirectory.appending(path: "parley-invalid-data-dir") }
         let arg: String? = if case .success(let path) = dataDirFlag(args) { path } else { nil }
         let chosen = [arg, env["PARLEY_DATA_DIR"]].compactMap { $0 }.first { !$0.isEmpty }
         return chosen.map { URL(fileURLWithPath: $0) } ?? fallback
     }
     /// Language being heard (speech recognition needs a region, e.g. en_US vs en_GB).
-    var sourceLocale = Locale(identifier: UserDefaults.standard.string(forKey: "sourceLocale") ?? "en_US") {
-        didSet { UserDefaults.standard.set(sourceLocale.identifier, forKey: "sourceLocale"); translator = nil; missingPack = false }
+    var sourceLocale = Locale(identifier: AppDefaults.store.string(forKey: "sourceLocale") ?? "en_US") {
+        didSet { AppDefaults.store.set(sourceLocale.identifier, forKey: "sourceLocale"); translator = nil; missingPack = false }
     }
     /// Language to translate into.
-    var target = Locale.Language(identifier: UserDefaults.standard.string(forKey: "targetLanguage") ?? "vi") {
-        didSet { UserDefaults.standard.set(target.minimalIdentifier, forKey: "targetLanguage"); translator = nil; missingPack = false }
+    var target = Locale.Language(identifier: AppDefaults.store.string(forKey: "targetLanguage") ?? "vi") {
+        didSet { AppDefaults.store.set(target.minimalIdentifier, forKey: "targetLanguage"); translator = nil; missingPack = false }
     }
     var source: Locale.Language { sourceLocale.language }
     private(set) var sourceOptions: [Locale] = []
@@ -151,7 +153,7 @@ final class Model {
             let f = DateFormatter()
             f.dateFormat = "yyyy-MM-dd_HH-mm-ss"
             let stamp = f.string(from: .now)
-            let includeMic = UserDefaults.standard.object(forKey: "includeMic") as? Bool ?? true
+            let includeMic = AppDefaults.store.object(forKey: "includeMic") as? Bool ?? true
             var ts: [Source: Transcriber] = [:]
             print("start: preparing speech recognizer…")
             for s in includeMic ? Source.allCases : [.system] {

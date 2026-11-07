@@ -67,7 +67,7 @@ struct ContentView: View {
             }
             .background(Backdrop())
         }
-        .navigationSubtitle(model.status)
+        .navigationSubtitle(route == .conversation ? "" : model.status)
         .modifier(CheckInAlert(model: model))
         .onChange(of: route) { if route == nil { route = .live } }
         .toolbar { if route != .conversation { toolbar } } // the chat has its own mic
@@ -1206,6 +1206,10 @@ struct SettingsView: View {
                 }
             }
             .onChange(of: reminderMinutes) { Reminder.reschedule() }
+            .task {
+                let denied = await Reminder.isDenied()
+                reminderDenied = reminderOn && denied
+            }
             Section("Dữ liệu") {
                 LabeledContent("Thư mục", value: (Model.dataDir.path as NSString).abbreviatingWithTildeInPath)
                 Button("Mở trong Finder") {

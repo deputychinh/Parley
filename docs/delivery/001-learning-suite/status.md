@@ -5,7 +5,7 @@ Path: Full — because the request is open-ended and adds several features to an
 Appetite: 3 slices of agent work · started 2026-11-08 · **Spent: ~2.5 of 3 slices**
 Status: doing
 
-**Next action:** Reviews running for PARLEY-4 (round 3, final), PARLEY-5 (round 2), PARLEY-7, PARLEY-8, PARLEY-10, PARLEY-11, PARLEY-12 on branch `parley-fix3` (worktree ../parley-p2). Then build PARLEY-6 (graded reading), verify, demo, merge to main and tag v0.2.0.
+**Next action:** Reviews for PARLEY-6 (r1), PARLEY-7/8/10/11/12 (r2), PARLEY-13/14 (r1) on branch `parley-fix5`; then merge to main, verify-app + demo, tag v0.2.0.
 
 Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action.
 
@@ -45,6 +45,9 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 
 ## Progress log (one line per item or slice)
 
+- 2026-11-08 PARLEY-5 — shipped 9.0/10 (r1 7.0, r2 9.0)
+- 2026-11-08 PARLEY-4 — shipped 7.5/10 (r1 7.0, r2 6.5, r3 7.5); debt PARLEY-14
+- 2026-11-08 PARLEY-6 built (22a5a01); PARLEY-13 opened from the PARLEY-8 review (shots touched the owner's reminders)
 - 2026-11-08 PARLEY-2 — shipped 8.0/10 (r1 5.0, r2 8.0, r3 8.0); debt PARLEY-11
 - 2026-11-08 PARLEY-3 — shipped 7.5/10 (r1 6.5, r2 7.5, r3 7.5); debt PARLEY-12
 - 2026-11-08 PARLEY-9 — blocked after r3 7.0 (requirements fit 0.5) → PARLEY-10
