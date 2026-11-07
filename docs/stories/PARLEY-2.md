@@ -36,5 +36,20 @@ As a learner I want to see how much I studied each day, per skill, so that I kee
 - Round 2 (fresh): 8.0/10 — `make ci` red on a fresh clone (`tee` before `.build` existed); only ActivityStore's `problem` was shown; sidebar ring ignored `metToday`; GrammarQuiz call site untested; c481e29 bundled three items.
   Fixed: `mkdir -p .build` in `make build` (checked on a fresh clone); `.problemBanner` on Từ vựng, Học tập, Mỗi ngày, Ngữ pháp and Phát âm screens; sidebar ring uses `metToday`. Not fixed: the GrammarQuiz → `study.answerGrammar` closure stays a one-line view seam (the store method it calls is tested).
 
+- Round 3 (fresh, last allowed): 8.0/10 — requirements fit 1, security 1, no zeros → shipped under the round-3 rule. Remaining findings → PARLEY-11 (lowering the goal untested, ProgressScreen banner, stale status/screenshot).
+
 ## Score
-Pending review.
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Test depth | 0.5 |
+| 3 | Reliability | 1 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 0.5 |
+| 6 | UX | 1 |
+| 7 | Accessibility | 1 |
+| 8 | Performance | 1 |
+| 9 | Docs | 0.5 |
+| 10 | Delivery | 0.5 |
+| | **Total** | **8.0 / 10** (round 3 cap; debt PARLEY-11) |

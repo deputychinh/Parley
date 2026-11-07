@@ -25,6 +25,7 @@ Backlog row PARLEY-9. Findings from PARLEY-1 round 3 (8.5/10).
 
 - Round 2 (fresh): 9.0/10 — passed, but `make ci` was red on a fresh clone, a malformed `--data-dir` silently fell back to the real folder, and shot-test could misjudge another session's instances.
   Fixed: `mkdir -p .build`; `Model.dataDirArgumentError` makes the app exit 2 on `--data-dir` without a folder (`malformedDataDirFlagIsRefused`); shot-test checks the decoy started and only judges PIDs that appeared during its run, cleaning its PNG on any exit.
+- Round 3 (fresh, last allowed): 7.0/10 — requirements fit 0.5 (shot-test failed while another `swift test` ran: its pattern matched `MacOS/ParleyTests`; `--data-dir=x` fell back to the real folder) → **blocked** under the round-3 rule (requirements fit < 1). The fixes continue as a new item, PARLEY-10.
 
 ## Score
-Pending review.
+7.0 / 10 — blocked (round 3, requirements fit 0.5); continued in PARLEY-10.

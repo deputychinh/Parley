@@ -33,5 +33,20 @@ As a learner I want to drill the sentences I actually heard in meetings so that 
 - Round 2 (fresh): 7.5/10 — fresh-clone red gate; pass threshold untested between 60 % and 80 %; view XP call and `pool` fallback untested; shadowing dead end when the mic fails; last clip could outlast the file; history read on the main actor; mode card titles misaligned; "every one" for "everyone" marked wrong; W2 not in `make bench`.
   Fixed: `ListeningRun.grade(…, activity:)` logs XP itself (`gradeLogsXPOncePerSentence`), `ListeningRun.pool` tested, 7/9 = 78 % fails (`justBelowEightyPercentFails`), "Bỏ qua câu này" in shadowing, playback stops at `min(clip.end, file duration)`, history loaded in a detached task, fixed-height card icons, `WordDiff.joinCompounds` (`splitCompoundIsNotAListeningError`), suite renamed `BenchSeededClipTests`.
 
+- Round 3 (fresh, last allowed): 7.5/10 — requirements fit 1, security 1, no zeros → shipped under the round-3 rule. Remaining findings → PARLEY-12 (mic-stop race, clip end vs file length, button weight, W2 row).
+
 ## Score
-Pending review.
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Test depth | 0.5 |
+| 3 | Reliability | 0.5 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 1 |
+| 6 | UX | 0.5 |
+| 7 | Accessibility | 1 |
+| 8 | Performance | 1 |
+| 9 | Docs | 0.5 |
+| 10 | Delivery | 0.5 |
+| | **Total** | **7.5 / 10** (round 3 cap; debt PARLEY-12) |

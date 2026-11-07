@@ -24,7 +24,7 @@ As a learner I want to practise real situations with a partner that corrects me,
 | --- | --- |
 | AC4.1 | `CoachTests.scenarioCatalog` (≥ 8, required ids, valid SF Symbols), `instructionsCarryRoleAndLevel`; screenshot `conversation.png` |
 | AC4.2 | screenshot `conversation-chat.png` (AI opener, learner turn, AI reply in role); TTS via `Speaker`; mic via `MicCheck` (manual) |
-| AC4.3 | `correctionOnlyWhenWordsDiffer` (6 cases), `naturalPhrasingOnlyWhenNew`; `make ai-eval` 6/8 (75 %), p50 2.2 s; screenshot shows diff + Vietnamese tip |
+| AC4.3 | `correctionOnlyWhenWordsDiffer` (6 cases), `naturalPhrasingOnlyWhenNew`; `make ai-eval` 6/8 (75 %), p50 2.0–3.5 s across runs; screenshot shows diff + Vietnamese tip |
 | AC4.4 | "Lưu cụm từ" → `VocabStore.add`; summary view (turns, corrections, saved) |
 | AC4.5 | `AIUnavailableView` when `ExampleWriter.available` is false; `make offline-guard` |
 | XP | `XPWiringTests.eventRules` (`.turn`) |
@@ -35,6 +35,8 @@ tip prompt carries an example to keep explanations on the grammar rule.
 ## Review rounds
 - Round 1 (independent): 7.0/10 — `ConversationModel` untestable (session not injectable): XP, error removal, text restore, save phrase and the unavailable branch all survived mutation; offline guard too narrow; "Nghe" labels without context; mic kept listening after "Kết thúc"; fresh-clone red gate.
   Fixed: `CoachEngine` protocol (`ModelCoach` = real model) and `ConversationModelTests` with a fake engine (feedback, XP by input kind, error path, empty input/reply, save phrase once); `ConversationScreen.pick` tested (AC4.5); offline guard also rejects `NWConnection`, `URLRequest`, `import Network` and `http(s)://` literals; labelled listen buttons and correction cards; mic stopped on "Kết thúc"; `natural == original` case tested.
+- Round 2 (fresh): 6.5/10 — a reply arriving after "Kết thúc" was still shown and read aloud; draft restore and the context-window message untested; raw (often English) system errors; "more natural" could be a compliment; corrected words drawn red; interpreter toolbar on the chat; unlabelled save/listen buttons; p50 stated too low (measured 2.0–3.5 s); Conversation.swift mixed the eval.
+  Fixed: `ConversationModel.end()` drops in-flight replies (`endingDropsAReplyStillOnItsWay`), `restoreDraft`/`consumeDraft` in the model (tested), Vietnamese-only errors (`contextWindowHasItsOwnMessage`), `showsNatural` requires a rewrite (≥ 40 % of the learner's words), green correction palette (`DiffText(correction:)`), toolbar hidden on this screen, labelled buttons, `AIEval.swift` split out, eval errors logged. p50 measured 2.0–3.5 s across runs.
 
 ## Score
 Pending review.
