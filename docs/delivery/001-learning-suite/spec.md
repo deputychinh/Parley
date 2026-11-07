@@ -38,7 +38,7 @@ As a learner I want to drill the sentences I actually heard so that I understand
 - **AC5.3** Drafts and feedback are saved and listed; same fallback as AC4.5.
 
 ### S6 · Graded reading (PARLEY-6)
-- **AC6.1** Generate a short text for a chosen level and topic; bundled passages work without the model.
+- **AC6.1** Graded passages for each level work without the model. *(Cut for v0.2.0: generating new passages with the on-device model — see PARLEY-19.)*
 - **AC6.2** Select a word → the same lookup card as the transcript (meaning, IPA, listen, add to vocabulary).
 - **AC6.3** 3 comprehension questions with feedback; read aloud with TTS.
 

@@ -2,10 +2,10 @@
 
 Request (verbatim): "tiếp tục phát triển và hoàn thiện parley giúp tôi hãy làm cho nó thật hoàn hảo và đẩy đủ mọi tính năng hỗ trợ cho việc học tập và rèn luyện tiếng anh"
 Path: Full — because the request is open-ended and adds several features to an existing app (existing repo: no CLAUDE.md/Makefile/backlog, so those are created first)
-Appetite: 3 slices of agent work · started 2026-11-08 · **Spent: ~2.5 of 3 slices**
+Appetite: 3 slices of agent work · started 2026-11-08 · **Spent: 3 of 3 slices (over; circuit breaker applied)**
 Status: doing
 
-**Next action:** Final reviews (round 3) for PARLEY-6, PARLEY-13, PARLEY-14 on branch `parley-fix8`; then verify-app (all ACs on main), demo page, tag v0.2.0. PARLEY-15 (debt) waits for the next slice.
+**Next action:** Reviews for PARLEY-16, PARLEY-17 (running) and PARLEY-18; when the display is unlocked retake reading/conversation screenshots; then verify-app on main, demo page, tag v0.2.0.
 
 Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action.
 
@@ -75,5 +75,8 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 - none blocking.
 
 ## Cut scope and backlog findings
+
+- 2026-11-08 AI-written reading passages cut from v0.2.0 (plan.md circuit breaker; appetite spent; 0 of 4 real-model runs usable in review) — filed as PARLEY-19; bundled passages ship.
+- 2026-11-08 Debt from final review rounds filed as PARLEY-15 (CSV ties/BOM, reminder footer/time zone, mic edge cases).
 
 ## Retro (every path; two lines for Quick and Bug)

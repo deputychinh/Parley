@@ -164,6 +164,7 @@ struct ModelPassageWriter: PassageWriter {
 struct ReadingData: Codable, Equatable {
     var generated: [Passage] = []
     var best: [String: Int] = [:]
+    var xpDay: [String: String]? = [:]  // passage id → the day it last earned XP (once per passage per day)
 }
 
 @Observable @MainActor
@@ -186,8 +187,30 @@ final class ReadingStore {
     /// Bundled passages first (by level), then the ones written on this Mac (newest first).
     var all: [Passage] { Library.readings + data.generated }
 
-    /// Reading XP from `ReadingQuiz.choose` (10 right / 2 wrong; nil = already earned in this visit).
-    func log(_ event: XPEvent?) { if let event { activity?.log(event) } }
+    /// Off for v0.2.0: the on-device model could not reliably write passages with correct quizzes (PARLEY-6 review,
+    /// 0 of 4 real runs). The writer and its rules stay tested; the UI comes back with backlog item PARLEY-19.
+    static let generatorEnabled = false
+
+    /// Reading XP from `ReadingQuiz.choose` (10 right / 2 wrong; nil = already earned in this visit), and at most once
+    /// per passage per day — leaving and reopening a passage earns nothing more.
+    func log(_ event: XPEvent?, passage id: String, now: Date = .now) {
+        guard let event else { return }
+        let today = StudyStore.day(now)
+        var seen = data.xpDay ?? [:]
+        if let last = seen[id], last == today, !(pendingToday[id] ?? false) { return }
+        pendingToday[id] = true
+        activity?.log(event, now: now)
+        seen[id] = today
+        data.xpDay = seen
+        save()
+    }
+    /// Passages that earned XP in this app session today (their remaining questions still count).
+    @ObservationIgnored private var pendingToday: [String: Bool] = [:]
+
+    /// A new visit to a passage: questions answered now only count if this passage hasn't earned XP today.
+    func beginVisit(_ id: String, now: Date = .now) {
+        if data.xpDay?[id] != StudyStore.day(now) { pendingToday[id] = nil } else if pendingToday[id] == true { pendingToday[id] = false }
+    }
 
     func finish(_ id: String, score: Int) {
         data.best[id] = max(data.best[id] ?? 0, score)
@@ -293,7 +316,7 @@ struct ReadingView: View {
                             }
                     }
                 }
-                generator
+                if ReadingStore.generatorEnabled { generator }
             }
             .padding(24)
             .frame(maxWidth: 900, alignment: .leading)
@@ -421,6 +444,7 @@ struct PassageView: View {
             .padding([.horizontal, .bottom], 20)
         }
         .onDisappear { Speaker.stop() }
+        .onAppear { store.beginVisit(passage.id) }
         .task(id: reading) { // the button returns to "Nghe cả bài" when the speech ends by itself
             while reading, !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(400))
@@ -469,7 +493,7 @@ struct PassageView: View {
     }
 
     private func choose(_ i: Int, _ option: String) {
-        store.log(quiz.choose(i, option))
+        store.log(quiz.choose(i, option), passage: passage.id)
         if quiz.finished { store.finish(passage.id, score: quiz.score) }
     }
 }

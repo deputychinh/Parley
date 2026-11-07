@@ -53,9 +53,9 @@ import Testing
         let s = ReadingStore(file: url, activity: a)
         var quiz = ReadingQuiz([ReadingQuestion(prompt: "1", options: ["a", "b", "c", "d"], answer: "a", explainVi: ""),
                                 ReadingQuestion(prompt: "2", options: ["a", "b", "c", "d"], answer: "a", explainVi: "")])
-        s.log(quiz.choose(0, "a"))
-        s.log(quiz.choose(1, "b"))
-        s.log(quiz.choose(1, "a")) // already answered: nothing
+        s.log(quiz.choose(0, "a"), passage: "a2-new-job")
+        s.log(quiz.choose(1, "b"), passage: "a2-new-job")
+        s.log(quiz.choose(1, "a"), passage: "a2-new-job") // already answered: nothing
         s.finish("a2-new-job", score: 2)
         s.finish("a2-new-job", score: 1) // a worse retry keeps the best
         #expect(a.data.days[StudyStore.day(.now)] == ["reading": 12])
@@ -181,4 +181,48 @@ import Testing
     @Test func bundledExplanationsAreVietnamese() {
         for p in Library.readings { for q in p.questions { #expect(WritingRules.isVietnamese(q.explainVi), "\(p.id): \(q.prompt)") } }
     }
+}
+
+
+/// PARLEY-18: reading XP at most once per passage per day; the generator is off for v0.2.0.
+@MainActor @Suite struct ReadingXPPerDayTests {
+    let q = [ReadingQuestion(prompt: "1", options: ["a", "b", "c", "d"], answer: "a", explainVi: ""),
+             ReadingQuestion(prompt: "2", options: ["a", "b", "c", "d"], answer: "a", explainVi: "")]
+
+    @Test func reopeningAPassageTheSameDayEarnsNothing() {
+        let a = ActivityStore(file: TestData.file("activity.json"))
+        let url = TestData.file("reading.json")
+        let s = ReadingStore(file: url, activity: a)
+        s.beginVisit("p")
+        var visit1 = ReadingQuiz(q)
+        s.log(visit1.choose(0, "a"), passage: "p")
+        s.log(visit1.choose(1, "a"), passage: "p")      // same visit: both questions count
+        s.beginVisit("p")                                // leave and reopen
+        var visit2 = ReadingQuiz(q)
+        s.log(visit2.choose(0, "a"), passage: "p")
+        let reloaded = ReadingStore(file: url, activity: a) // even after a restart
+        reloaded.beginVisit("p")
+        var visit3 = ReadingQuiz(q)
+        reloaded.log(visit3.choose(0, "a"), passage: "p")
+        #expect(a.data.days[StudyStore.day(.now)] == ["reading": 20])
+        s.beginVisit("other")
+        var other = ReadingQuiz(q)
+        s.log(other.choose(0, "a"), passage: "other")   // another passage still counts
+        #expect(a.data.days[StudyStore.day(.now)] == ["reading": 30])
+    }
+
+    @Test func tomorrowCountsAgain() {
+        let a = ActivityStore(file: TestData.file("activity.json"))
+        let s = ReadingStore(file: TestData.file("reading.json"), activity: a)
+        let tomorrow = Date.now.addingTimeInterval(86_400)
+        s.beginVisit("p")
+        var v1 = ReadingQuiz(q)
+        s.log(v1.choose(0, "a"), passage: "p")
+        s.beginVisit("p", now: tomorrow)
+        var v2 = ReadingQuiz(q)
+        s.log(v2.choose(0, "a"), passage: "p", now: tomorrow)
+        #expect(a.data.days[StudyStore.day(.now)] == ["reading": 10] && a.data.days[StudyStore.day(tomorrow)] == ["reading": 10])
+    }
+
+    @Test func generatorIsOffForThisRelease() { #expect(!ReadingStore.generatorEnabled) }
 }

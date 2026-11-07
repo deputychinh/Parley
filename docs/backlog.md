@@ -9,7 +9,7 @@ Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [00
 | PARLEY-3 | v0.2.0 | Listening on real meeting audio: dictation with word diff, shadowing with mic scoring, speed | L | done (7.5) |
 | PARLEY-4 | v0.3.0 | AI conversation role-play (on-device) with per-turn corrections | L | done (7.5) |
 | PARLEY-5 | v0.3.0 | Writing coach (on-device AI) with explained mistakes and history | M | done (9.0) |
-| PARLEY-6 | v0.4.0 | Graded reading: bundled + AI passages, lookup, questions | M | doing |
+| PARLEY-6 | v0.4.0 | Graded reading: bundled + AI passages, lookup, questions | M | blocked → PARLEY-18 |
 | PARLEY-7 | v0.4.0 | Vocabulary CSV import/export | S | done (8.0) |
 | PARLEY-8 | v0.4.0 | Daily study reminder notification | S | done (8.5) |
 | PARLEY-9 | v0.2.0 | Debt from PARLEY-1 review: shot.sh stops only its own PID (trap on exit, window by PID); tests for StudyStore/PronunciationStore move-aside and the `--data-dir` hookup; one source for the default folder; Settings shows `Model.dataDir`; honest name for the seed-write test | S | blocked → PARLEY-10 |
@@ -21,3 +21,5 @@ Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [00
 | PARLEY-15 | v0.3.0 | Debt from PARLEY-7/8/12 final rounds: headerless `;` CSV tie and BOM before `#separator`, import off the main actor; reminder footer reset + time-zone change + goal-met wiring test; MicCheck `failure` reset, skip-while-listening race, failed-start cleanup test | M | todo |
 | PARLEY-16 | v0.2.0 | Continue PARLEY-13: real app refuses sandboxed runs, clean only finished runs' domains (files deleted), SIGTERM cleanup, stricter guard | S | doing |
 | PARLEY-17 | v0.2.0 | Continue PARLEY-14: one `modelTimeout` that returns on time even if the model ignores cancellation; session reset | S | doing |
+| PARLEY-18 | v0.2.0 | Continue PARLEY-6: AI generation cut for v0.2.0 (circuit breaker), reading XP once per passage per day | S | doing |
+| PARLEY-19 | v0.3.0 | AI-written reading passages back on, with a reading case in `make ai-eval` (success rate, time), a cancel button, no retry when cancelled, UUID ids, reject questions whose wrong options are also in the text | M | todo |
