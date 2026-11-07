@@ -23,6 +23,20 @@ Screenshots: the display was locked in this cycle ("could not create image from 
 ## Review rounds
 - Round 1 (independent): 8.0/10 — CHANGELOG still advertised AI passages; the view's generator condition and `beginVisit` untested; a 3-state `[String: Bool]`; no hint when a reopened passage earns nothing.
   Fixed: CHANGELOG line; `ReadingStore.showsGenerator()` (tested) drives the card; `Visit` enum (`.earningThisVisit` / `.doneToday`); `earnedToday` (tested) shows "Hôm nay bài này đã được tính XP…" above the questions.
+- Round 2 (fresh): **9.0/10 — ship gate passed.** Notes (`onAppear` → `beginVisit` seam and the generator condition untested in the view, screenshots to retake) → PARLEY-15.
 
 ## Score
-Pending review.
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Test depth | 0.5 |
+| 3 | Reliability | 1 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 1 |
+| 6 | UX | 0.5 |
+| 7 | Accessibility | 1 |
+| 8 | Performance | 1 |
+| 9 | Docs | 1 |
+| 10 | Delivery | 1 |
+| | **Total** | **9.0 / 10** (round 2) |

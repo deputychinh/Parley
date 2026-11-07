@@ -4,6 +4,8 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-08
+
 ### Fixed
 - Screenshot and review runs (`--data-dir`) can no longer change the owner's settings or reminders. (PARLEY-13)
 - `--data-dir` without a folder (or `--data-dir=x`) stops the app instead of using the real data folder. (PARLEY-10)

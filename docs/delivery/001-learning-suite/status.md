@@ -5,7 +5,7 @@ Path: Full — because the request is open-ended and adds several features to an
 Appetite: 3 slices of agent work · started 2026-11-08 · **Spent: 3 of 3 slices (over; circuit breaker applied)**
 Status: doing
 
-**Next action:** Reviews for PARLEY-16, PARLEY-17 (running) and PARLEY-18; when the display is unlocked retake reading/conversation screenshots; then verify-app on main, demo page, tag v0.2.0.
+**Next action:** Owner feedback on v0.2.0; then a new slice: PARLEY-15 (debt) and PARLEY-19 (AI reading). Retake reading/conversation screenshots when the display is unlocked.
 
 Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action.
 
@@ -30,8 +30,8 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 | Plan | done | [plan.md](plan.md), [backlog](../../backlog.md) |
 | Build | doing | PARLEY-1 8.5, PARLEY-2 8.0, PARLEY-3 7.5 shipped (round-3 rule, debt filed); PARLEY-9 blocked → PARLEY-10; PARLEY-4/5/7/8/10/11/12 in review; PARLEY-6 todo |
 | Verify | done | [verification.md](verification.md) — gates green, ACs traced, known gaps listed |
-| Demo | todo | |
-| Release | todo | local only |
+| Demo | done | [demo.md](demo.md) |
+| Release | done | v0.2.0 tag, local only (`make install`) |
 | Operate | n.a. | local desktop app, no deploy target |
 | Learn | todo | |
 
@@ -45,6 +45,7 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 
 ## Progress log (one line per item or slice)
 
+- 2026-11-08 PARLEY-18 shipped 9.0; verification done; v0.2.0 tagged (local only)
 - 2026-11-08 PARLEY-16 shipped 9.0, PARLEY-17 shipped 9.0; PARLEY-13, PARLEY-14 and PARLEY-6 blocked after round 3 (continued as 16, 17, 18)
 - 2026-11-08 PARLEY-7 shipped 8.0, PARLEY-8 8.5, PARLEY-12 8.5 (round-3 rule; debt PARLEY-15); PARLEY-10 9.5, PARLEY-11 9.5
 - 2026-11-08 Correction: an earlier "owner defaults unchanged" check filtered NSWindow Frame lines; shot runs did write the main window frame to com.david.parley. Fixed by the sandbox app (PARLEY-13); verified byte-identical since.
