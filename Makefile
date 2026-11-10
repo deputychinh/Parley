@@ -15,8 +15,9 @@ build:            ## release build; warnings are errors (also concurrency warnin
 test:             ## unit tests (Swift Testing); default stores point at a temp folder, never ~/Documents/Parley
 	PARLEY_DATA_DIR="$$(mktemp -d "$${TMPDIR:-/tmp}/parley-test.XXXXXX")" swift test $(SWIFT_FLAGS)
 
-wiring-guard:     ## PARLEY-20: the mic → "Phát âm của tôi" call site uses the tested decision
+wiring-guard:     ## call sites use the tested decisions (PARLEY-20 pronunciation, PARLEY-21 translation end)
 	@grep -q 'if Self.recordsPronunciation(from: s, kept: kept, source: sourceLocale)' Sources/Parley/Model.swift || (echo "Model.start must gate pronunciation.record with recordsPronunciation"; exit 1)
+	@grep -q '            finish(for: mine)' Sources/Parley/Translate.swift && grep -q '                cancelled(for: mine)' Sources/Parley/Translate.swift || (echo "TranslatePad.run must end through finish(for:) / cancelled(for:) (PARLEY-21)"; exit 1)
 
 offline-guard:    ## ADR 0001: no network code in the app
 	@! grep -rnE 'URLSession|NSURLConnection|CFNetwork|NWConnection|NWListener|URLRequest|import Network|https?://' Sources/ || (echo "network code found (ADR 0001)"; exit 1)

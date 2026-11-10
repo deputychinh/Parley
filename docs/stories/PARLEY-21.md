@@ -36,6 +36,9 @@ PDF, a website screenshot), and read it in Vietnamese or English, offline.
   performance target unguarded. Fixed: `finish(for:)` / `cancelled(for:)` with tests, spinner only while translating,
   announcements, join tests, W5 in `benchmarks/plan.md`.
 
+- Final gate 1, re-check (same fresh reviewer): **9.5/10 — ship gate passed.** Its `run()` wiring finding is covered by
+  `make wiring-guard`; the rest → PARLEY-24.
+
 ## QA
 | AC | Evidence |
 | --- | --- |
@@ -54,3 +57,19 @@ PDF, a website screenshot), and read it in Vietnamese or English, offline.
 | Offline (ADR 0001) | `neverLoadsNonFileURLs`: a `data:` PNG URL that NSImage can open is refused |
 
 Not checked by hand: the interactive region capture itself (needs a person to drag a box) and drag-and-drop from Finder.
+
+## Score
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Test depth | 1 |
+| 3 | Reliability | 1 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 1 |
+| 6 | UX | 1 |
+| 7 | Accessibility | 0.5 |
+| 8 | Performance | 1 |
+| 9 | Docs | 1 |
+| 10 | Delivery | 1 |
+| | **Total** | **9.5 / 10** (final gate after round 2) |
