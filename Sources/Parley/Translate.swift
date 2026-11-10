@@ -125,6 +125,8 @@ enum ScreenRegion {
         let id: Int
         let source: String
         var target = ""
+        /// Kana readings above the kanji (Japanese sources only, PARLEY-22).
+        var ruby: [RubySegment]?
     }
 
     var input = ""
@@ -164,7 +166,8 @@ enum ScreenRegion {
         detected = source == nil ? from : nil
         guard let from else { return fail(Self.unknownLanguage) }
         guard from.languageCode != target.languageCode else { return fail(Self.sameLanguage) }
-        pairs = prepared.paragraphs.enumerated().map { Pair(id: $0.offset, source: $0.element) }
+        let japanese = from.languageCode == .japanese
+        pairs = prepared.paragraphs.enumerated().map { Pair(id: $0.offset, source: $0.element, ruby: japanese ? Furigana.segments($0.element) : nil) }
         truncated = prepared.truncated
         phase = .translating
         let next = TranslationSession.Configuration(source: from, target: target)
@@ -300,6 +303,7 @@ struct TranslateScreen: View {
     @State private var copied = false
     @AppStorage("translateSource", store: AppDefaults.store) private var sourceID = "auto"
     @AppStorage("translateTarget", store: AppDefaults.store) private var targetID = "vi"
+    @AppStorage("showReadings", store: AppDefaults.store) private var showReadings = true
     @State private var languages: [Locale.Language] = []
     @State private var importing = false
 
@@ -320,6 +324,11 @@ struct TranslateScreen: View {
                     editor
                 }
                 TranscriptCard(title: Model.name(target), code: Model.code(target)) {
+                    if pad.pairs.contains(where: { $0.ruby != nil }) {
+                        Toggle("Hiện cách đọc", isOn: $showReadings)
+                            .toggleStyle(.button).buttonStyle(.borderless)
+                            .help("Hiện cách đọc kana (furigana) gợi ý phía trên chữ Hán — theo từ điển của máy, đôi khi chưa chuẩn")
+                    }
                     if pad.phase == .done, !pad.translation.isEmpty {
                         Button(copied ? "Đã chép" : "Sao chép bản dịch", systemImage: copied ? "checkmark" : "doc.on.doc") {
                             NSPasteboard.general.clearContents()
@@ -478,7 +487,11 @@ struct TranslateScreen: View {
                     }
                     ForEach(pad.pairs) { pair in
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(pair.source).font(.callout).foregroundStyle(.secondary)
+                            if showReadings, let ruby = pair.ruby {
+                                RubyText(segments: ruby).foregroundStyle(.secondary)
+                            } else {
+                                Text(pair.source).font(.callout).foregroundStyle(.secondary)
+                            }
                             if pair.target.isEmpty, pad.phase == .translating {
                                 ProgressView().controlSize(.small).accessibilityLabel("Đang dịch")
                             } else {
