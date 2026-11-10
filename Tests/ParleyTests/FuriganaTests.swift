@@ -35,6 +35,10 @@ import Testing
         #expect(date.map(\.text).joined() == "3月14日に会議")
         #expect(date.filter { $0.reading != nil } == [r("会議", "かいぎ")])
         #expect(Furigana.segments("３日").allSatisfy { $0.reading == nil }) // full-width digit
+        let people = Furigana.segments("2人で行きます") // the tokenizer keeps 2人 as one token
+        #expect(people.map(\.text).joined() == "2人で行きます")
+        #expect(people.compactMap(\.reading).allSatisfy(Furigana.isHiragana))
+        #expect(people.first { $0.text.contains("人") }?.reading == nil)
     }
 
     @Test func kanjiBeyondTheBasicPlane() {
@@ -47,6 +51,8 @@ import Testing
         #expect(Furigana.hiragana("kaigi") == "かいぎ")
         #expect(Furigana.hiragana(kana: "カタ") == "かた")
         #expect(Furigana.hiragana(kana: "abc") == nil)
+        #expect(Furigana.hiragana("2ren") == nil) // digit and accent left over
+        #expect(Furigana.isHiragana("きょー") && !Furigana.isHiragana("") && !Furigana.isHiragana("れ́"))
     }
 
     @Test func longRunsWithoutReadingAreCutSoTheyWrap() {
@@ -91,6 +97,23 @@ import Testing
         pad.clear()
         await task?.value
         #expect(pad.pairs.isEmpty && !pad.hasReadings)
+    }
+
+    /// A slow readings task of an older request never writes over a newer text with as many paragraphs.
+    @MainActor @Test func staleReadingsAreIgnored() {
+        let vi = Locale.Language(identifier: "vi")
+        let pad = TranslatePad()
+        pad.input = "会議です"
+        pad.translate(source: nil, target: vi, supported: ["ja", "vi"])
+        let older = pad.generation
+        pad.clear()
+        pad.input = "資料です"
+        pad.translate(source: nil, target: vi, supported: ["ja", "vi"])
+        #expect(!pad.applyReadings([[r("会議", "かいぎ"), r("です")]], for: older))
+        #expect(pad.pairs[0].ruby?.contains(r("会議", "かいぎ")) != true)
+        #expect(pad.applyReadings([[r("資料", "しりょう"), r("です")]], for: pad.generation))
+        #expect(pad.pairs[0].ruby?.first == r("資料", "しりょう"))
+        #expect(!pad.applyReadings([], for: pad.generation)) // wrong paragraph count
     }
 
     /// The "Cách đọc" toggle decides what is drawn.

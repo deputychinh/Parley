@@ -192,9 +192,17 @@ enum ScreenRegion {
         let mine = generation
         readingsTask = Task {
             let readings = await Task.detached(priority: .userInitiated) { paragraphs.map(Furigana.segments) }.value
-            guard mine == generation, readings.count == pairs.count else { return }
-            for i in pairs.indices { pairs[i].ruby = readings[i] }
+            applyReadings(readings, for: mine)
         }
+    }
+
+    /// Readings computed for request `request`; false (nothing written) once a newer request started, so a slow task
+    /// never draws its readings over a newer text — even one with the same number of paragraphs.
+    @discardableResult
+    func applyReadings(_ readings: [[RubySegment]], for request: Int) -> Bool {
+        guard request == generation, readings.count == pairs.count else { return false }
+        for i in pairs.indices { pairs[i].ruby = readings[i] }
+        return true
     }
 
     /// Called by `.translationTask` with a session for `config`.

@@ -27,8 +27,10 @@ enum Furigana {
             let range = CFStringTokenizerGetCurrentTokenRange(tokenizer)
             if range.location > cursor { out.append(RubySegment(text: ns.substring(with: NSRange(location: cursor, length: range.location - cursor)))) }
             let word = ns.substring(with: NSRange(location: range.location, length: range.length))
+            // a counter after a digit (14日) or a token holding one (2人) is read differently: no guess
             let afterDigit = range.location > 0 && isDigit(ns.character(at: range.location - 1))
-            let latin = afterDigit ? nil : CFStringTokenizerCopyCurrentTokenAttribute(tokenizer, kCFStringTokenizerAttributeLatinTranscription) as? String
+            let hasDigit = (0..<range.length).contains { isDigit(ns.character(at: range.location + $0)) }
+            let latin = afterDigit || hasDigit ? nil : CFStringTokenizerCopyCurrentTokenAttribute(tokenizer, kCFStringTokenizerAttributeLatinTranscription) as? String
             out += split(word, reading: latin.flatMap { hiragana($0) })
             cursor = range.location + range.length
         }
@@ -68,12 +70,18 @@ enum Furigana {
         (0x30...0x39).contains(unit) || (0xFF10...0xFF19).contains(unit)
     }
 
-    /// Latin transcription → hiragana; nil when letters are left over (the transcription did not convert cleanly).
+    /// Latin transcription → hiragana; nil unless the result is hiragana only (digits, accents or letters left over
+    /// mean the transcription did not convert cleanly, e.g. "2ren" → "2れ́ん").
     nonisolated static func hiragana(_ latin: String) -> String? {
         let m = NSMutableString(string: latin)
         guard CFStringTransform(m, nil, kCFStringTransformLatinHiragana, false) else { return nil }
         let s = m as String
-        return s.unicodeScalars.contains(where: { $0.isASCII && $0.properties.isAlphabetic }) ? nil : s
+        return isHiragana(s) ? s : nil
+    }
+
+    /// Hiragana (U+3040–U+309F) and the long-vowel mark ー only.
+    nonisolated static func isHiragana(_ s: String) -> Bool {
+        !s.isEmpty && s.unicodeScalars.allSatisfy { (0x3040...0x309F).contains($0.value) || $0.value == 0x30FC }
     }
 
     /// Kana text as hiragana (katakana converted); nil when it is not all kana.
@@ -81,7 +89,7 @@ enum Furigana {
         let m = NSMutableString(string: kana)
         guard CFStringTransform(m, nil, kCFStringTransformHiraganaKatakana, true) else { return nil }
         let s = m as String
-        return s.unicodeScalars.allSatisfy({ (0x3040...0x309F).contains($0.value) || $0.value == 0x30FC }) ? s : nil
+        return isHiragana(s) ? s : nil
     }
 
     /// Pieces the view lays out: one per word; a long run without a reading (a URL, a long Latin word) is cut into
