@@ -148,6 +148,28 @@ enum ScreenRegion {
     /// Bumped per request, so a slower earlier request never writes into a newer one.
     private(set) var generation = 0
 
+    /// What a translation was asked for; automatic translation runs only when this changes (PARLEY-26).
+    struct Request: Equatable {
+        let text: String
+        let source: String?
+        let target: String
+    }
+    /// The last request `translate` accepted, failed ones included — so a failure is never retried on its own.
+    private(set) var lastRequest: Request?
+    /// Pause after the last keystroke before translating on its own; a paste lands in one change, so it waits this once.
+    nonisolated static let autoDelay = Duration.milliseconds(600)
+
+    nonisolated static func request(_ text: String, source: Locale.Language?, target: Locale.Language) -> Request {
+        Request(text: text.trimmingCharacters(in: .whitespacesAndNewlines), source: source?.minimalIdentifier,
+                target: target.minimalIdentifier)
+    }
+
+    /// Text typed or pasted with ⌘V, or a language changed: translate without "Dịch" — unless busy, empty, or exactly
+    /// what was last asked for (whitespace aside).
+    func shouldAutoTranslate(source: Locale.Language?, target: Locale.Language) -> Bool {
+        canTranslate && lastRequest != Self.request(input, source: source, target: target)
+    }
+
     var busy: Bool { phase == .reading || phase == .translating }
     var canTranslate: Bool { !busy && !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     var translation: String { pairs.map(\.target).joined(separator: "\n") }
@@ -170,6 +192,7 @@ enum ScreenRegion {
     func translate(source: Locale.Language?, target: Locale.Language, supported: Set<String>) {
         let prepared = TextTranslation.prepare(input)
         guard !prepared.paragraphs.isEmpty, !busy else { return }
+        lastRequest = Self.request(input, source: source, target: target)
         generation += 1
         let from = source ?? TextTranslation.detect(prepared.paragraphs.joined(separator: "\n"), among: supported)
         detected = source == nil ? from : nil
@@ -310,6 +333,7 @@ enum ScreenRegion {
         pairs = []
         truncated = false
         detected = nil
+        lastRequest = nil
         phase = .idle
     }
 
@@ -337,6 +361,7 @@ struct TranslateScreen: View {
     @AppStorage("translateSource", store: AppDefaults.store) private var sourceID = "auto"
     @AppStorage("translateTarget", store: AppDefaults.store) private var targetID = "vi"
     @AppStorage("showReadings", store: AppDefaults.store) private var showReadings = true
+    @AppStorage("autoTranslate", store: AppDefaults.store) private var autoTranslate = true
     @State private var languages: [Locale.Language] = []
     @State private var importing = false
 
@@ -390,6 +415,10 @@ struct TranslateScreen: View {
             Task { await pad.read(await OCR.loadImage(at: url, scoped: true), source: source, target: target, supported: supported) }
         }
         .translationTask(pad.config) { session in await pad.run(session) }
+        .task(id: AutoTrigger(input: pad.input, source: sourceID, target: targetID, busy: pad.busy, on: autoTranslate,
+                              ready: !languages.isEmpty)) {
+            await translateWhenSettled()
+        }
         .task {
             var seen = Set<String>()
             languages = await LanguageAvailability().supportedLanguages.filter { seen.insert($0.minimalIdentifier).inserted }
@@ -421,6 +450,19 @@ struct TranslateScreen: View {
     }
 
     private func translate() { pad.translate(source: source, target: target, supported: supported) }
+
+    /// Restarts on every keystroke, language change or end of a request; translates once the text has settled.
+    private struct AutoTrigger: Equatable {
+        let input: String, source: String, target: String
+        let busy: Bool, on: Bool, ready: Bool
+    }
+
+    private func translateWhenSettled() async {
+        guard autoTranslate, !languages.isEmpty else { return } // languages unknown yet: detection would fail
+        try? await Task.sleep(for: TranslatePad.autoDelay)
+        guard !Task.isCancelled else { return }
+        if pad.shouldAutoTranslate(source: source, target: target) { translate() }
+    }
 
     /// Wide: one row with labels. Medium: one row with icon buttons. Narrow (down to the 480 pt window minimum):
     /// languages on one row, buttons on the next, and "Dịch" always keeps its title.
@@ -474,6 +516,9 @@ struct TranslateScreen: View {
             }
             .labelStyle(IconOrTitle(iconOnly: icons))
             Spacer(minLength: 0)
+            Toggle("Tự dịch", isOn: $autoTranslate)
+                .toggleStyle(.checkbox)
+                .help("Tự dịch khi dán (⌘V) hoặc ngừng gõ")
             Button("Dịch", systemImage: "character.bubble", action: translate)
                 .labelStyle(.titleAndIcon)
                 .buttonStyle(.borderedProminent)
@@ -509,7 +554,9 @@ struct TranslateScreen: View {
             ContentUnavailableView {
                 Label("Dịch chữ và ảnh, không cần mạng", systemImage: "character.bubble")
             } description: {
-                Text("Dán chữ, mở hoặc kéo thả ảnh, hay chụp một vùng màn hình (manga, game, tài liệu…). Nhấn ⌘↩ để dịch.")
+                Text(autoTranslate
+                     ? "Dán (⌘V) hoặc gõ chữ, mở hoặc kéo thả ảnh, hay chụp một vùng màn hình (manga, game, tài liệu…) — Parley tự dịch."
+                     : "Dán chữ, mở hoặc kéo thả ảnh, hay chụp một vùng màn hình (manga, game, tài liệu…). Nhấn ⌘↩ để dịch.")
             }
         default:
             ScrollView {

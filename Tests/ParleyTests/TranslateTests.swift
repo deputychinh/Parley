@@ -278,6 +278,40 @@ import Testing
         #expect(TranslateScreen.announcement(for: .reading) != nil && TranslateScreen.announcement(for: .idle) == nil)
     }
 
+    /// PARLEY-26: typed or ⌘V text translates on its own once; again only when the text or a language changes.
+    @Test func autoTranslatesOnlyWhatChanged() {
+        let ja = Locale.Language(identifier: "ja"), en = Locale.Language(identifier: "en")
+        let pad = TranslatePad()
+        #expect(!pad.shouldAutoTranslate(source: nil, target: vi)) // empty
+        pad.input = "  \n"
+        #expect(!pad.shouldAutoTranslate(source: nil, target: vi)) // blank
+        pad.input = "会議です"
+        #expect(pad.shouldAutoTranslate(source: nil, target: vi))
+        pad.translate(source: nil, target: vi, supported: all)
+        #expect(!pad.shouldAutoTranslate(source: nil, target: vi)) // busy
+        pad.receive(0, "Là cuộc họp.", for: pad.generation)
+        pad.finish(for: pad.generation)
+        #expect(pad.phase == .done && !pad.shouldAutoTranslate(source: nil, target: vi)) // already translated
+        pad.input = "会議です\n"
+        #expect(!pad.shouldAutoTranslate(source: nil, target: vi)) // whitespace only
+        #expect(pad.shouldAutoTranslate(source: nil, target: en)) // another target
+        #expect(pad.shouldAutoTranslate(source: ja, target: vi)) // a chosen source
+        pad.input = "会議です。資料も"
+        #expect(pad.shouldAutoTranslate(source: nil, target: vi)) // more text
+    }
+
+    /// A failed request is not retried on its own (no error loop while nothing changes); "Xoá" forgets it.
+    @Test func autoTranslateNeverRetriesAFailure() {
+        let pad = TranslatePad()
+        pad.input = "会議です"
+        pad.translate(source: nil, target: vi, supported: ["en", "vi"]) // Japanese not translatable here
+        #expect(pad.phase == .failed(TranslatePad.unknownLanguage))
+        #expect(!pad.shouldAutoTranslate(source: nil, target: vi))
+        pad.clear()
+        pad.input = "会議です"
+        #expect(pad.shouldAutoTranslate(source: nil, target: vi))
+    }
+
     @Test func clearResets() {
         let pad = TranslatePad()
         pad.input = "今日は"

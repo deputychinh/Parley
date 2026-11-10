@@ -4,6 +4,9 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 
 ## [Unreleased]
 
+### Added
+- "Dịch văn bản & ảnh" translates on its own when text is pasted (⌘V) or typed and has settled for 0.6 s, or a language changes; "Tự dịch" turns it off. (PARLEY-26)
+
 ## [0.3.0] - 2026-11-10
 
 ### Added
