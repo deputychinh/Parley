@@ -42,6 +42,7 @@ struct ContentView: View {
     let writing: WritingStore
     let reading: ReadingStore
     @State private var route: Route? = .live
+    @State private var translatePad = TranslatePad() // kept while switching screens
     @State private var columns = NavigationSplitViewVisibility.all
     @State private var compact = false // toolbar too narrow for full language names → codes
     @State private var fold = false    // toolbar very narrow → secondary controls go into one ⋯ menu
@@ -57,7 +58,7 @@ struct ContentView: View {
             Group {
                 switch route ?? .live {
                 case .live: LiveView(model: model, vocab: vocab)
-                case .translate: TranslateScreen()
+                case .translate: TranslateScreen(pad: translatePad)
                 case .progress: ProgressScreen(vocab: vocab, study: study)
                 case .daily: DailyView(study: study, vocab: vocab)
                 case .topics: TopicsView(study: study, vocab: vocab)

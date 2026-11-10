@@ -28,9 +28,9 @@ enum TextTranslation {
     }
 
     /// The language of `text` among `supported` language codes ("ja", "en", …), or nil when unsure.
-    /// Any kana means Japanese: text of kanji alone is otherwise often taken for Chinese.
+    /// NLLanguageRecognizer alone: it reads kana, kanji with の and half-width katakana as Japanese, and English with a
+    /// Japanese loanword ("I love ラーメン") as English — an "any kana means Japanese" rule got that last case wrong.
     nonisolated static func detect(_ text: String, among supported: Set<String>) -> Locale.Language? {
-        if supported.contains("ja"), text.unicodeScalars.contains(where: isKana) { return Locale.Language(identifier: "ja") }
         let recognizer = NLLanguageRecognizer()
         recognizer.processString(String(text.prefix(2_000)))
         let hypotheses = recognizer.languageHypotheses(withMaximum: 5).sorted { $0.value > $1.value }
@@ -39,11 +39,6 @@ enum TextTranslation {
             if let code = candidate.languageCode?.identifier, supported.contains(code) { return candidate }
         }
         return nil
-    }
-
-    /// Hiragana or katakana (U+3040–U+30FF), except the middle dot that Chinese text also uses.
-    nonisolated static func isKana(_ scalar: Unicode.Scalar) -> Bool {
-        (0x3040...0x30FF).contains(scalar.value) && scalar.value != 0x30FB
     }
 }
 
@@ -85,14 +80,28 @@ enum OCR {
         return observations.compactMap { $0.topCandidates(1).first?.string }
     }
 
-    /// An image file (PNG, JPEG, HEIC, TIFF, PDF first page…) as a bitmap, or nil when it is not an image.
+    /// A local image file (PNG, JPEG, HEIC, TIFF, PDF first page…) as a bitmap; nil when it is not an image or not a
+    /// file URL — `NSImage(contentsOf:)` would download an https URL dragged from a browser (ADR 0001: offline only).
     nonisolated static func image(at url: URL) -> CGImage? {
-        NSImage(contentsOf: url)?.cgImage(forProposedRect: nil, context: nil, hints: nil)
+        guard url.isFileURL else { return nil }
+        return NSImage(contentsOf: url)?.cgImage(forProposedRect: nil, context: nil, hints: nil)
+    }
+
+    /// `image(at:)` off the main actor; `scoped` opens a file picked in the open panel (security-scoped URL).
+    nonisolated static func loadImage(at url: URL, scoped: Bool = false) async -> CGImage? {
+        await Task.detached(priority: .userInitiated) {
+            let access = scoped && url.startAccessingSecurityScopedResource()
+            defer { if access { url.stopAccessingSecurityScopedResource() } }
+            return image(at: url)
+        }.value
     }
 }
 
 /// Interactive "drag a box" capture with the system tool; nil when the user presses Esc.
 enum ScreenRegion {
+    /// Screen Recording permission (the live interpreter asks for the same one).
+    static func allowed() -> Bool { CGPreflightScreenCaptureAccess() }
+
     static func capture() async -> CGImage? {
         let file = FileManager.default.temporaryDirectory.appending(path: "parley-region-\(UUID().uuidString).png")
         defer { try? FileManager.default.removeItem(at: file) }
@@ -103,7 +112,7 @@ enum ScreenRegion {
             process.terminationHandler = { _ in done.resume() }
             do { try process.run() } catch { process.terminationHandler = nil; done.resume() }
         }
-        return OCR.image(at: file)
+        return await OCR.loadImage(at: file)
     }
 }
 
@@ -126,7 +135,7 @@ enum ScreenRegion {
     /// Set → `.translationTask` runs (and shows the system download sheet when a pack is missing).
     private(set) var config: TranslationSession.Configuration?
     /// Bumped per request, so a slower earlier request never writes into a newer one.
-    private var generation = 0
+    private(set) var generation = 0
 
     var busy: Bool { phase == .reading || phase == .translating }
     var canTranslate: Bool { !busy && !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
@@ -137,6 +146,14 @@ enum ScreenRegion {
     nonisolated static let noText = "Không tìm thấy chữ trong ảnh"
     nonisolated static let notImage = "Không mở được tệp này như một ảnh"
     nonisolated static let emptyClipboard = "Bộ nhớ tạm không có chữ hay ảnh"
+    nonisolated static let needsScreenPermission = "Cần quyền Ghi màn hình: bật Parley trong Cài đặt hệ thống › Quyền riêng tư & Bảo mật › Ghi màn hình & âm thanh hệ thống, rồi mở lại Parley."
+
+    /// What to show when a translation fails; nil when it was cancelled (a newer request or leaving the screen).
+    nonisolated static func failureMessage(_ error: Error, installed: Bool, from: String, to: String) -> String? {
+        if error is CancellationError { return nil }
+        return installed ? "Không dịch được: \(error.localizedDescription)"
+                         : "Chưa có gói dịch \(from) → \(to). Tải trong Cài đặt hệ thống › Chung › Ngôn ngữ & Vùng › Ngôn ngữ dịch."
+    }
 
     /// `source` nil = detect among `supported` language codes.
     func translate(source: Locale.Language?, target: Locale.Language, supported: Set<String>) {
@@ -161,17 +178,26 @@ enum ScreenRegion {
         let requests = pairs.map { TranslationSession.Request(sourceText: $0.source, clientIdentifier: String($0.id)) }
         do {
             for try await response in session.translate(batch: requests) {
-                guard mine == generation else { return }
-                if let id = response.clientIdentifier.flatMap(Int.init), pairs.indices.contains(id) { pairs[id].target = response.targetText }
+                guard receive(response.clientIdentifier.flatMap(Int.init), response.targetText, for: mine) else { return }
             }
             if mine == generation { phase = .done }
         } catch {
             guard mine == generation else { return }
             let (from, to) = (config?.source, config?.target)
             let installed = if let from, let to { await LanguageAvailability().status(from: from, to: to) == .installed } else { false }
-            fail(installed ? "Không dịch được: \(error.localizedDescription)"
-                           : "Chưa có gói dịch \(from.map(Model.name) ?? "") → \(to.map(Model.name) ?? ""). Tải trong Cài đặt hệ thống › Chung › Ngôn ngữ & Vùng › Ngôn ngữ dịch.")
+            guard mine == generation else { return }
+            if let message = Self.failureMessage(error, installed: installed, from: from.map(Model.name) ?? "", to: to.map(Model.name) ?? "") {
+                fail(message)
+            }
         }
+    }
+
+    /// One translated paragraph of request `request`; false (nothing written) once a newer request started.
+    @discardableResult
+    func receive(_ id: Int?, _ text: String, for request: Int) -> Bool {
+        guard request == generation else { return false }
+        if let id, pairs.indices.contains(id) { pairs[id].target = text }
+        return true
     }
 
     /// OCR an image into the editor, then translate it.
@@ -193,11 +219,18 @@ enum ScreenRegion {
         }
     }
 
-    /// "Dán": text on the clipboard is translated as is; a picture alone (screenshot, copied image) is read first.
-    /// Returns false when the clipboard holds neither.
+    /// "Dán", in this order: an image file copied in Finder (its name is on the clipboard as text too), then text,
+    /// then image data (a screenshot, an image copied from an app). Returns false when the clipboard holds none.
     @discardableResult
     func paste(from board: NSPasteboard, source: Locale.Language?, target: Locale.Language, supported: Set<String>) async -> Bool {
         guard !busy else { return false }
+        let files = board.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? []
+        for file in files {
+            if let image = await OCR.loadImage(at: file) {
+                await read(image, source: source, target: target, supported: supported)
+                return true
+            }
+        }
         if let text = board.string(forType: .string), !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             input = text
             translate(source: source, target: target, supported: supported)
@@ -209,6 +242,15 @@ enum ScreenRegion {
         }
         await read(image, source: source, target: target, supported: supported)
         return true
+    }
+
+    /// "Chụp vùng màn hình": needs Screen Recording permission; Esc (no image) leaves everything as it was.
+    func captureRegion(allowed: Bool, capture: () async -> CGImage?,
+                       source: Locale.Language?, target: Locale.Language, supported: Set<String>) async {
+        guard !busy else { return }
+        guard allowed else { return fail(Self.needsScreenPermission) }
+        guard let image = await capture() else { return }
+        await read(image, source: source, target: target, supported: supported)
     }
 
     func clear() {
@@ -227,11 +269,20 @@ enum ScreenRegion {
     }
 }
 
+/// Icon-only (the name stays for VoiceOver and the tooltip) or icon and title.
+struct IconOrTitle: LabelStyle {
+    let iconOnly: Bool
+    func makeBody(configuration: Configuration) -> some View {
+        if iconOnly { Label(configuration).labelStyle(.iconOnly) } else { Label(configuration).labelStyle(.titleAndIcon) }
+    }
+}
+
 // MARK: - Screen
 
 /// "Dịch văn bản & ảnh": type or paste text, open / drop / paste an image, or capture a screen region.
 struct TranslateScreen: View {
-    @State private var pad = TranslatePad()
+    @Bindable var pad: TranslatePad // owned by ContentView: text and results survive switching screens
+    @State private var copied = false
     @AppStorage("translateSource", store: AppDefaults.store) private var sourceID = "auto"
     @AppStorage("translateTarget", store: AppDefaults.store) private var targetID = "vi"
     @State private var languages: [Locale.Language] = []
@@ -255,9 +306,11 @@ struct TranslateScreen: View {
                 }
                 TranscriptCard(title: Model.name(target), code: Model.code(target)) {
                     if pad.phase == .done, !pad.translation.isEmpty {
-                        Button("Sao chép bản dịch", systemImage: "doc.on.doc") {
+                        Button(copied ? "Đã chép" : "Sao chép bản dịch", systemImage: copied ? "checkmark" : "doc.on.doc") {
                             NSPasteboard.general.clearContents()
                             NSPasteboard.general.setString(pad.translation, forType: .string)
+                            copied = true
+                            Task { try? await Task.sleep(for: .seconds(1.5)); copied = false }
                         }
                         .buttonStyle(.borderless)
                     }
@@ -268,16 +321,13 @@ struct TranslateScreen: View {
         }
         .navigationTitle("Dịch văn bản & ảnh")
         .dropDestination(for: URL.self) { urls, _ in
-            guard let url = urls.first else { return false }
-            Task { await pad.read(OCR.image(at: url), source: source, target: target, supported: supported) }
+            guard let url = urls.first(where: \.isFileURL) else { return false } // never fetch a dragged web link
+            Task { await pad.read(await OCR.loadImage(at: url), source: source, target: target, supported: supported) }
             return true
         }
         .fileImporter(isPresented: $importing, allowedContentTypes: [.image, .pdf]) { result in
             guard case .success(let url) = result else { return }
-            let access = url.startAccessingSecurityScopedResource()
-            let image = OCR.image(at: url)
-            if access { url.stopAccessingSecurityScopedResource() }
-            Task { await pad.read(image, source: source, target: target, supported: supported) }
+            Task { await pad.read(await OCR.loadImage(at: url, scoped: true), source: source, target: target, supported: supported) }
         }
         .translationTask(pad.config) { session in await pad.run(session) }
         .task {
@@ -301,44 +351,60 @@ struct TranslateScreen: View {
 
     private func translate() { pad.translate(source: source, target: target, supported: supported) }
 
+    /// Wide: one row with labels. Medium: one row with icon buttons. Narrow (down to the 480 pt window minimum):
+    /// languages on one row, buttons on the next, and "Dịch" always keeps its title.
     private var controls: some View {
-        HStack(spacing: 10) {
-            Picker("Từ", selection: $sourceID) {
-                Text("Tự nhận diện").tag("auto")
-                Divider()
-                ForEach(languages, id: \.minimalIdentifier) { Text(Model.name($0)).tag($0.minimalIdentifier) }
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) { languagePickers(compact: false).fixedSize(); Spacer(minLength: 8); actions(icons: false).fixedSize() }
+            HStack(spacing: 10) { languagePickers(compact: false).fixedSize(); Spacer(minLength: 8); actions(icons: true).fixedSize() }
+            VStack(alignment: .leading, spacing: 8) {
+                languagePickers(compact: true)
+                actions(icons: true)
             }
-            .frame(maxWidth: 210)
-            Image(systemName: "arrow.right").foregroundStyle(.secondary).accessibilityHidden(true)
-            Picker("Sang", selection: $targetID) {
-                ForEach(languages, id: \.minimalIdentifier) { Text(Model.name($0)).tag($0.minimalIdentifier) }
-            }
-            .frame(maxWidth: 190)
-            Spacer(minLength: 8)
-            // Full labels when they fit, icons (with tooltips and accessibility labels) in a narrow window.
-            ViewThatFits(in: .horizontal) {
-                actions.labelStyle(.titleAndIcon).fixedSize()
-                actions.labelStyle(.iconOnly).fixedSize()
-            }
+            .frame(maxWidth: .infinity)
         }
         .disabled(pad.busy)
         .padding(.horizontal, 14).padding(.top, 12)
     }
 
-    @ViewBuilder private var actions: some View {
-        HStack(spacing: 8) {
-            Button("Mở ảnh…", systemImage: "photo") { importing = true }
-                .help("Mở ảnh hoặc PDF (hoặc kéo thả ảnh vào đây)")
-            Button("Dán", systemImage: "doc.on.clipboard", action: paste)
-                .help("Dán ảnh hoặc chữ từ bộ nhớ tạm")
-            Button("Chụp vùng màn hình", systemImage: "viewfinder") {
-                Task { // Esc → nil → nothing happens
-                    guard let image = await ScreenRegion.capture() else { return }
-                    await pad.read(image, source: source, target: target, supported: supported)
-                }
+    @ViewBuilder private func languagePickers(compact: Bool) -> some View {
+        let row = HStack(spacing: 8) {
+            Picker("Từ", selection: $sourceID) {
+                Text("Tự nhận diện").tag("auto")
+                Divider()
+                ForEach(languages, id: \.minimalIdentifier) { Text(Model.name($0)).tag($0.minimalIdentifier) }
             }
-            .help("Kéo chọn một vùng bất kỳ trên màn hình (Esc để huỷ)")
+            .frame(width: compact ? nil : 200)
+            .frame(maxWidth: compact ? .infinity : nil)
+            Image(systemName: "arrow.right").foregroundStyle(.secondary).accessibilityHidden(true)
+            Picker("Sang", selection: $targetID) {
+                ForEach(languages, id: \.minimalIdentifier) { Text(Model.name($0)).tag($0.minimalIdentifier) }
+            }
+            .frame(width: compact ? nil : 180)
+            .frame(maxWidth: compact ? .infinity : nil)
+        }
+        if compact { row.labelsHidden() } else { row }
+    }
+
+    private func actions(icons: Bool) -> some View {
+        HStack(spacing: 8) {
+            Group {
+                Button("Mở ảnh…", systemImage: "photo") { importing = true }
+                    .help("Mở ảnh hoặc PDF (hoặc kéo thả ảnh vào đây)")
+                Button("Dán", systemImage: "doc.on.clipboard", action: paste)
+                    .help("Dán ảnh hoặc chữ từ bộ nhớ tạm")
+                Button("Chụp vùng màn hình", systemImage: "viewfinder") {
+                    Task {
+                        await pad.captureRegion(allowed: ScreenRegion.allowed(), capture: ScreenRegion.capture,
+                                                source: source, target: target, supported: supported)
+                    }
+                }
+                .help("Kéo chọn một vùng bất kỳ trên màn hình (Esc để huỷ)")
+            }
+            .labelStyle(IconOrTitle(iconOnly: icons))
+            Spacer(minLength: 0)
             Button("Dịch", systemImage: "character.bubble", action: translate)
+                .labelStyle(.titleAndIcon)
                 .buttonStyle(.borderedProminent)
                 .keyboardShortcut(.return, modifiers: .command)
                 .disabled(!pad.canTranslate)

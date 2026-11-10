@@ -21,12 +21,14 @@ import Testing
         let all: Set<String> = ["ja", "zh", "en", "vi", "ko"]
         #expect(TextTranslation.detect("今日は会議があります", among: all)?.languageCode == .japanese)
         #expect(TextTranslation.detect("カタカナ", among: all)?.languageCode == .japanese) // kana alone
+        #expect(TextTranslation.detect("ｶﾀｶﾅ", among: all)?.languageCode == .japanese) // half-width katakana
+        #expect(TextTranslation.detect("社長の指示", among: all)?.languageCode == .japanese) // kanji + の
+        #expect(TextTranslation.detect("I love ラーメン so much", among: all)?.languageCode == .english) // loanword, not Japanese
         #expect(TextTranslation.detect("我们明天去北京开会，请准备好材料。", among: all)?.languageCode == .chinese)
         #expect(TextTranslation.detect("The meeting starts at two o'clock tomorrow afternoon.", among: all)?.languageCode == .english)
         #expect(TextTranslation.detect("Cuộc họp bắt đầu lúc hai giờ chiều mai.", among: all)?.languageCode == .vietnamese)
         #expect(TextTranslation.detect("今日は会議があります", among: ["en", "vi"]) == nil) // not translatable here
         #expect(TextTranslation.detect("", among: all) == nil)
-        #expect(!TextTranslation.isKana("・".unicodeScalars.first!))
     }
 
     @Test func joinsRecognisedLines() {
@@ -44,10 +46,23 @@ import Testing
         #expect(try await OCR.recognize(Self.render(""), language: nil).isEmpty)
     }
 
-    @Test func refusesFilesThatAreNotImages() throws {
+    @Test func refusesFilesThatAreNotImages() async throws {
         let file = TestData.file("not-an-image.txt")
         try Data("hello".utf8).write(to: file)
         #expect(OCR.image(at: file) == nil)
+        #expect(await OCR.loadImage(at: file) == nil)
+    }
+
+    /// ADR 0001: a link dragged from a browser is never loaded. A `data:` URL holding a real PNG proves it offline:
+    /// NSImage would open it, so only the file-URL check keeps it out.
+    @Test func neverLoadsNonFileURLs() async throws {
+        let image = NSImage(cgImage: Self.render("今日"), size: .zero)
+        let tiff = try #require(image.tiffRepresentation)
+        let png = try #require(NSBitmapImageRep(data: tiff)?.representation(using: .png, properties: [:]))
+        let url = try #require(URL(string: "data:image/png;base64," + png.base64EncodedString()))
+        #expect(NSImage(contentsOf: url) != nil) // the URL itself is a loadable picture
+        #expect(OCR.image(at: url) == nil)
+        #expect(await OCR.loadImage(at: url) == nil)
     }
 
     static func render(_ text: String) -> CGImage {
@@ -127,6 +142,94 @@ import Testing
         board.writeObjects([NSImage(cgImage: TextTranslationTests.render("明日東京へ行きます。"), size: .zero)])
         #expect(await imagePad.paste(from: board, source: nil, target: vi, supported: all))
         #expect(imagePad.input == "明日東京へ行きます。" && imagePad.phase == .translating)
+    }
+
+    @Test func notesWhenTheTextWasCut() {
+        let pad = TranslatePad()
+        pad.input = String(repeating: "あ", count: TextTranslation.limit + 1)
+        pad.translate(source: Locale.Language(identifier: "ja"), target: vi, supported: all)
+        #expect(pad.truncated && pad.pairs.first?.source.count == TextTranslation.limit)
+        pad.clear()
+        pad.input = "短い文です"
+        pad.translate(source: Locale.Language(identifier: "ja"), target: vi, supported: all)
+        #expect(!pad.truncated)
+    }
+
+    /// A slower earlier request never writes into a newer one.
+    @Test func staleResponsesAreIgnored() {
+        let pad = TranslatePad()
+        pad.input = "一つ目です。"
+        pad.translate(source: nil, target: vi, supported: all)
+        let first = pad.generation
+        #expect(pad.receive(0, "Cái thứ nhất.", for: first) && pad.pairs[0].target == "Cái thứ nhất.")
+        pad.clear()
+        pad.input = "二つ目です。"
+        pad.translate(source: nil, target: vi, supported: all)
+        #expect(!pad.receive(0, "Cũ", for: first))
+        #expect(pad.pairs[0].target.isEmpty)
+        #expect(pad.receive(0, "Cái thứ hai.", for: pad.generation) && pad.pairs[0].target == "Cái thứ hai.")
+        #expect(pad.receive(7, "ngoài phạm vi", for: pad.generation)) // unknown id: ignored, no crash
+    }
+
+    /// "Xoá" while the picture is still being read: the late OCR result must not come back.
+    @Test func clearWhileReadingDiscardsTheResult() async {
+        let pad = TranslatePad()
+        let reading = Task { await pad.read(TextTranslationTests.render("明日東京へ行きます。"), source: nil, target: vi, supported: all) }
+        while pad.phase != .reading { await Task.yield() }
+        pad.clear()
+        await reading.value
+        #expect(pad.input.isEmpty && pad.phase == .idle && pad.pairs.isEmpty)
+    }
+
+    @Test func textWinsOverImageDataButAnImageFileWinsOverItsName() async throws {
+        let board = NSPasteboard(name: NSPasteboard.Name("parley-test-\(UUID().uuidString)"))
+        defer { board.releaseGlobally() }
+        let image = NSImage(cgImage: TextTranslationTests.render("明日東京へ行きます。"), size: .zero)
+
+        board.clearContents()
+        board.writeObjects([image])
+        board.setString("今日は会議があります", forType: .string)
+        let textPad = TranslatePad()
+        #expect(await textPad.paste(from: board, source: nil, target: vi, supported: all))
+        #expect(textPad.input == "今日は会議があります")
+
+        let file = TestData.file("copied.png")
+        let tiff = try #require(image.tiffRepresentation)
+        let bitmap = try #require(NSBitmapImageRep(data: tiff))
+        let png = try #require(bitmap.representation(using: .png, properties: [:]))
+        try png.write(to: file)
+        board.clearContents()
+        board.writeObjects([file as NSURL]) // Finder copy: file URL + its name as text
+        board.setString("copied.png", forType: .string)
+        let filePad = TranslatePad()
+        #expect(await filePad.paste(from: board, source: nil, target: vi, supported: all))
+        #expect(filePad.input == "明日東京へ行きます。")
+    }
+
+    @Test func regionCaptureNeedsPermissionAndIgnoresEsc() async {
+        let pad = TranslatePad()
+        var asked = false
+        await pad.captureRegion(allowed: false, capture: { asked = true; return nil }, source: nil, target: vi, supported: all)
+        #expect(pad.phase == .failed(TranslatePad.needsScreenPermission) && !asked)
+
+        let esc = TranslatePad()
+        esc.input = "そのまま"
+        await esc.captureRegion(allowed: true, capture: { nil }, source: nil, target: vi, supported: all)
+        #expect(esc.phase == .idle && esc.input == "そのまま")
+
+        let shot = TranslatePad()
+        await shot.captureRegion(allowed: true, capture: { TextTranslationTests.render("明日東京へ行きます。") },
+                                 source: nil, target: vi, supported: all)
+        #expect(shot.input == "明日東京へ行きます。" && shot.phase == .translating)
+    }
+
+    /// AC5: missing pack → where to download it; cancelled → nothing shown.
+    @Test func failureMessages() {
+        struct Boom: LocalizedError { var errorDescription: String? { "hỏng" } }
+        #expect(TranslatePad.failureMessage(CancellationError(), installed: true, from: "Japanese", to: "Vietnamese") == nil)
+        #expect(TranslatePad.failureMessage(Boom(), installed: true, from: "Japanese", to: "Vietnamese") == "Không dịch được: hỏng")
+        let missing = TranslatePad.failureMessage(Boom(), installed: false, from: "Japanese", to: "Vietnamese")
+        #expect(missing?.hasPrefix("Chưa có gói dịch Japanese → Vietnamese.") == true)
     }
 
     @Test func clearResets() {
