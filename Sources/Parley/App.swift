@@ -19,6 +19,12 @@ enum Main {
             }
             dispatchMain()
         }
+        if let path = DebugArgs.value("--translate-image") { // CLI evidence + timing for "Dịch văn bản & ảnh"
+            Task {
+                do { try await TranslateCLI.run(path); exit(0) } catch { print("FAIL:", error.localizedDescription); exit(1) }
+            }
+            dispatchMain()
+        }
         if args.contains("--print-data-dir") { // tests: proves `--data-dir` / PARLEY_DATA_DIR reach the app
             print(Model.dataDir.path)
             exit(0)

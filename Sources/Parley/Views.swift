@@ -20,7 +20,7 @@ enum Route: Hashable {
         if case .session = r { return true }
         return r == .live
     }
- case live, progress, daily, topics, grammar, vocabulary, practice, listening, conversation, writing, reading, pronunciation, session(URL) }
+ case live, translate, progress, daily, topics, grammar, vocabulary, practice, listening, conversation, writing, reading, pronunciation, session(URL) }
 
 /// Soft tinted canvas behind the cards (content stays opaque; glass is reserved for toolbar controls per HIG).
 struct Backdrop: View {
@@ -57,6 +57,7 @@ struct ContentView: View {
             Group {
                 switch route ?? .live {
                 case .live: LiveView(model: model, vocab: vocab)
+                case .translate: TranslateScreen()
                 case .progress: ProgressScreen(vocab: vocab, study: study)
                 case .daily: DailyView(study: study, vocab: vocab)
                 case .topics: TopicsView(study: study, vocab: vocab)
@@ -85,7 +86,7 @@ struct ContentView: View {
         .onGeometryChange(for: Bool.self) { $0.size.width < 640 } action: { fold = $0 }
         .tint(.parley)
         .task { await model.loadLanguages() }
-        .task { // debug: `open … --args --autostart [--record-screen] | --open-video | --route <daily|topics|grammar|vocabulary|practice|pronunciation|history>`
+        .task { // debug: `open … --args --autostart [--record-screen] | --open-video | --route <translate|daily|topics|grammar|vocabulary|practice|pronunciation|history>`
             let args = CommandLine.arguments
             if let size = DebugArgs.value("--window-size")?.split(separator: ",").compactMap({ Double($0) }), size.count == 2 {
                 try? await Task.sleep(for: .milliseconds(300))
@@ -102,7 +103,7 @@ struct ContentView: View {
                 openWindow(id: "mini")
             }
             if let i = args.firstIndex(of: "--route"), args.indices.contains(i + 1) {
-                let routes: [String: Route] = ["progress": .progress, "listening": .listening, "conversation": .conversation, "writing": .writing, "reading": .reading, "daily": .daily, "topics": .topics, "grammar": .grammar,
+                let routes: [String: Route] = ["translate": .translate, "progress": .progress, "listening": .listening, "conversation": .conversation, "writing": .writing, "reading": .reading, "daily": .daily, "topics": .topics, "grammar": .grammar,
                                                "vocabulary": .vocabulary, "practice": .practice, "pronunciation": .pronunciation]
                 route = routes[args[i + 1]] ?? .live
                 if args[i + 1] == "history", let url = Model.history().first { route = .session(url) }
@@ -277,6 +278,8 @@ struct Sidebar: View {
                     Image(systemName: "waveform").symbolEffect(.variableColor.iterative, isActive: model.running)
                 }
                 .tag(Route.live)
+                Label("Dịch văn bản & ảnh", systemImage: "character.bubble")
+                    .tag(Route.translate)
             }
             Section("Học") {
                 Label {

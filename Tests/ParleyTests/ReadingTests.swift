@@ -115,6 +115,7 @@ import Testing
         #expect(Route.showsInterpreter(.live, running: false))
         #expect(Route.showsInterpreter(.session(URL(fileURLWithPath: "/x.md")), running: false))
         #expect(!Route.showsInterpreter(.reading, running: false) && !Route.showsInterpreter(.conversation, running: false))
+        #expect(!Route.showsInterpreter(.translate, running: false) && Route.showsInterpreter(.translate, running: true)) // PARLEY-21 AC1
         #expect(Route.showsInterpreter(.reading, running: true)) // a running session can always be stopped
     }
 }
