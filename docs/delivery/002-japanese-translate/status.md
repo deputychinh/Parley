@@ -6,7 +6,7 @@ Appetite: 1 slice of agent work · started 2026-11-10 · **Spent: 0 of 1 slice**
 Platforms in scope: macOS (native SwiftUI)
 Status: doing
 
-**Next action:** Build PARLEY-20 via deliver-loop.
+**Next action:** PARLEY-20 round-1 fixes under re-review; then build PARLEY-21 (draft code in the session scratchpad).
 
 Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action.
 
@@ -29,7 +29,7 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 | Set up | n.a. | existing repo |
 | Architect | done | no new ADR: everything stays on-device (ADR 0001); notes in [plan.md](plan.md) |
 | Plan | done | [plan.md](plan.md), backlog PARLEY-20..22 |
-| Build | todo | |
+| Build | doing | PARLEY-20 |
 | Verify | todo | |
 | Demo | todo | |
 | Release | todo | local only |
@@ -45,6 +45,8 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 ## Progress log (one line per item or slice)
 
 - 2026-11-10 capability probe on this Mac: SpeechTranscriber lists `ja_JP` (model downloads on first use), Translation JA→EN and JA→VI `installed`, Vision `RecognizeTextRequest` read "今日は会議があります。明日東京へ行きます。" exactly, CFStringTokenizer readings 今日[きょう] 会議[かいぎ].
+
+- 2026-11-10 PARLEY-20 — review round 1: 8.0 (fixes in progress) — cc8e9f6; root cause found: SwiftPM records SDK 26.0 → Translation hides JA packs on macOS 27
 
 ## Rulings (decisions taken without asking)
 

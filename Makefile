@@ -1,6 +1,7 @@
 # Full Xcode is required (Command Line Tools lack the SwiftUI / FoundationModels macro plugins).
 export DEVELOPER_DIR ?= /Applications/Xcode.app/Contents/Developer
-SWIFT_FLAGS := -Xswiftc -warnings-as-errors $(shell scripts/link-flags.sh)
+# GNU Make 3.81 does not pass exported variables to $(shell): name the Xcode explicitly.
+SWIFT_FLAGS := -Xswiftc -warnings-as-errors $(shell DEVELOPER_DIR=$(DEVELOPER_DIR) scripts/link-flags.sh)
 
 .PHONY: build test ci offline-guard defaults-guard sandbox-app app run install pipeline ai-eval bench shot shot-test
 
@@ -8,8 +9,8 @@ SHELL := /bin/bash
 build:            ## release build; warnings are errors (also concurrency warnings the flag lets through)
 	mkdir -p .build && set -o pipefail; swift build -c release $(SWIFT_FLAGS) 2>&1 | tee .build/build.log
 	@! grep -n 'warning:' .build/build.log || (echo "build warnings (see above) — fix them"; exit 1)
-	@sdk=$$(xcrun --sdk macosx --show-sdk-version); rec=$$(otool -l .build/release/Parley | awk '/LC_BUILD_VERSION/{f=1} f&&/ sdk /{print $$2; exit}'); \
-	  [ "$$rec" = "$$sdk" ] || { echo "binary records SDK $$rec, expected $$sdk (scripts/link-flags.sh) — Translation would miss packs"; exit 1; }
+	@[ -n "$(findstring platform_version,$(SWIFT_FLAGS))" ] || { echo "scripts/link-flags.sh failed"; exit 1; }
+	@scripts/check-sdk.sh .build/release/Parley
 
 test:             ## unit tests (Swift Testing); default stores point at a temp folder, never ~/Documents/Parley
 	PARLEY_DATA_DIR="$$(mktemp -d "$${TMPDIR:-/tmp}/parley-test.XXXXXX")" swift test $(SWIFT_FLAGS)

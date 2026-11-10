@@ -130,10 +130,11 @@ open build/Parley.app --args --mini                           # mở kèm cửa 
 
 ## Tự kiểm tra
 ```bash
-say -o /tmp/t.aiff "Good morning everyone, let's start the meeting."
-swift build -c release && .build/release/Parley --file /tmp/t.aiff
+make ci        # kiểm tra offline, build release, kiểm thử đơn vị
+make pipeline  # nhận dạng giọng nói + dịch thật trên file `say` (tiếng Anh, và tiếng Nhật nếu có giọng Kyoko)
+.build/release/Parley --file /tmp/t.aiff --source ja_JP --target vi   # file bất kỳ, chọn ngôn ngữ
 ```
-Chạy các kiểm tra đơn vị (parse phiên, IPA, lọc tiếng vọng, ôn ngắt quãng…) rồi chạy thật pipeline nhận dạng giọng nói + dịch trên file âm thanh.
+Luôn build qua `make` / `./build.sh`: `swift build` trực tiếp ghi sai phiên bản SDK vào binary (xem `scripts/link-flags.sh`) và macOS 27 sẽ báo thiếu gói dịch tiếng Nhật.
 
 ## Lưu ý
 - Quay màn hình ≈ 40 MB/phút.

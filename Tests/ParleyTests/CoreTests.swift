@@ -31,6 +31,9 @@ import Testing
         #expect(!Model.isEcho("今日は会議があります", of: "明日東京へ行きます"))
         #expect(Model.isEcho("我们明天去北京", of: "我们明天去北京。"))
         #expect(!Model.isEcho("我们明天去北京", of: "他喜欢喝咖啡"))
+        // Near-echoes (one word differs): a split on spaces sees one different "word" and misses them.
+        #expect(Model.isEcho("我们明天去北京吧", of: "我们明天去北京"))
+        #expect(Model.isEcho("今日は大事な会議があります", of: "今日は大事な会議があるよ"))
     }
 
     /// PARLEY-20 AC3: the English pronunciation list only learns from English speech.
@@ -39,6 +42,11 @@ import Testing
         #expect(Model.tracksPronunciation(Locale(identifier: "en_GB")))
         #expect(!Model.tracksPronunciation(Locale(identifier: "ja_JP")))
         #expect(!Model.tracksPronunciation(Locale(identifier: "vi_VN")))
+        let en = Locale(identifier: "en_US"), ja = Locale(identifier: "ja_JP")
+        #expect(Model.recordsPronunciation(from: .mic, kept: true, source: en))
+        #expect(!Model.recordsPronunciation(from: .mic, kept: true, source: ja))
+        #expect(!Model.recordsPronunciation(from: .mic, kept: false, source: en)) // echo of the speakers
+        #expect(!Model.recordsPronunciation(from: .system, kept: true, source: en))
     }
 
     /// PARLEY-20 AC1/AC4: `--file x --source ja_JP --target vi`; English → Vietnamese without flags.
@@ -49,6 +57,8 @@ import Testing
         #expect(ja.source.identifier == "ja_JP" && ja.target.languageCode == .english)
         let dangling = Model.fileRunLanguages(["Parley", "--file", "a.aiff", "--source"])
         #expect(dangling.source.identifier == "en_US")
+        let flagAsValue = Model.fileRunLanguages(["Parley", "--file", "a.aiff", "--source", "--target", "vi"])
+        #expect(flagAsValue.source.identifier == "en_US" && flagAsValue.target.languageCode == .vietnamese)
     }
 
     @Test func ipaFromCMUdict() {

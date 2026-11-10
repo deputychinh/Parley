@@ -2,10 +2,13 @@
 # Builds build/<CFBundleName>.app. To rename the app, edit CFBundleName/CFBundleDisplayName in Info.plist only.
 set -euo pipefail
 cd "$(dirname "$0")"
+export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}" # CLT lacks the macro plugins
 NAME=$(/usr/libexec/PlistBuddy -c "Print CFBundleName" Info.plist)
 EXE=$(/usr/libexec/PlistBuddy -c "Print CFBundleExecutable" Info.plist)
-# shellcheck disable=SC2046 # word-splitting the flags is intended
-swift build -c release -Xswiftc -warnings-as-errors $(scripts/link-flags.sh)
+FLAGS=$(scripts/link-flags.sh) # own line, so `set -e` stops on failure
+# shellcheck disable=SC2086 # word-splitting the flags is intended
+swift build -c release -Xswiftc -warnings-as-errors $FLAGS
+scripts/check-sdk.sh ".build/release/$EXE"
 APP="build/$NAME.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"

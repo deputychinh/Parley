@@ -174,7 +174,7 @@ final class Model {
                     do {
                         for try await r in t.module.results {
                             let kept = handle(String(r.text.characters), final: r.isFinal, from: s, offset: r.range.start.seconds)
-                            if s == .mic, kept, Self.tracksPronunciation(sourceLocale) { pronunciation.record(r.text, language: sourceLocale.identifier) }
+                            if Self.recordsPronunciation(from: s, kept: kept, source: sourceLocale) { pronunciation.record(r.text, language: sourceLocale.identifier) }
                         }
                     } catch { status = "Lỗi nhận giọng nói: \(error.localizedDescription)"; print("ERROR results \(s):", error) }
                 }
@@ -309,17 +309,22 @@ final class Model {
     /// "Phát âm của tôi" is an English-learning list: other languages heard on the mic stay out of it.
     nonisolated static func tracksPronunciation(_ source: Locale) -> Bool { source.language.languageCode == .english }
 
+    /// A finished mic sentence feeds "Phát âm của tôi" only when it was kept (not an echo) and the source is English.
+    nonisolated static func recordsPronunciation(from source: Source, kept: Bool, source locale: Locale) -> Bool {
+        source == .mic && kept && tracksPronunciation(locale)
+    }
+
     /// `Parley --file x.aiff [--source ja_JP] [--target en]`; defaults English (US) → Vietnamese.
     nonisolated static func fileRunLanguages(_ args: [String]) -> (source: Locale, target: Locale.Language) {
         func value(_ flag: String) -> String? {
-            args.firstIndex(of: flag).flatMap { args.indices.contains($0 + 1) ? args[$0 + 1] : nil }
+            args.firstIndex(of: flag).flatMap { args.indices.contains($0 + 1) ? args[$0 + 1] : nil }.flatMap { $0.hasPrefix("--") ? nil : $0 }
         }
         return (Locale(identifier: value("--source") ?? "en_US"), Locale.Language(identifier: value("--target") ?? "vi"))
     }
 
     /// True when most words of `a` also appear in `b` (speech recognizers rarely produce identical punctuation).
     nonisolated static func isEcho(_ a: String, of b: String) -> Bool {
-        // NLTokenizer also splits languages written without spaces (Japanese, Chinese, Thai) into words.
+        // NLTokenizer also splits languages written without spaces (Japanese, Chinese) into words.
         func words(_ s: String) -> Set<String> {
             let text = s.lowercased()
             let tokenizer = NLTokenizer(unit: .word)
