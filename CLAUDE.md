@@ -28,7 +28,7 @@ Offline interpreter + English learning app for macOS 26+ (SwiftUI, SwiftPM execu
 - UI copy in Vietnamese; code, docs and commits in English. Conventional Commits with `Refs: PARLEY-<n>`.
 - Pure logic goes in value types / `nonisolated static` functions with Swift Testing tests; views stay thin.
 - Stores: one JSON file per store in `Model.dataDir`, atomic writes, unreadable file moved aside to `*.unreadable.json`.
-- Backlog `docs/backlog.md`, stories `docs/stories/`, current delivery `docs/delivery/001-learning-suite/status.md`.
+- Backlog `docs/backlog.md`, stories `docs/stories/`, current delivery `docs/delivery/002-japanese-translate/status.md`.
 
 ## Delivery profile
 

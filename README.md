@@ -19,6 +19,12 @@ Phiên dịch realtime mọi âm thanh trên máy Mac (Zoom/Meet/Teams, YouTube,
 | ![Lịch sử](docs/screenshots/history.png) | ![Tra từ](docs/screenshots/word-lookup.png) |
 | 🔊 = âm thanh máy (người khác nói), 🎤 = micro (bạn nói). Bấm một dòng để nghe lại. | Nghĩa, IPA, nút nghe đọc, câu gốc + bản dịch, **Thêm vào từ vựng**. |
 
+### Dịch văn bản & ảnh
+| Tiếng Nhật → tiếng Việt | Cửa sổ hẹp |
+|---|---|
+| ![Dịch văn bản & ảnh](docs/screenshots/translate.png) | ![Cửa sổ hẹp](docs/screenshots/translate-narrow.png) |
+| Gõ/dán chữ, **Mở ảnh…**, kéo thả ảnh, **Dán** ảnh chụp, hoặc **Chụp vùng màn hình** (manga, game, PDF…) → đọc chữ trên máy → dịch từng đoạn. Tự nhận diện ngôn ngữ. | Nút thu thành biểu tượng (di chuột để xem tên). |
+
 ### Từ vựng
 | Từ vựng của tôi | Mỗi ngày — 20 từ mới/ngày |
 |---|---|
@@ -48,7 +54,8 @@ Phiên dịch realtime mọi âm thanh trên máy Mac (Zoom/Meet/Teams, YouTube,
 
 ## Tính năng
 - **Song ngữ realtime**: thẻ trái = ngôn ngữ đang nghe, thẻ phải = bản dịch. Chữ tím có con trỏ ▍ = đang nói.
-- **Chọn ngôn ngữ** trên thanh công cụ (nghe ⇄ dịch sang), nút đổi chiều (⌘⇧L).
+- **Chọn ngôn ngữ** trên thanh công cụ (nghe ⇄ dịch sang), nút đổi chiều (⌘⇧L). Nghe được cả tiếng Nhật, tiếng Trung…
+- **Dịch văn bản & ảnh**: chữ, ảnh, ảnh trong bộ nhớ tạm, vùng màn hình → OCR (Vision) + dịch, không cần mạng. `Parley --translate-image <ảnh> [--target en]` chạy từ dòng lệnh.
 - **Học từ**: bôi đen từ/cụm từ → thẻ hiện nghĩa, phiên âm IPA (tiếng Anh), nút 🔊 nghe đọc, câu ví dụ, **Thêm vào từ vựng**.
 - **Từ vựng**: bảng có tìm kiếm, lọc Đang học/Đã thuộc, sắp xếp, nhấp đúp để nghe, tiến độ %. Lưu ở `~/Documents/Parley/vocabulary.json`.
 - **Mỗi ngày**: kế hoạch 20 từ mới/ngày (đổi được 10–50) hướng tới 10.000 từ — ưu tiên từ chủ đề soạn sẵn (IT trước), sau đó ~8.800 từ thông dụng theo tần suất. "Học từ này" → vào lịch ôn; "Đã biết" → tính vào tổng. Nghĩa dịch offline, câu ví dụ tạo bằng AI trên máy (Apple Foundation Models).

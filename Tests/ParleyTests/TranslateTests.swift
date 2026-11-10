@@ -107,6 +107,28 @@ import Testing
         #expect(pad.phase == .translating && pad.pairs.count == 1)
     }
 
+    /// A private pasteboard: the owner's clipboard is never touched.
+    @Test func pastesTextImagesOrNothing() async {
+        let board = NSPasteboard(name: NSPasteboard.Name("parley-test-\(UUID().uuidString)"))
+        defer { board.releaseGlobally() }
+        let pad = TranslatePad()
+
+        board.clearContents()
+        #expect(!(await pad.paste(from: board, source: nil, target: vi, supported: all)))
+        #expect(pad.phase == .failed(TranslatePad.emptyClipboard))
+
+        board.clearContents()
+        board.setString("今日は会議があります", forType: .string)
+        #expect(await pad.paste(from: board, source: nil, target: vi, supported: all))
+        #expect(pad.input == "今日は会議があります" && pad.phase == .translating)
+
+        let imagePad = TranslatePad()
+        board.clearContents()
+        board.writeObjects([NSImage(cgImage: TextTranslationTests.render("明日東京へ行きます。"), size: .zero)])
+        #expect(await imagePad.paste(from: board, source: nil, target: vi, supported: all))
+        #expect(imagePad.input == "明日東京へ行きます。" && imagePad.phase == .translating)
+    }
+
     @Test func clearResets() {
         let pad = TranslatePad()
         pad.input = "今日は"

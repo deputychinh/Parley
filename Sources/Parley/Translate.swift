@@ -136,6 +136,7 @@ enum ScreenRegion {
     nonisolated static let sameLanguage = "Ngôn ngữ nguồn và ngôn ngữ đích giống nhau"
     nonisolated static let noText = "Không tìm thấy chữ trong ảnh"
     nonisolated static let notImage = "Không mở được tệp này như một ảnh"
+    nonisolated static let emptyClipboard = "Bộ nhớ tạm không có chữ hay ảnh"
 
     /// `source` nil = detect among `supported` language codes.
     func translate(source: Locale.Language?, target: Locale.Language, supported: Set<String>) {
@@ -190,6 +191,24 @@ enum ScreenRegion {
         } catch {
             if mine == generation { fail("Không đọc được ảnh: \(error.localizedDescription)") }
         }
+    }
+
+    /// "Dán": text on the clipboard is translated as is; a picture alone (screenshot, copied image) is read first.
+    /// Returns false when the clipboard holds neither.
+    @discardableResult
+    func paste(from board: NSPasteboard, source: Locale.Language?, target: Locale.Language, supported: Set<String>) async -> Bool {
+        guard !busy else { return false }
+        if let text = board.string(forType: .string), !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            input = text
+            translate(source: source, target: target, supported: supported)
+            return true
+        }
+        guard let image = NSImage(pasteboard: board)?.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+            fail(Self.emptyClipboard)
+            return false
+        }
+        await read(image, source: source, target: target, supported: supported)
+        return true
     }
 
     func clear() {
@@ -381,14 +400,7 @@ struct TranslateScreen: View {
     }
 
     private func paste() {
-        let board = NSPasteboard.general
-        if let image = NSImage(pasteboard: board), board.string(forType: .string) == nil {
-            let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil)
-            Task { await pad.read(cg, source: source, target: target, supported: supported) }
-        } else if let text = board.string(forType: .string) {
-            pad.input = text
-            translate()
-        }
+        Task { await pad.paste(from: .general, source: source, target: target, supported: supported) }
     }
 }
 

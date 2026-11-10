@@ -6,7 +6,7 @@ Appetite: 1 slice of agent work · started 2026-11-10 · **Spent: ⅓ of 1 slice
 Platforms in scope: macOS (native SwiftUI)
 Status: doing
 
-**Next action:** PARLEY-21 in worktree `../parley-p21` (branch `parley-21`): built, 169 tests green, screenshots taken; finish UI fixes, story QA, then independent review.
+**Next action:** PARLEY-21 under independent review (round 1).
 
 Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action.
 

@@ -5,6 +5,7 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 ## [Unreleased]
 
 ### Added
+- "Dịch văn bản & ảnh": type or paste text, open, drop or paste an image, or capture a screen region; on-device OCR and translation, language detected automatically; `Parley --translate-image`. (PARLEY-21)
 - The live interpreter translates Japanese (and other languages written without spaces) into Vietnamese or English; `make pipeline` also runs a Japanese file. (PARLEY-20)
 
 ### Fixed
