@@ -4,6 +4,8 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-10
+
 ### Added
 - Kana readings (furigana) above the kanji of Japanese text on "Dịch văn bản & ảnh", with a toggle. (PARLEY-22)
 - "Dịch văn bản & ảnh": type or paste text, open, drop or paste an image, or capture a screen region; on-device OCR and translation, language detected automatically; `Parley --translate-image`. (PARLEY-21)

@@ -4,9 +4,9 @@ Request (verbatim): "có cách nào để tôi xây dựng 1 ứng dụng tươn
 Path: Small — one clear new capability in an existing repo (Japanese in the live interpreter + a new text/image translate screen)
 Appetite: 1 slice of agent work · started 2026-11-10 · **Spent: 1 of 1 slice (build done; verify, demo, release left)**
 Platforms in scope: macOS (native SwiftUI)
-Status: doing
+Status: done
 
-**Next action:** Verify (verify-app) the slice on the installed app, demo page, release v0.3.0.
+**Next action:** Retro, then owner feedback on v0.3.0; next slice from PARLEY-23/24/25 or PARLEY-15/19.
 
 Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action.
 
@@ -30,17 +30,17 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 | Architect | done | no new ADR: everything stays on-device (ADR 0001); notes in [plan.md](plan.md) |
 | Plan | done | [plan.md](plan.md), backlog PARLEY-20..22 |
 | Build | done | PARLEY-20 9.0, PARLEY-21 9.5, PARLEY-22 9.5 |
-| Verify | todo | |
-| Demo | todo | |
-| Release | todo | local only |
+| Verify | done | [verification.md](verification.md) |
+| Demo | done | [demo.md](demo.md) |
+| Release | done | v0.3.0, local only (`make install`), smoke: app launches from /Applications |
 | Operate | n.a. | local app, no deploy target |
-| Learn | todo | |
+| Learn | done | Retro below |
 
 ## Slices
 
 | Slice | Items | Verified | Demo | Notified | Feedback → re-plan | Release |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 Japanese | PARLEY-20, 21, 22 | | | | | v0.3.0 |
+| 1 Japanese | PARLEY-20, 21, 22 | yes | demo.md | yes | no feedback | v0.3.0 |
 
 ## Progress log (one line per item or slice)
 
@@ -62,3 +62,16 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 ## Questions for the owner (only what nobody else can answer)
 
 - none
+
+## Retro
+
+- Slowed us: Japanese "just worked" in code but not in the binary — SwiftPM records the deployment target as the SDK
+  version, and macOS 27 Translation hid the JA packs from it. Found only by bisecting a swiftc probe against a SwiftPM
+  build; a capability probe that used the real build path on day one would have caught it before any code.
+- Reviews caught late: a dragged web link would have been fetched (offline rule), the controls overflowed at the
+  480 pt minimum, readings froze the window on long text, 2人 read "2れ́ん". All were found by independent reviewers
+  with mutations, not by our own tests — write the mutation-killing tests (stale guards, order rules, wiring) with the
+  first commit.
+- Change: screenshot every new screen at the window minimum before review; benchmark any per-character view on the
+  largest allowed input; keep main-actor benchmarks out of `make test` (they starve timing tests).
+
