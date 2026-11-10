@@ -170,6 +170,18 @@ enum ScreenRegion {
         canTranslate && lastRequest != Self.request(input, source: source, target: target)
     }
 
+    /// The current request was started by "Tự dịch", not by the owner: VoiceOver hears only its end.
+    private(set) var automatic = false
+
+    /// "Tự dịch": waits `delay` (cancelled = a newer keystroke restarted it → nothing), then translates when
+    /// `shouldAutoTranslate` and `ready()` (false while an input method is still converting).
+    func autoTranslate(after delay: Duration, source: Locale.Language?, target: Locale.Language, supported: Set<String>,
+                       ready: () -> Bool = { true }) async {
+        do { try await Task.sleep(for: delay) } catch { return }
+        guard ready(), shouldAutoTranslate(source: source, target: target) else { return }
+        translate(source: source, target: target, supported: supported, automatic: true)
+    }
+
     var busy: Bool { phase == .reading || phase == .translating }
     var canTranslate: Bool { !busy && !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     var translation: String { pairs.map(\.target).joined(separator: "\n") }
@@ -188,16 +200,24 @@ enum ScreenRegion {
                          : "Chưa có gói dịch \(from) → \(to). Tải trong Cài đặt hệ thống › Chung › Ngôn ngữ & Vùng › Ngôn ngữ dịch."
     }
 
-    /// `source` nil = detect among `supported` language codes.
-    func translate(source: Locale.Language?, target: Locale.Language, supported: Set<String>) {
+    /// `source` nil = detect among `supported` language codes. An `automatic` request on text the owner is still typing
+    /// stays quiet when the language is unknown or the same as the target: the last result stays, no error.
+    func translate(source: Locale.Language?, target: Locale.Language, supported: Set<String>, automatic: Bool = false) {
         let prepared = TextTranslation.prepare(input)
         guard !prepared.paragraphs.isEmpty, !busy else { return }
         lastRequest = Self.request(input, source: source, target: target)
         generation += 1
         let from = source ?? TextTranslation.detect(prepared.paragraphs.joined(separator: "\n"), among: supported)
         detected = source == nil ? from : nil
-        guard let from else { return fail(Self.unknownLanguage) }
-        guard from.languageCode != target.languageCode else { return fail(Self.sameLanguage) }
+        guard let from else {
+            if !automatic { fail(Self.unknownLanguage) }
+            return
+        }
+        guard from.languageCode != target.languageCode else {
+            if !automatic { fail(Self.sameLanguage) }
+            return
+        }
+        self.automatic = automatic
         pairs = prepared.paragraphs.enumerated().map { Pair(id: $0.offset, source: $0.element) }
         truncated = prepared.truncated
         prepareReadings(japanese: from.languageCode == .japanese, paragraphs: prepared.paragraphs)
@@ -403,7 +423,7 @@ struct TranslateScreen: View {
         }
         .navigationTitle("Dịch văn bản & ảnh")
         .onChange(of: pad.phase) { _, phase in // VoiceOver hears what the result card now shows
-            if let message = Self.announcement(for: phase) { AccessibilityNotification.Announcement(message).post() }
+            if let message = Self.announcement(for: phase, automatic: pad.automatic) { AccessibilityNotification.Announcement(message).post() }
         }
         .dropDestination(for: URL.self) { urls, _ in
             guard let url = urls.first(where: \.isFileURL) else { return false } // never fetch a dragged web link
@@ -430,9 +450,10 @@ struct TranslateScreen: View {
         }
     }
 
-    /// What VoiceOver announces when the result card changes.
-    nonisolated static func announcement(for phase: TranslatePad.Phase) -> String? {
-        switch phase {
+    /// What VoiceOver announces when the result card changes; for "Tự dịch" only the end, so typing is not interrupted.
+    nonisolated static func announcement(for phase: TranslatePad.Phase, automatic: Bool = false) -> String? {
+        if automatic, phase == .reading || phase == .translating { return nil }
+        return switch phase {
         case .reading: "Đang đọc chữ trong ảnh"
         case .translating: "Đang dịch"
         case .done: "Đã dịch xong"
@@ -459,9 +480,13 @@ struct TranslateScreen: View {
 
     private func translateWhenSettled() async {
         guard autoTranslate, !languages.isEmpty else { return } // languages unknown yet: detection would fail
-        try? await Task.sleep(for: TranslatePad.autoDelay)
-        guard !Task.isCancelled else { return }
-        if pad.shouldAutoTranslate(source: source, target: target) { translate() }
+        await pad.autoTranslate(after: TranslatePad.autoDelay, source: source, target: target, supported: supported,
+                                ready: { !Self.composing() })
+    }
+
+    /// An input method (Japanese, Vietnamese Telex…) is still converting: wait for the committed text.
+    private static func composing() -> Bool {
+        (NSApp.keyWindow?.firstResponder as? NSTextView)?.hasMarkedText() == true
     }
 
     /// Wide: one row with labels. Medium: one row with icon buttons. Narrow (down to the 480 pt window minimum):

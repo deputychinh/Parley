@@ -21,13 +21,23 @@ As the owner, I paste (⌘V) or type Japanese into "Dịch văn bản & ảnh" a
 - `TranslateScreen` restarts a `.task(id: AutoTrigger)` on every input, language, busy, toggle or language-list
   change; it waits `TranslatePad.autoDelay` (600 ms), then `if pad.shouldAutoTranslate(…) { translate() }` (checked by
   `make wiring-guard`). Before the language list is loaded nothing runs (detection would fail).
+- `TranslatePad.autoTranslate(after:…ready:)` holds the debounce (cancelled sleep → nothing) so it is tested; the view
+  passes `ready: { !composing() }` (an input method with marked text is still converting).
+- An automatic request on text whose language is unknown or equal to the target keeps the last result and shows no
+  error (only "Dịch" / ⌘↩ do); VoiceOver hears only the end of an automatic request (`announcement(for:automatic:)`).
 - "Tự dịch" checkbox next to "Dịch" (`@AppStorage("autoTranslate")`, default on).
+
+## Review rounds
+- Round 1 (independent): 8.0 — debounce untested (busy trigger, cancellation, delay survived mutation), error flashes
+  and cleared result while typing, VoiceOver interrupted, input-method composition translated. Fixed as above.
 
 ## QA
 | AC | Evidence |
 | --- | --- |
 | AC1, AC2, AC4 | `TranslatePadTests.autoTranslatesOnlyWhatChanged` (empty/blank, first time, already translated, whitespace only, other target, chosen source, more text) |
 | AC2 failure, Xoá | `autoTranslateNeverRetriesAFailure` |
-| AC3 | `autoTranslatesOnlyWhatChanged` (busy → false); `busy` is part of `AutoTrigger`, so the task re-runs when a request ends |
+| AC3 | `textTypedDuringARequestIsTranslatedAfterIt`; `make wiring-guard` checks `busy: pad.busy` in the trigger |
+| Debounce | `autoTranslateWaitsAndStopsWhenCancelled` (600 ms, cancelled → nothing, composing → nothing) |
+| Quiet while typing | `automaticRequestsStayQuietOnUnknownLanguage`, `automaticRequestsAnnounceOnlyTheirEnd` |
 | AC5 | view: toggle + empty-state copy; `translate.png`, `translate-narrow.png` (fits at 480 pt) |
 | Wiring | `make wiring-guard` |

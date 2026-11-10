@@ -312,6 +312,62 @@ import Testing
         #expect(pad.shouldAutoTranslate(source: nil, target: vi))
     }
 
+    /// The debounce: a cancelled wait (a newer keystroke) translates nothing; otherwise it translates once.
+    @Test func autoTranslateWaitsAndStopsWhenCancelled() async {
+        #expect(TranslatePad.autoDelay == .milliseconds(600))
+        let pad = TranslatePad()
+        pad.input = "会議です"
+        let waiting = Task { await pad.autoTranslate(after: .seconds(5), source: nil, target: vi, supported: all) }
+        waiting.cancel()
+        await waiting.value
+        #expect(pad.phase == .idle && pad.lastRequest == nil)
+        await pad.autoTranslate(after: .zero, source: nil, target: vi, supported: all, ready: { false }) // composing
+        #expect(pad.phase == .idle && pad.lastRequest == nil)
+        await pad.autoTranslate(after: .zero, source: nil, target: vi, supported: all)
+        #expect(pad.phase == .translating && pad.automatic && pad.pairs.map(\.source) == ["会議です"])
+    }
+
+    /// AC3: text typed while a request runs is translated once that request ends.
+    @Test func textTypedDuringARequestIsTranslatedAfterIt() async {
+        let pad = TranslatePad()
+        pad.input = "会議です"
+        pad.translate(source: nil, target: vi, supported: all)
+        #expect(!pad.automatic)
+        let first = pad.generation
+        pad.input = "会議です。資料も"
+        await pad.autoTranslate(after: .zero, source: nil, target: vi, supported: all)
+        #expect(pad.generation == first) // busy: waits
+        pad.receive(0, "Là cuộc họp.", for: first)
+        pad.finish(for: first)
+        await pad.autoTranslate(after: .zero, source: nil, target: vi, supported: all) // the task re-runs when busy ends
+        #expect(pad.generation == first + 1 && pad.pairs.map(\.source) == ["会議です。資料も"] && pad.automatic)
+    }
+
+    /// While typing, an automatic request on text whose language is unknown keeps the last result and shows no error;
+    /// the same text is not retried. "Dịch" still shows the error.
+    @Test func automaticRequestsStayQuietOnUnknownLanguage() async {
+        let pad = TranslatePad()
+        pad.input = "会議です"
+        pad.translate(source: nil, target: vi, supported: all)
+        pad.receive(0, "Là cuộc họp.", for: pad.generation)
+        pad.finish(for: pad.generation)
+        pad.input = "会議ですか"
+        await pad.autoTranslate(after: .zero, source: nil, target: vi, supported: ["en", "vi"]) // Japanese unavailable
+        #expect(pad.phase == .done && pad.pairs.first?.target == "Là cuộc họp.")
+        #expect(!pad.shouldAutoTranslate(source: nil, target: vi)) // not retried
+        await pad.autoTranslate(after: .zero, source: Locale.Language(identifier: "vi"), target: vi, supported: all) // same language
+        #expect(pad.phase == .done)
+        pad.translate(source: nil, target: vi, supported: ["en", "vi"])
+        #expect(pad.phase == .failed(TranslatePad.unknownLanguage))
+    }
+
+    @Test func automaticRequestsAnnounceOnlyTheirEnd() {
+        #expect(TranslateScreen.announcement(for: .translating, automatic: true) == nil)
+        #expect(TranslateScreen.announcement(for: .reading, automatic: true) == nil)
+        #expect(TranslateScreen.announcement(for: .done, automatic: true) == "Đã dịch xong")
+        #expect(TranslateScreen.announcement(for: .translating) == "Đang dịch")
+    }
+
     @Test func clearResets() {
         let pad = TranslatePad()
         pad.input = "今日は"
