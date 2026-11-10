@@ -102,6 +102,25 @@ struct ContentView: View {
             if DebugArgs.has("--mini") {
                 try? await Task.sleep(for: .seconds(1)) // scenes aren't ready on the very first frame
                 openWindow(id: "mini")
+                if DebugArgs.has("--mini-sample") { // screenshots: a long session in a small Mini window
+                    model.lines = MiniView.sample
+                    dismissWindow(id: "main")
+                    if let size = DebugArgs.value("--mini-size")?.split(separator: ",").compactMap({ Double($0) }), size.count == 2 {
+                        try? await Task.sleep(for: .milliseconds(300))
+                        let mini = NSApp.windows.first { $0.identifier?.rawValue.hasPrefix("mini") == true }
+                        mini?.setContentSize(NSSize(width: size[0], height: size[1]))
+                        mini?.center() // away from the owner's own Mini window in the corner
+                    }
+                    // `--mini-scroll top` or `top-bottom`: scroll the way a user would, to check every line is reachable
+                    if let plan = DebugArgs.value("--mini-scroll"), let mini = NSApp.windows.first(where: { $0.identifier?.rawValue.hasPrefix("mini") == true }),
+                       let scroll = mini.contentView.flatMap(Self.scrollView(in:)) {
+                        for step in plan.split(separator: "-") {
+                            try? await Task.sleep(for: .seconds(1))
+                            scroll.contentView.scroll(to: Self.edge(of: scroll, top: step == "top"))
+                            scroll.reflectScrolledClipView(scroll.contentView)
+                        }
+                    }
+                }
             }
             if let i = args.firstIndex(of: "--route"), args.indices.contains(i + 1) {
                 let routes: [String: Route] = ["translate": .translate, "progress": .progress, "listening": .listening, "conversation": .conversation, "writing": .writing, "reading": .reading, "daily": .daily, "topics": .topics, "grammar": .grammar,
@@ -130,6 +149,21 @@ struct ContentView: View {
 
     /// The interpreter's language bar, mic, screen toggle and Start/Stop belong to the live and history screens; while
     /// recording they stay everywhere so the session can always be stopped.
+    /// Debug: the first scroll view under `view` (the Mini window's transcript).
+    private static func scrollView(in view: NSView) -> NSScrollView? {
+        if let s = view as? NSScrollView { return s }
+        for sub in view.subviews { if let s = scrollView(in: sub) { return s } }
+        return nil
+    }
+
+    /// Debug: the clip-view origin that shows the top or the bottom of the document.
+    private static func edge(of scroll: NSScrollView, top: Bool) -> NSPoint {
+        let doc = scroll.documentView?.frame.height ?? 0, visible = scroll.contentView.bounds.height
+        let flipped = scroll.documentView?.isFlipped ?? true
+        let topY = flipped ? 0 : max(0, doc - visible), bottomY = flipped ? max(0, doc - visible) : 0
+        return NSPoint(x: 0, y: top ? topY : bottomY)
+    }
+
     private var showsInterpreter: Bool { Route.showsInterpreter(route ?? .live, running: model.running) }
 
     @ToolbarContentBuilder private var toolbar: some ToolbarContent {
@@ -1057,6 +1091,25 @@ struct VocabSummary: View {
 
 struct MiniView: View {
     let model: Model
+    /// Rows the Mini window keeps (a whole meeting stays in the main window): enough to scroll back through a long
+    /// conversation without laying out thousands of rows on every live update.
+    nonisolated static let limit = 200
+
+    /// The last `limit` lines.
+    nonisolated static func shownRange(count: Int) -> Range<Int> { max(0, count - limit)..<count }
+
+    /// `--mini-sample [n]`: n lines (default 100) of mixed length, the first and last easy to spot.
+    static var sample: [Model.Line] {
+        let n = DebugArgs.value("--mini-sample").flatMap(Int.init) ?? 100
+        return (1...max(1, n)).map { i in
+            let long = i % 4 == 0
+            let vi = i == 1 ? "DÒNG ĐẦU TIÊN (1)" : i == n ? "DÒNG CUỐI CÙNG (\(i))"
+                : long ? "Cuộc họp tuần tới bắt đầu lúc 2 giờ chiều thứ Ba. Vui lòng chia sẻ tài liệu trước một ngày. (\(i))"
+                : "Tôi hiểu rồi. (\(i))"
+            return Model.Line(source: i % 3 == 0 ? .mic : .system,
+                              en: long ? "来週の会議は火曜日の午後二時からです。資料は前日までに共有してください。\(i)" : "了解しました。\(i)", vi: vi)
+        }
+    }
     /// Purple caret marks a sentence still being spoken; the words stay in the normal text color for readability.
     static let caret = Text(" ▍").foregroundStyle(Color.parley)
     @Environment(\.openWindow) private var openWindow
@@ -1065,7 +1118,7 @@ struct MiniView: View {
     @AppStorage("miniShowSource", store: AppDefaults.store) private var showSource = true
 
     var body: some View {
-        let start = max(0, model.lines.count - 40)
+        let shown = Self.shownRange(count: model.lines.count)
         let live = Source.allCases.filter { model.liveEN[$0] != nil } // sources currently mid-sentence
         VStack(spacing: 0) {
             HStack(spacing: 8) {
@@ -1096,8 +1149,14 @@ struct MiniView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 12) {
-                        ForEach(start..<model.lines.count, id: \.self) { i in
+                    // Not lazy: a LazyVStack only estimates the height of rows it has not laid out, so after scrolling
+                    // up the bottom-anchored view stopped short of the last line. At most `limit` rows are shown.
+                    VStack(alignment: .leading, spacing: 12) {
+                        if shown.lowerBound > 0 {
+                            Label("\(shown.lowerBound) câu cũ hơn ở cửa sổ đầy đủ", systemImage: "arrow.up.left.and.arrow.down.right")
+                                .font(.callout).foregroundStyle(.secondary)
+                        }
+                        ForEach(shown, id: \.self) { i in
                             let l = model.lines[i]
                             VStack(alignment: .leading, spacing: 3) {
                                 if showSource {

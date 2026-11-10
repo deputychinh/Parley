@@ -30,3 +30,4 @@ Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [00
 | PARLEY-24 | v0.3.0 | Debt from PARLEY-21: "chưa dịch" note for paragraphs left after a cancelled translation, keyboard-only pass recorded, test for the remembered target, pixel limit before OCR, CLI reports truncation, Finder copy of a non-image file, picker row alignment at ~640 pt, Vietnamese language names | S | todo |
 | PARLEY-25 | v0.3.0 | Debt from PARLEY-22: result-card header crowded at ~760 pt (icon-only buttons there), readings overhang neighbouring kana instead of widening the base text, a test for the digit-inside-token rule | S | todo |
 | PARLEY-26 | v0.3.1 | Translate on paste and typing ("Tự dịch", 0.6 s after the text settles), no retry of the same request | S | doing |
+| PARLEY-27 | v0.3.1 | Bug: the Mini window could not scroll back down to the last line after scrolling up, and kept only 40 lines | S | done |

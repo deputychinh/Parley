@@ -7,6 +7,9 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 ### Added
 - "Dịch văn bản & ảnh" translates on its own when text is pasted (⌘V) or typed and has settled for 0.6 s, or a language changes; "Tự dịch" turns it off. (PARLEY-26)
 
+### Fixed
+- The Mini window scrolls all the way back to the last line after scrolling up (its rows were lazily estimated), and keeps the last 200 lines instead of 40, with a note when older lines are only in the main window. (PARLEY-27)
+
 ## [0.3.0] - 2026-11-10
 
 ### Added

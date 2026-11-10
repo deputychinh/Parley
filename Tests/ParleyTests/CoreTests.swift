@@ -324,3 +324,14 @@ enum TestData {
         #expect(Model.resolveDataDir(args: ["app"], env: ["PARLEY_DATA_DIR": ""], fallback: fallback) == fallback)
     }
 }
+
+/// The Mini window keeps the last `MiniView.limit` lines (it once kept 40, so line 1 of a 100-line session was gone).
+@Suite struct MiniWindowTests {
+    @Test func keepsTheLastLines() {
+        #expect(MiniView.shownRange(count: 0) == 0..<0)
+        #expect(MiniView.shownRange(count: 100) == 0..<100) // a 100-line session scrolls back to line 1
+        #expect(MiniView.shownRange(count: MiniView.limit) == 0..<MiniView.limit)
+        #expect(MiniView.shownRange(count: MiniView.limit + 1) == 1..<(MiniView.limit + 1))
+        #expect(MiniView.limit >= 100)
+    }
+}
