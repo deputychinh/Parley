@@ -13,6 +13,7 @@ As the owner, I pick "Tiếng Nhật (Nhật Bản)" as the language I hear, so 
 
 ## Review rounds
 - Round 1 (independent): 8.0 — build.sh could ship an SDK-26 binary silently, `$(shell)` used the CLT's SDK, README told readers to `swift build`, weak echo tests, untested call site. All fixed in round 1 (mutations: old split now fails 3 assertions; failing link-flags stops build.sh with exit 1).
+- Final gate (fresh reviewer): **9.0/10 — ship gate passed.** Its call-site and `make bench` findings were fixed before shipping; `isEcho` cost for Japanese (~0.5 ms/call on the main actor), guard-script self-tests and a shared CLI-args type → PARLEY-23.
 
 ## QA
 | AC | Evidence |
@@ -21,7 +22,24 @@ As the owner, I pick "Tiếng Nhật (Nhật Bản)" as the language I hear, so 
 | AC2 echo without spaces | `SessionFileTests.detectsSpeakerEchoWithoutSpaces` (JA, ZH, negative cases; failed before the change) + English cases in `detectsSpeakerEcho` |
 | AC3 pronunciation only for English | `SessionFileTests.tracksPronunciationOnlyForEnglish` |
 | AC4 pipeline runs Japanese, fails on empty | `make pipeline` (selfTest throws on empty heard/translated) |
-| AC3 wiring | `recordsPronunciation(from:kept:source:)` is the call-site decision (Model.swift), tested for mic/system, kept/echo, en/ja |
-| SDK guard | mutation: `make build SWIFT_FLAGS="-Xswiftc -warnings-as-errors"` → `binary records SDK 26.0, expected 27.0 …`, exit 1 |
+| AC3 decision | `recordsPronunciation(from:kept:source:)` tested for mic/system, kept/echo, en/ja |
+| SDK guard | mutations: `make build SWIFT_FLAGS="-Xswiftc -warnings-as-errors"` → `scripts/link-flags.sh failed`; minimum OS written as SDK → `… records SDK 26.0, expected 27.0`; build.sh without `$FLAGS` → check-sdk.sh exit 1; `make bench` now links with the same flags |
+| AC3 call site | `make wiring-guard` (in `make ci`): reverting Model.swift to `if s == .mic, kept` → `Model.start must gate pronunciation.record with recordsPronunciation`, exit 2 |
 
 Not checked: a GUI session with Japanese system audio (needs screen-capture permission on the real app); the CLI pipeline runs the same Transcriber + TranslationSession code.
+
+## Score
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Test depth | 0.5 |
+| 3 | Reliability | 1 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 1 |
+| 6 | UX | 1 |
+| 7 | Accessibility | 1 |
+| 8 | Performance | 1 |
+| 9 | Docs | 0.5 |
+| 10 | Delivery | 1 |
+| | **Total** | **9.0 / 10** (final gate, fresh reviewer) |

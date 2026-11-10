@@ -21,6 +21,7 @@ Offline interpreter + English learning app for macOS 26+ (SwiftUI, SwiftPM execu
   (`open --env` does not reach the app; pass `--data-dir` as an argument.) Any GUI run with `--data-dir` — scripts,
   reviews, manual checks — uses `build/Parley-sandbox.app` (`make sandbox-app`, bundle id `com.david.parley.sandbox`):
   the real app refuses to start sandboxed, because macOS would save its window frames in the owner's settings.
+- Build only through `make` / `./build.sh`: `scripts/link-flags.sh` records the real SDK version (bare `swift build` records 26.0 and macOS 27 Translation then reports installed packs such as Japanese as missing); `scripts/check-sdk.sh` guards it.
 - Run the seed / CLI checks with `.build/release/Parley`, not the binary inside `build/Parley.app`: from a shell the
   bundled binary blocks on a TCC prompt because the repo lives under ~/Documents.
 - Offline only (ADR 0001): no network code in `Sources/`; AI = FoundationModels, checked with `available` first.
