@@ -180,7 +180,7 @@ enum ScreenRegion {
             for try await response in session.translate(batch: requests) {
                 guard receive(response.clientIdentifier.flatMap(Int.init), response.targetText, for: mine) else { return }
             }
-            if mine == generation { phase = .done }
+            finish(for: mine)
         } catch {
             guard mine == generation else { return }
             let (from, to) = (config?.source, config?.target)
@@ -188,8 +188,23 @@ enum ScreenRegion {
             guard mine == generation else { return }
             if let message = Self.failureMessage(error, installed: installed, from: from.map(Model.name) ?? "", to: to.map(Model.name) ?? "") {
                 fail(message)
+            } else {
+                cancelled(for: mine)
             }
         }
+    }
+
+    /// All responses of request `request` arrived: done (ignored once a newer request started).
+    func finish(for request: Int) {
+        guard request == generation, phase == .translating else { return }
+        phase = .done
+    }
+
+    /// Request `request` was cancelled (e.g. the screen was left): never stay busy. What arrived is kept; "Dịch" can
+    /// be pressed again for the rest.
+    func cancelled(for request: Int) {
+        guard request == generation, phase == .translating else { return }
+        phase = pairs.allSatisfy { !$0.target.isEmpty } ? .done : .idle
     }
 
     /// One translated paragraph of request `request`; false (nothing written) once a newer request started.
@@ -320,6 +335,9 @@ struct TranslateScreen: View {
             }
         }
         .navigationTitle("Dịch văn bản & ảnh")
+        .onChange(of: pad.phase) { _, phase in // VoiceOver hears what the result card now shows
+            if let message = Self.announcement(for: phase) { AccessibilityNotification.Announcement(message).post() }
+        }
         .dropDestination(for: URL.self) { urls, _ in
             guard let url = urls.first(where: \.isFileURL) else { return false } // never fetch a dragged web link
             Task { await pad.read(await OCR.loadImage(at: url), source: source, target: target, supported: supported) }
@@ -338,6 +356,17 @@ struct TranslateScreen: View {
                 pad.input = TranslateScreen.sample
                 translate()
             }
+        }
+    }
+
+    /// What VoiceOver announces when the result card changes.
+    nonisolated static func announcement(for phase: TranslatePad.Phase) -> String? {
+        switch phase {
+        case .reading: "Đang đọc chữ trong ảnh"
+        case .translating: "Đang dịch"
+        case .done: "Đã dịch xong"
+        case .failed(let message): message
+        case .idle: nil
         }
     }
 
@@ -450,8 +479,8 @@ struct TranslateScreen: View {
                     ForEach(pad.pairs) { pair in
                         VStack(alignment: .leading, spacing: 4) {
                             Text(pair.source).font(.callout).foregroundStyle(.secondary)
-                            if pair.target.isEmpty {
-                                ProgressView().controlSize(.small)
+                            if pair.target.isEmpty, pad.phase == .translating {
+                                ProgressView().controlSize(.small).accessibilityLabel("Đang dịch")
                             } else {
                                 Text(pair.target).font(.title3)
                             }

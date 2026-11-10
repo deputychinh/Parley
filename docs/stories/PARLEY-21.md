@@ -31,6 +31,11 @@ PDF, a website screenshot), and read it in Vietnamese or English, offline.
 - Round 1 (independent): 7.0 — a dragged web link would be fetched by `NSImage(contentsOf:)` (ADR 0001); controls overflowed below ~650 pt; 5 of 13 mutations survived (stale-request guard, paste priority, truncation flag, kana rule); kana rule mislabelled "I love ラーメン"; Finder file copy pasted its name; cancellation shown as an error; capture without permission said "no text"; text lost when leaving the screen.
   Fixed: file URLs only + `data:` URL test; three-step controls (`ViewThatFits`, 480 pt screenshot); `receive(_:_:for:)`, `failureMessage`, `captureRegion(allowed:capture:)` made testable with tests; kana rule removed (NL already reads kana, kanji + の, half-width katakana); image files before text before image data; pad owned by ContentView; "Đã chép" confirmation. All 8 re-run mutations are caught.
 
+- Final gate 1 (fresh reviewer): 7.5 — AC7 and the `.done` transition untested, a silent cancellation could leave the
+  pad busy (it outlives the view), spinners after `.done`, no VoiceOver announcements, CJK/Latin join and the
+  performance target unguarded. Fixed: `finish(for:)` / `cancelled(for:)` with tests, spinner only while translating,
+  announcements, join tests, W5 in `benchmarks/plan.md`.
+
 ## QA
 | AC | Evidence |
 | --- | --- |
@@ -40,7 +45,9 @@ PDF, a website screenshot), and read it in Vietnamese or English, offline.
 | AC4 auto-detect / chosen source, remembered target, unknown language message | `detectsLanguages` (JA incl. kana-only, ZH, EN, VI, not-translatable → nil, empty), `explainsWhatItCannotDo` |
 | AC5 missing pack | `.translationTask` shows the system sheet; on failure `run` re-checks `LanguageAvailability`; the message is `failureMessage` (`failureMessages`: missing pack, other error, cancellation → nothing) |
 | AC6 boundaries | empty → disabled (`emptyInputDoesNothing`); no text in image (`imageWithoutTextOrNotAnImage`); 20 000 / 20 001 chars (`cutsAtTheLimit`); non-image file (`refusesFilesThatAreNotImages`, CLI on README.md → `FAIL: Không mở được tệp này như một ảnh`, exit 1); empty clipboard message |
-| AC7 copy translation | `TranslatePad.translation` joins targets; button visible in `translate.png` |
+| AC7 copy translation | `finishesAndJoinsTheTranslation` (paragraphs joined one per line, `.done` only for the current request — the copy button shows in `.done`); "Đã chép" confirmation in the view |
+| Cancellation | `cancellationNeverLeavesThePadBusy` (partial → idle and "Dịch" enabled, complete → done, stale → ignored) |
+| VoiceOver | `announcesPhaseChanges`; per-paragraph spinner labelled "Đang dịch", shown only while translating |
 | Quality target ≤ 3 s p50 | `--translate-image` 5 runs: 16.56 s (cold: OCR + translation models load), 1.90, 1.87, 1.88, 1.87 s → p50 1.88 s |
 
 | Region capture | `regionCaptureNeedsPermissionAndIgnoresEsc` (no permission → message, capture not started; Esc → unchanged; image → read) |

@@ -36,6 +36,9 @@ import Testing
         #expect(OCR.paragraphs(from: ["The meeting is on", "Tuesday afternoon.", "", "Thanks"]) == "The meeting is on Tuesday afternoon.\nThanks")
         #expect(OCR.paragraphs(from: ["「こんにちは」", "Tokyo 2026"]) == "「こんにちは」\nTokyo 2026")
         #expect(OCR.paragraphs(from: []) == "")
+        // Latin next to Japanese: no space inserted at a CJK boundary, a space between two Latin lines
+        #expect(OCR.paragraphs(from: ["新しいiPhone", "を買いました。"]) == "新しいiPhoneを買いました。")
+        #expect(OCR.paragraphs(from: ["Version", "2.0 です。"]) == "Version 2.0 です。")
     }
 
     /// Real on-device Vision on a rendered picture (no network).
@@ -230,6 +233,49 @@ import Testing
         #expect(TranslatePad.failureMessage(Boom(), installed: true, from: "Japanese", to: "Vietnamese") == "Không dịch được: hỏng")
         let missing = TranslatePad.failureMessage(Boom(), installed: false, from: "Japanese", to: "Vietnamese")
         #expect(missing?.hasPrefix("Chưa có gói dịch Japanese → Vietnamese.") == true)
+    }
+
+    /// AC7: the copied translation is every paragraph's translation, one per line; done only when all arrived.
+    @Test func finishesAndJoinsTheTranslation() {
+        let pad = TranslatePad()
+        pad.input = "一つ目です。\n二つ目です。"
+        pad.translate(source: nil, target: vi, supported: all)
+        let request = pad.generation
+        pad.receive(0, "Cái thứ nhất.", for: request)
+        pad.receive(1, "Cái thứ hai.", for: request)
+        pad.finish(for: request - 1) // an older request finishing changes nothing
+        #expect(pad.phase == .translating)
+        pad.finish(for: request)
+        #expect(pad.phase == .done && pad.translation == "Cái thứ nhất.\nCái thứ hai.")
+    }
+
+    /// Leaving the screen cancels the translation: the pad must not stay busy.
+    @Test func cancellationNeverLeavesThePadBusy() {
+        let partial = TranslatePad()
+        partial.input = "一つ目です。\n二つ目です。"
+        partial.translate(source: nil, target: vi, supported: all)
+        partial.receive(0, "Cái thứ nhất.", for: partial.generation)
+        partial.cancelled(for: partial.generation)
+        #expect(partial.phase == .idle && !partial.busy && partial.canTranslate && partial.pairs[0].target == "Cái thứ nhất.")
+
+        let complete = TranslatePad()
+        complete.input = "一つ目です。"
+        complete.translate(source: nil, target: vi, supported: all)
+        complete.receive(0, "Cái thứ nhất.", for: complete.generation)
+        complete.cancelled(for: complete.generation)
+        #expect(complete.phase == .done)
+
+        let stale = TranslatePad()
+        stale.input = "一つ目です。"
+        stale.translate(source: nil, target: vi, supported: all)
+        stale.cancelled(for: stale.generation - 1)
+        #expect(stale.phase == .translating)
+    }
+
+    @Test func announcesPhaseChanges() {
+        #expect(TranslateScreen.announcement(for: .done) == "Đã dịch xong")
+        #expect(TranslateScreen.announcement(for: .failed(TranslatePad.noText)) == TranslatePad.noText)
+        #expect(TranslateScreen.announcement(for: .reading) != nil && TranslateScreen.announcement(for: .idle) == nil)
     }
 
     @Test func clearResets() {
