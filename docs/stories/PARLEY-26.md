@@ -19,8 +19,8 @@ As the owner, I paste (⌘V) or type Japanese into "Dịch văn bản & ảnh" a
 - `TranslatePad.lastRequest` (`Request`: trimmed text, source id, target id) is set by every accepted `translate`;
   `shouldAutoTranslate(source:target:)` = `canTranslate && lastRequest != request(input, …)`.
 - `TranslateScreen` restarts a `.task(id: AutoTrigger)` on every input, language, busy, toggle or language-list
-  change; it waits `TranslatePad.autoDelay` (600 ms), then `if pad.shouldAutoTranslate(…) { translate() }` (checked by
-  `make wiring-guard`). Before the language list is loaded nothing runs (detection would fail).
+  change and calls `pad.autoTranslate(after: TranslatePad.autoDelay, …)` (600 ms; checked by `make wiring-guard`).
+  Before the language list is loaded nothing runs (detection would fail).
 - `TranslatePad.autoTranslate(after:…ready:)` holds the debounce (cancelled sleep → nothing) so it is tested; the view
   passes `ready: { !composing() }` (an input method with marked text is still converting).
 - An automatic request on text whose language is unknown or equal to the target keeps the last result and shows no
