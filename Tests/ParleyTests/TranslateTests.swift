@@ -321,10 +321,14 @@ import Testing
         waiting.cancel()
         await waiting.value
         #expect(pad.phase == .idle && pad.lastRequest == nil)
-        await pad.autoTranslate(after: .zero, source: nil, target: vi, supported: all, ready: { false }) // composing
+        let composing = Task { await pad.autoTranslate(after: .milliseconds(5), source: nil, target: vi, supported: all, ready: { false }) }
+        try? await Task.sleep(for: .milliseconds(40))
+        composing.cancel() // a keystroke while still converting
+        await composing.value
         #expect(pad.phase == .idle && pad.lastRequest == nil)
-        await pad.autoTranslate(after: .zero, source: nil, target: vi, supported: all)
-        #expect(pad.phase == .translating && pad.automatic && pad.pairs.map(\.source) == ["会議です"])
+        var checks = 0 // conversion confirmed after a while, text unchanged: still translated
+        await pad.autoTranslate(after: .zero, source: nil, target: vi, supported: all, ready: { checks += 1; return checks > 2 })
+        #expect(checks == 3 && pad.phase == .translating && pad.automatic && pad.pairs.map(\.source) == ["会議です"])
     }
 
     /// AC3: text typed while a request runs is translated once that request ends.
@@ -354,11 +358,31 @@ import Testing
         pad.input = "会議ですか"
         await pad.autoTranslate(after: .zero, source: nil, target: vi, supported: ["en", "vi"]) // Japanese unavailable
         #expect(pad.phase == .done && pad.pairs.first?.target == "Là cuộc họp.")
+        #expect(pad.detected?.languageCode == .japanese) // the kept result keeps its language
         #expect(!pad.shouldAutoTranslate(source: nil, target: vi)) // not retried
         await pad.autoTranslate(after: .zero, source: Locale.Language(identifier: "vi"), target: vi, supported: all) // same language
         #expect(pad.phase == .done)
         pad.translate(source: nil, target: vi, supported: ["en", "vi"])
         #expect(pad.phase == .failed(TranslatePad.unknownLanguage))
+    }
+
+    /// After an automatic translation, an image the owner opens is announced step by step again; "Xoá" resets too.
+    @Test func manualReadsAreAnnouncedAfterAnAutomaticRequest() async {
+        let pad = TranslatePad()
+        pad.input = "会議です"
+        await pad.autoTranslate(after: .zero, source: nil, target: vi, supported: all)
+        pad.receive(0, "Là cuộc họp.", for: pad.generation)
+        pad.finish(for: pad.generation)
+        #expect(pad.automatic)
+        await pad.read(nil, source: nil, target: vi, supported: all) // fails before reading: automatic untouched
+        pad.clear()
+        #expect(!pad.automatic)
+        pad.input = "会議です"
+        await pad.autoTranslate(after: .zero, source: nil, target: vi, supported: all)
+        pad.receive(0, "Là cuộc họp.", for: pad.generation)
+        pad.finish(for: pad.generation)
+        await pad.read(TextTranslationTests.render(" "), source: nil, target: vi, supported: all)
+        #expect(!pad.automatic)
     }
 
     @Test func automaticRequestsAnnounceOnlyTheirEnd() {

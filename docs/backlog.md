@@ -29,5 +29,6 @@ Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [00
 | PARLEY-23 | v0.3.0 | Debt from PARLEY-20: `isEcho` tokenizes once per sentence (≈0.5 ms/call for Japanese on the main actor), self-test for `check-sdk.sh`/`link-flags.sh` (message when link-flags fails under build.sh), one `CLIArgs` type and one Xcode-path default | S | todo |
 | PARLEY-24 | v0.3.0 | Debt from PARLEY-21: "chưa dịch" note for paragraphs left after a cancelled translation, keyboard-only pass recorded, test for the remembered target, pixel limit before OCR, CLI reports truncation, Finder copy of a non-image file, picker row alignment at ~640 pt, Vietnamese language names | S | todo |
 | PARLEY-25 | v0.3.0 | Debt from PARLEY-22: result-card header crowded at ~760 pt (icon-only buttons there), readings overhang neighbouring kana instead of widening the base text, a test for the digit-inside-token rule | S | todo |
-| PARLEY-26 | v0.3.1 | Translate on paste and typing ("Tự dịch", 0.6 s after the text settles), no retry of the same request | S | doing |
+| PARLEY-26 | v0.3.1 | Translate on paste and typing ("Tự dịch", 0.6 s after the text settles), no retry of the same request | S | done (9.5) |
 | PARLEY-27 | v0.3.1 | Bug: the Mini window could not scroll back down to the last line after scrolling up, and kept only 40 lines | S | done |
+| PARLEY-28 | v0.3.1 | Debt from PARLEY-26: screenshots of the empty state with "Tự dịch" on/off and a finished narrow shot, a manual pass with the Japanese input method, a test for the Mini note above 200 lines | S | todo |

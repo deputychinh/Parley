@@ -21,6 +21,7 @@ wiring-guard:     ## call sites use the tested decisions (PARLEY-20 pronunciatio
 	@grep -q 'if let ruby = TranslatePad.shownReading(pair, enabled: showReadings)' Sources/Parley/Translate.swift || (echo "TranslateScreen must draw readings through TranslatePad.shownReading (PARLEY-22)"; exit 1)
 	@grep -q 'if pad.hasReadings {' Sources/Parley/Translate.swift || (echo "TranslateScreen must show the Cách đọc toggle when pad.hasReadings (PARLEY-22)"; exit 1)
 	@grep -q 'await pad.autoTranslate(after: TranslatePad.autoDelay, source: source, target: target, supported: supported,' Sources/Parley/Translate.swift && grep -q 'busy: pad.busy' Sources/Parley/Translate.swift || (echo "TranslateScreen must auto-translate through TranslatePad.autoTranslate, re-run when busy changes (PARLEY-26)"; exit 1)
+	@grep -q 'ready: { !Self.composing() })' Sources/Parley/Translate.swift || (echo "TranslateScreen must wait while an input method is converting (PARLEY-26)"; exit 1)
 	@grep -q 'Self.announcement(for: phase, automatic: pad.automatic)' Sources/Parley/Translate.swift || (echo "TranslateScreen must announce automatic requests quietly (PARLEY-26)"; exit 1)
 
 offline-guard:    ## ADR 0001: no network code in the app

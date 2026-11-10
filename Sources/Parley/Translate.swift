@@ -177,8 +177,10 @@ enum ScreenRegion {
     /// `shouldAutoTranslate` and `ready()` (false while an input method is still converting).
     func autoTranslate(after delay: Duration, source: Locale.Language?, target: Locale.Language, supported: Set<String>,
                        ready: () -> Bool = { true }) async {
-        do { try await Task.sleep(for: delay) } catch { return }
-        guard ready(), shouldAutoTranslate(source: source, target: target) else { return }
+        repeat { // while an input method is converting, wait again: confirmed kana may not change the text
+            do { try await Task.sleep(for: delay) } catch { return }
+        } while !ready()
+        guard shouldAutoTranslate(source: source, target: target) else { return }
         translate(source: source, target: target, supported: supported, automatic: true)
     }
 
@@ -206,17 +208,13 @@ enum ScreenRegion {
         let prepared = TextTranslation.prepare(input)
         guard !prepared.paragraphs.isEmpty, !busy else { return }
         lastRequest = Self.request(input, source: source, target: target)
-        generation += 1
         let from = source ?? TextTranslation.detect(prepared.paragraphs.joined(separator: "\n"), among: supported)
+        // an automatic request on unclear text changes nothing: the last result, its language and readings stay
+        if automatic, from == nil || from?.languageCode == target.languageCode { return }
+        generation += 1
         detected = source == nil ? from : nil
-        guard let from else {
-            if !automatic { fail(Self.unknownLanguage) }
-            return
-        }
-        guard from.languageCode != target.languageCode else {
-            if !automatic { fail(Self.sameLanguage) }
-            return
-        }
+        guard let from else { return fail(Self.unknownLanguage) }
+        guard from.languageCode != target.languageCode else { return fail(Self.sameLanguage) }
         self.automatic = automatic
         pairs = prepared.paragraphs.enumerated().map { Pair(id: $0.offset, source: $0.element) }
         truncated = prepared.truncated
@@ -298,6 +296,7 @@ enum ScreenRegion {
         guard let image else { return fail(Self.notImage) }
         generation += 1
         let mine = generation
+        automatic = false // the owner asked: VoiceOver hears every step
         phase = .reading
         do {
             let text = OCR.paragraphs(from: try await OCR.recognize(image, language: source))
@@ -354,6 +353,7 @@ enum ScreenRegion {
         truncated = false
         detected = nil
         lastRequest = nil
+        automatic = false
         phase = .idle
     }
 

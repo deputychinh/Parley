@@ -30,6 +30,26 @@ As the owner, I paste (⌘V) or type Japanese into "Dịch văn bản & ảnh" a
 ## Review rounds
 - Round 1 (independent): 8.0 — debounce untested (busy trigger, cancellation, delay survived mutation), error flashes
   and cleared result while typing, VoiceOver interrupted, input-method composition translated. Fixed as above.
+- Round 2 (same reviewer): **9.5/10 — ship gate passed.** Polished after it: `automatic` reset by `read()` / `clear()`
+  (`manualReadsAreAnnouncedAfterAnAutomaticRequest`), the wait repeats while an input method is converting (confirmed
+  kana that leave the text unchanged are still translated), the quiet path keeps `detected` and the readings,
+  `make wiring-guard` checks `ready: { !Self.composing() }`.
+- Not done: screenshots of the empty state with "Tự dịch" on/off and a finished `translate-narrow.png` (screen locked
+  during the work); a manual pass with the Japanese input method → PARLEY-28.
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Tests | 1 |
+| 3 | Reliability | 1 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 1 |
+| 6 | UX | 1 |
+| 7 | Accessibility | 0.5 (fixed after the review) |
+| 8 | Performance | 1 |
+| 9 | Docs | 1 |
+| 10 | Delivery | 1 |
+| | **Total** | **9.5** |
 
 ## QA
 | AC | Evidence |
@@ -38,6 +58,6 @@ As the owner, I paste (⌘V) or type Japanese into "Dịch văn bản & ảnh" a
 | AC2 failure, Xoá | `autoTranslateNeverRetriesAFailure` |
 | AC3 | `textTypedDuringARequestIsTranslatedAfterIt`; `make wiring-guard` checks `busy: pad.busy` in the trigger |
 | Debounce | `autoTranslateWaitsAndStopsWhenCancelled` (600 ms, cancelled → nothing, composing → nothing) |
-| Quiet while typing | `automaticRequestsStayQuietOnUnknownLanguage`, `automaticRequestsAnnounceOnlyTheirEnd` |
+| Quiet while typing | `automaticRequestsStayQuietOnUnknownLanguage`, `automaticRequestsAnnounceOnlyTheirEnd`, `manualReadsAreAnnouncedAfterAnAutomaticRequest` |
 | AC5 | view: toggle + empty-state copy; `translate.png`, `translate-narrow.png` (fits at 480 pt) |
 | Wiring | `make wiring-guard` |
