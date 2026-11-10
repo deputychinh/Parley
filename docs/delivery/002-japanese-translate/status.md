@@ -2,11 +2,11 @@
 
 Request (verbatim): "có cách nào để tôi xây dựng 1 ứng dụng tương tự mục đích là có thể convert mọi tiếng nhật sang tiếng ah hhoạc tiếng việt" → "ok thế làm đi" (direction 1: extend Parley)
 Path: Small — one clear new capability in an existing repo (Japanese in the live interpreter + a new text/image translate screen)
-Appetite: 1 slice of agent work · started 2026-11-10 · **Spent: ⅔ of 1 slice**
+Appetite: 1 slice of agent work · started 2026-11-10 · **Spent: 1 of 1 slice (build done; verify, demo, release left)**
 Platforms in scope: macOS (native SwiftUI)
 Status: doing
 
-**Next action:** PARLEY-22 final re-review (branch `parley-22`, worktree `../parley-p21`); on ≥ 9 merge to main and ship; then verify, demo, release v0.3.0.
+**Next action:** Verify (verify-app) the slice on the installed app, demo page, release v0.3.0.
 
 Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action.
 
@@ -29,7 +29,7 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 | Set up | n.a. | existing repo |
 | Architect | done | no new ADR: everything stays on-device (ADR 0001); notes in [plan.md](plan.md) |
 | Plan | done | [plan.md](plan.md), backlog PARLEY-20..22 |
-| Build | doing | PARLEY-20 |
+| Build | done | PARLEY-20 9.0, PARLEY-21 9.5, PARLEY-22 9.5 |
 | Verify | todo | |
 | Demo | todo | |
 | Release | todo | local only |
@@ -49,6 +49,8 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 - 2026-11-10 PARLEY-20 — shipped 9.0 (round 1: 8.0, final fresh review 9.0) — cc8e9f6, 2a190c1 + ship commit; root cause found: SwiftPM records SDK 26.0 → Translation hides JA packs on macOS 27; debt → PARLEY-23
 
 - 2026-11-10 PARLEY-21 — shipped 9.5 (round 1: 7.0 → 9.5; fresh final gate 7.5 → 9.5) — 838e6d2, 61d017c, 1ddea9f, cf808b5 + ship commit; drag-and-drop of a web link would have fetched it (fixed: local files only); debt → PARLEY-24
+
+- 2026-11-10 PARLEY-22 — shipped 9.5 (7.0 → 8.5 → 9.5) — f570591, f0af37a, 5ca7bbd + ship commit; a 20 000-character text froze the window 3.5 s (fixed: word pieces, layout cache, 1 000-character limit, W4); debt → PARLEY-25
 
 ## Rulings (decisions taken without asking)
 

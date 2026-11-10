@@ -25,6 +25,7 @@ Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [00
 | PARLEY-19 | v0.3.0 | AI-written reading passages back on, with a reading case in `make ai-eval` (success rate, time), a cancel button, no retry when cancelled, UUID ids, reject questions whose wrong options are also in the text | M | todo |
 | PARLEY-20 | v0.3.0 | Live interpreter hears Japanese: echo merge for languages without spaces, pronunciation only for English sources, `--source/--target` on `--file`, Japanese `make pipeline` | S | done (9.0) |
 | PARLEY-21 | v0.3.0 | "Dịch văn bản & ảnh": type/paste text, open/drop/paste image, region capture → on-device OCR → translation to EN/VI | M | done (9.5) |
-| PARLEY-22 | v0.3.0 | Kana readings (furigana) for Japanese source text on the translate screen | S | doing |
+| PARLEY-22 | v0.3.0 | Kana readings (furigana) for Japanese source text on the translate screen | S | done (9.5) |
 | PARLEY-23 | v0.3.0 | Debt from PARLEY-20: `isEcho` tokenizes once per sentence (≈0.5 ms/call for Japanese on the main actor), self-test for `check-sdk.sh`/`link-flags.sh` (message when link-flags fails under build.sh), one `CLIArgs` type and one Xcode-path default | S | todo |
 | PARLEY-24 | v0.3.0 | Debt from PARLEY-21: "chưa dịch" note for paragraphs left after a cancelled translation, keyboard-only pass recorded, test for the remembered target, pixel limit before OCR, CLI reports truncation, Finder copy of a non-image file, picker row alignment at ~640 pt, Vietnamese language names | S | todo |
+| PARLEY-25 | v0.3.0 | Debt from PARLEY-22: result-card header crowded at ~760 pt (icon-only buttons there), readings overhang neighbouring kana instead of widening the base text, a test for the digit-inside-token rule | S | todo |

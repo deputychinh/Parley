@@ -31,6 +31,8 @@ As the owner, I see how to read the kanji of a Japanese sentence I translated, s
   readings guard and the view call sites untested, story named removed tests. Fixed: `isHiragana` check, no reading
   for tokens with a digit, `applyReadings(_:for:)` tested, `make wiring-guard` checks the two view call sites.
 
+- Round 3 (same reviewer, last round allowed): **9.5/10 — ship gate passed.** Remaining: crowded result header at ~760 pt, gaps under wide readings, text-based wiring guard → PARLEY-25.
+
 ## QA
 | AC | Evidence |
 | --- | --- |
@@ -40,3 +42,19 @@ As the owner, I see how to read the kanji of a Japanese sentence I translated, s
 | Counters, extension kanji | `noReadingRightAfterADigit` (3月14日, ３日, 2人), `kanjiBeyondTheBasicPlane` |
 | Stale readings, view wiring | `staleReadingsAreIgnored`; `make wiring-guard` (view draws via `shownReading`, toggle shown on `hasReadings`) |
 | AC2 pure, mixed text, empty | `keepsOkuriganaOutsideTheReading` (始め, お願い, mismatch keeps whole reading, nil reading), mixed Latin/digits/punctuation keeps every character, `emptyAndConversionHelpers` |
+
+## Score
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Test depth | 1 |
+| 3 | Reliability | 1 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 1 |
+| 6 | UX | 0.5 |
+| 7 | Accessibility | 1 |
+| 8 | Performance | 1 |
+| 9 | Docs | 1 |
+| 10 | Delivery | 1 |
+| | **Total** | **9.5 / 10** (round 3) |
