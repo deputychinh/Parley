@@ -4,6 +4,13 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 
 ## [Unreleased]
 
+### Added
+- The live interpreter translates Japanese (and other languages written without spaces) into Vietnamese or English; `make pipeline` also runs a Japanese file. (PARLEY-20)
+
+### Fixed
+- Translation packs installed on macOS 27 (e.g. Japanese → Vietnamese) were reported as missing: builds now record the real SDK version, and `make build` checks it. (PARLEY-20)
+- Speaker echo is merged for Japanese and Chinese speech; only English speech feeds "Phát âm của tôi". (PARLEY-20)
+
 ## [0.2.0] - 2026-11-08
 
 ### Fixed

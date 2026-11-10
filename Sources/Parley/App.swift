@@ -39,7 +39,7 @@ enum Main {
     }
 }
 
-/// `Parley --file x.aiff`: the real STT + translation pipeline on a file (`--ai`: on-device model, `--checkin n`: auto-stop).
+/// `Parley --file x.aiff [--source ja_JP --target en]`: the real STT + translation pipeline on a file (`--ai`: on-device model, `--checkin n`: auto-stop).
 func selfTest(_ path: String) async throws {
     // Unit checks live in Tests/ParleyTests (`make test`); this runs the real on-device pipeline.
     if CommandLine.arguments.contains("--ai") { // on-device example sentences (slow, needs Apple Intelligence)
@@ -75,8 +75,8 @@ func selfTest(_ path: String) async throws {
         print("auto-stop: ok")
     }
 
-    let en = Locale.Language(identifier: "en"), vi = Locale.Language(identifier: "vi")
-    let t = try await Transcriber.start(confidence: true)
+    let (source, target) = Model.fileRunLanguages(CommandLine.arguments)
+    let t = try await Transcriber.start(locale: source, confidence: true)
     let collector = Task {
         var out: [String] = []
         for try await r in t.module.results where r.isFinal {
@@ -95,9 +95,9 @@ func selfTest(_ path: String) async throws {
     }
     try await t.finish()
     let heard = try await collector.value
-    print("EN:", heard)
-    let translated = try await TranslationSession(installedSource: en, target: vi).translate(heard).targetText
-    print("VI:", translated)
+    print("\(source.identifier):", heard)
+    let translated = try await TranslationSession(installedSource: source.language, target: target).translate(heard).targetText
+    print("\(target.minimalIdentifier):", translated)
     guard !heard.isEmpty, !translated.isEmpty else { throw Err("empty output") }
 }
 

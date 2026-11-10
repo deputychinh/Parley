@@ -1,6 +1,6 @@
 # Backlog
 
-Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [001-learning-suite](delivery/001-learning-suite/plan.md).
+Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [001-learning-suite](delivery/001-learning-suite/plan.md), [002-japanese-translate](delivery/002-japanese-translate/plan.md).
 
 | ID | Release | Item | Size | Status |
 | --- | --- | --- | --- | --- |
@@ -23,3 +23,6 @@ Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [00
 | PARLEY-17 | v0.2.0 | Continue PARLEY-14: one `modelTimeout` that returns on time even if the model ignores cancellation; session reset | S | done (9.0) |
 | PARLEY-18 | v0.2.0 | Continue PARLEY-6: AI generation cut for v0.2.0 (circuit breaker), reading XP once per passage per day | S | done (9.0) |
 | PARLEY-19 | v0.3.0 | AI-written reading passages back on, with a reading case in `make ai-eval` (success rate, time), a cancel button, no retry when cancelled, UUID ids, reject questions whose wrong options are also in the text | M | todo |
+| PARLEY-20 | v0.3.0 | Live interpreter hears Japanese: echo merge for languages without spaces, pronunciation only for English sources, `--source/--target` on `--file`, Japanese `make pipeline` | S | doing |
+| PARLEY-21 | v0.3.0 | "Dịch văn bản & ảnh": type/paste text, open/drop/paste image, region capture → on-device OCR → translation to EN/VI | M | todo |
+| PARLEY-22 | v0.3.0 | Kana readings (furigana) for Japanese source text on the translate screen | S | todo |

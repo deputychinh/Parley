@@ -2,6 +2,7 @@ import AppKit
 import Observation
 import ScreenCaptureKit
 import Speech
+import NaturalLanguage
 import Translation
 
 @Observable @MainActor
@@ -173,7 +174,7 @@ final class Model {
                     do {
                         for try await r in t.module.results {
                             let kept = handle(String(r.text.characters), final: r.isFinal, from: s, offset: r.range.start.seconds)
-                            if s == .mic, kept { pronunciation.record(r.text, language: sourceLocale.identifier) }
+                            if s == .mic, kept, Self.tracksPronunciation(sourceLocale) { pronunciation.record(r.text, language: sourceLocale.identifier) }
                         }
                     } catch { status = "Lỗi nhận giọng nói: \(error.localizedDescription)"; print("ERROR results \(s):", error) }
                 }
@@ -305,10 +306,25 @@ final class Model {
         return true
     }
 
+    /// "Phát âm của tôi" is an English-learning list: other languages heard on the mic stay out of it.
+    nonisolated static func tracksPronunciation(_ source: Locale) -> Bool { source.language.languageCode == .english }
+
+    /// `Parley --file x.aiff [--source ja_JP] [--target en]`; defaults English (US) → Vietnamese.
+    nonisolated static func fileRunLanguages(_ args: [String]) -> (source: Locale, target: Locale.Language) {
+        func value(_ flag: String) -> String? {
+            args.firstIndex(of: flag).flatMap { args.indices.contains($0 + 1) ? args[$0 + 1] : nil }
+        }
+        return (Locale(identifier: value("--source") ?? "en_US"), Locale.Language(identifier: value("--target") ?? "vi"))
+    }
+
     /// True when most words of `a` also appear in `b` (speech recognizers rarely produce identical punctuation).
     nonisolated static func isEcho(_ a: String, of b: String) -> Bool {
+        // NLTokenizer also splits languages written without spaces (Japanese, Chinese, Thai) into words.
         func words(_ s: String) -> Set<String> {
-            Set(s.lowercased().components(separatedBy: CharacterSet.alphanumerics.inverted).filter { !$0.isEmpty })
+            let text = s.lowercased()
+            let tokenizer = NLTokenizer(unit: .word)
+            tokenizer.string = text
+            return Set(tokenizer.tokens(for: text.startIndex..<text.endIndex).map { String(text[$0]) })
         }
         let wa = words(a), wb = words(b)
         guard !wa.isEmpty, !wb.isEmpty else { return false }

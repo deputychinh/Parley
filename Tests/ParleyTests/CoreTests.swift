@@ -24,6 +24,33 @@ import Testing
         #expect(!Model.isEcho("", of: ""))
     }
 
+    /// PARLEY-20 AC2: languages written without spaces still split into words.
+    @Test func detectsSpeakerEchoWithoutSpaces() {
+        #expect(Model.isEcho("明日東京へ行きます。", of: "明日、東京へ行きます"))
+        #expect(Model.isEcho("今日は会議があります", of: "今日は会議があります。"))
+        #expect(!Model.isEcho("今日は会議があります", of: "明日東京へ行きます"))
+        #expect(Model.isEcho("我们明天去北京", of: "我们明天去北京。"))
+        #expect(!Model.isEcho("我们明天去北京", of: "他喜欢喝咖啡"))
+    }
+
+    /// PARLEY-20 AC3: the English pronunciation list only learns from English speech.
+    @Test func tracksPronunciationOnlyForEnglish() {
+        #expect(Model.tracksPronunciation(Locale(identifier: "en_US")))
+        #expect(Model.tracksPronunciation(Locale(identifier: "en_GB")))
+        #expect(!Model.tracksPronunciation(Locale(identifier: "ja_JP")))
+        #expect(!Model.tracksPronunciation(Locale(identifier: "vi_VN")))
+    }
+
+    /// PARLEY-20 AC1/AC4: `--file x --source ja_JP --target vi`; English → Vietnamese without flags.
+    @Test func fileRunLanguagesFromArguments() {
+        let def = Model.fileRunLanguages(["Parley", "--file", "a.aiff"])
+        #expect(def.source.identifier == "en_US" && def.target.languageCode == .vietnamese)
+        let ja = Model.fileRunLanguages(["Parley", "--file", "a.aiff", "--source", "ja_JP", "--target", "en"])
+        #expect(ja.source.identifier == "ja_JP" && ja.target.languageCode == .english)
+        let dangling = Model.fileRunLanguages(["Parley", "--file", "a.aiff", "--source"])
+        #expect(dangling.source.identifier == "en_US")
+    }
+
     @Test func ipaFromCMUdict() {
         #expect(Pronunciation.ipa("hello") == "/həˈloʊ/")
         #expect(Pronunciation.ipa("meeting") == "/ˈmitɪŋ/")

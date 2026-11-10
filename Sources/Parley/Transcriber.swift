@@ -1,7 +1,7 @@
 import AVFoundation
 import Speech
 
-/// On-device English speech-to-text (SpeechAnalyzer). Volatile results give word-by-word latency.
+/// On-device speech-to-text in any SpeechTranscriber locale (SpeechAnalyzer). Volatile results give word-by-word latency.
 final class Transcriber: @unchecked Sendable {
     let module: SpeechTranscriber
     private let analyzer: SpeechAnalyzer

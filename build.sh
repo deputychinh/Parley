@@ -4,7 +4,8 @@ set -euo pipefail
 cd "$(dirname "$0")"
 NAME=$(/usr/libexec/PlistBuddy -c "Print CFBundleName" Info.plist)
 EXE=$(/usr/libexec/PlistBuddy -c "Print CFBundleExecutable" Info.plist)
-swift build -c release
+# shellcheck disable=SC2046 # word-splitting the flags is intended
+swift build -c release -Xswiftc -warnings-as-errors $(scripts/link-flags.sh)
 APP="build/$NAME.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"

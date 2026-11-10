@@ -1,6 +1,6 @@
 # Full Xcode is required (Command Line Tools lack the SwiftUI / FoundationModels macro plugins).
 export DEVELOPER_DIR ?= /Applications/Xcode.app/Contents/Developer
-SWIFT_FLAGS := -Xswiftc -warnings-as-errors
+SWIFT_FLAGS := -Xswiftc -warnings-as-errors $(shell scripts/link-flags.sh)
 
 .PHONY: build test ci offline-guard defaults-guard sandbox-app app run install pipeline ai-eval bench shot shot-test
 
@@ -8,6 +8,8 @@ SHELL := /bin/bash
 build:            ## release build; warnings are errors (also concurrency warnings the flag lets through)
 	mkdir -p .build && set -o pipefail; swift build -c release $(SWIFT_FLAGS) 2>&1 | tee .build/build.log
 	@! grep -n 'warning:' .build/build.log || (echo "build warnings (see above) — fix them"; exit 1)
+	@sdk=$$(xcrun --sdk macosx --show-sdk-version); rec=$$(otool -l .build/release/Parley | awk '/LC_BUILD_VERSION/{f=1} f&&/ sdk /{print $$2; exit}'); \
+	  [ "$$rec" = "$$sdk" ] || { echo "binary records SDK $$rec, expected $$sdk (scripts/link-flags.sh) — Translation would miss packs"; exit 1; }
 
 test:             ## unit tests (Swift Testing); default stores point at a temp folder, never ~/Documents/Parley
 	PARLEY_DATA_DIR="$$(mktemp -d "$${TMPDIR:-/tmp}/parley-test.XXXXXX")" swift test $(SWIFT_FLAGS)
@@ -34,6 +36,10 @@ install:          ## replace /Applications/Parley.app and launch it
 pipeline: build   ## real speech recognition + translation on a synthesized file
 	say -o "$${TMPDIR:-/tmp}/parley-t.aiff" "Good morning everyone, let's start the meeting."
 	.build/release/Parley --file "$${TMPDIR:-/tmp}/parley-t.aiff"
+	@if say -v '?' | grep -q '^Kyoko '; then \
+	  say -v Kyoko -o "$${TMPDIR:-/tmp}/parley-ja.aiff" "おはようございます。今日の会議を始めましょう。" && \
+	  .build/release/Parley --file "$${TMPDIR:-/tmp}/parley-ja.aiff" --source ja_JP --target vi; \
+	else echo "pipeline: no Japanese voice (Kyoko) — Japanese run skipped"; fi
 
 ai-eval: build    ## on-device model checks (needs Apple Intelligence; not in CI)
 	.build/release/Parley --ai-eval
