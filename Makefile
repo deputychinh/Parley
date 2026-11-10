@@ -50,7 +50,7 @@ ai-eval: build    ## on-device model checks (needs Apple Intelligence; not in CI
 	.build/release/Parley --ai-eval
 
 bench:            ## performance workloads (benchmarks/plan.md)
-	PARLEY_DATA_DIR="$$(mktemp -d "$${TMPDIR:-/tmp}/parley-test.XXXXXX")" swift test -c release $(SWIFT_FLAGS) --filter Bench
+	PARLEY_BENCH=1 PARLEY_DATA_DIR="$$(mktemp -d "$${TMPDIR:-/tmp}/parley-test.XXXXXX")" swift test -c release $(SWIFT_FLAGS) --filter Bench
 
 sandbox-app: app  ## build/Parley-sandbox.app: same app, bundle id com.david.parley.sandbox (screenshots and reviews)
 	scripts/sandbox-app.sh

@@ -9,8 +9,13 @@ struct RubySegment: Equatable, Sendable {
 
 /// Kana readings (furigana) for Japanese text, on device: CFStringTokenizer's Latin transcription turned into hiragana.
 enum Furigana {
-    /// The whole text split into segments; only runs with kanji get a reading, and kana written next to the kanji
-    /// (okurigana, e.g. 始**めましょう**) stay outside it.
+    /// Readings are drawn word by word; above this many characters (all paragraphs together) they are skipped, so a
+    /// long text never stalls the window.
+    nonisolated static let limit = 1_000
+
+    /// The whole text as word-sized segments; only runs with kanji get a reading, kana written next to the kanji
+    /// (okurigana, e.g. 始**めましょう**) stays outside it, and a word right after a digit (3月14日: a counter whose
+    /// reading the dictionary gets wrong) gets none.
     nonisolated static func segments(_ text: String) -> [RubySegment] {
         guard !text.isEmpty else { return [] }
         let ns = text as NSString
@@ -22,12 +27,13 @@ enum Furigana {
             let range = CFStringTokenizerGetCurrentTokenRange(tokenizer)
             if range.location > cursor { out.append(RubySegment(text: ns.substring(with: NSRange(location: cursor, length: range.location - cursor)))) }
             let word = ns.substring(with: NSRange(location: range.location, length: range.length))
-            let latin = CFStringTokenizerCopyCurrentTokenAttribute(tokenizer, kCFStringTokenizerAttributeLatinTranscription) as? String
+            let afterDigit = range.location > 0 && isDigit(ns.character(at: range.location - 1))
+            let latin = afterDigit ? nil : CFStringTokenizerCopyCurrentTokenAttribute(tokenizer, kCFStringTokenizerAttributeLatinTranscription) as? String
             out += split(word, reading: latin.flatMap { hiragana($0) })
             cursor = range.location + range.length
         }
         if cursor < ns.length { out.append(RubySegment(text: ns.substring(from: cursor))) }
-        return merge(out)
+        return out
     }
 
     /// `word` with its full reading → kana prefix, kanji core with the remaining reading, kana suffix.
@@ -50,16 +56,16 @@ enum Furigana {
         return [RubySegment(text: prefix), RubySegment(text: core, reading: r), RubySegment(text: suffix)].filter { !$0.text.isEmpty }
     }
 
-    /// Neighbouring segments without a reading become one (fewer views to lay out).
-    nonisolated static func merge(_ segments: [RubySegment]) -> [RubySegment] {
-        segments.reduce(into: []) { out, s in
-            if s.reading == nil, let last = out.last, last.reading == nil { out[out.count - 1].text += s.text } else { out.append(s) }
-        }
-    }
-
+    /// CJK ideographs, including the extension blocks beyond U+FFFF (𠮷), and the repeat mark 々.
     nonisolated static func isKanji(_ c: Character) -> Bool {
         guard let v = c.unicodeScalars.first?.value else { return false }
-        return (0x4E00...0x9FFF).contains(v) || (0x3400...0x4DBF).contains(v) || (0xF900...0xFAFF).contains(v) || v == 0x3005 // 々
+        return (0x4E00...0x9FFF).contains(v) || (0x3400...0x4DBF).contains(v) || (0xF900...0xFAFF).contains(v)
+            || (0x20000...0x3134F).contains(v) || v == 0x3005
+    }
+
+    /// ASCII or full-width digit (one UTF-16 unit).
+    nonisolated static func isDigit(_ unit: unichar) -> Bool {
+        (0x30...0x39).contains(unit) || (0xFF10...0xFF19).contains(unit)
     }
 
     /// Latin transcription → hiragana; nil when letters are left over (the transcription did not convert cleanly).
@@ -77,6 +83,12 @@ enum Furigana {
         let s = m as String
         return s.unicodeScalars.allSatisfy({ (0x3040...0x309F).contains($0.value) || $0.value == 0x30FC }) ? s : nil
     }
+
+    /// Pieces the view lays out: one per word; a long run without a reading (a URL, a long Latin word) is cut into
+    /// characters so it can still wrap.
+    nonisolated static func pieces(_ segments: [RubySegment], longest: Int = 12) -> [RubySegment] {
+        segments.flatMap { s in s.reading == nil && s.text.count > longest ? s.text.map { RubySegment(text: String($0)) } : [s] }
+    }
 }
 
 /// Japanese text with small readings above its kanji, wrapping like a paragraph.
@@ -86,7 +98,7 @@ struct RubyText: View {
 
     var body: some View {
         WrapLayout {
-            ForEach(Array(pieces.enumerated()), id: \.offset) { _, piece in
+            ForEach(Array(Furigana.pieces(segments).enumerated()), id: \.offset) { _, piece in
                 VStack(spacing: 0) {
                     Text(piece.reading ?? " ").font(.caption2).foregroundStyle(.secondary).opacity(piece.reading == nil ? 0 : 1)
                     Text(piece.text).font(font)
@@ -97,39 +109,38 @@ struct RubyText: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(segments.map(\.text).joined())
     }
-
-    /// Text without a reading is cut into single characters so a long run can still wrap.
-    private var pieces: [RubySegment] {
-        segments.flatMap { s in s.reading == nil ? s.text.map { RubySegment(text: String($0)) } : [s] }
-    }
 }
 
-/// Lays children left to right and starts a new line when the width runs out.
+/// Lays children left to right and starts a new line when the width runs out. Child sizes are measured once per
+/// change of children (cache), not on every layout pass.
 struct WrapLayout: Layout {
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let rows = arrange(width: proposal.width ?? .infinity, subviews: subviews)
+    func makeCache(subviews: Subviews) -> [CGSize] { subviews.map { $0.sizeThatFits(.unspecified) } }
+
+    func updateCache(_ cache: inout [CGSize], subviews: Subviews) { cache = makeCache(subviews: subviews) }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout [CGSize]) -> CGSize {
+        let rows = Self.rows(width: proposal.width ?? .infinity, sizes: cache)
         return CGSize(width: rows.map(\.width).max() ?? 0, height: rows.reduce(0) { $0 + $1.height })
     }
 
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout [CGSize]) {
         var y = bounds.minY
-        for row in arrange(width: bounds.width, subviews: subviews) {
+        for row in Self.rows(width: bounds.width, sizes: cache) {
             var x = bounds.minX
             for i in row.items {
-                let size = subviews[i].sizeThatFits(.unspecified)
-                subviews[i].place(at: CGPoint(x: x, y: y + row.height - size.height), proposal: .unspecified)
-                x += size.width
+                subviews[i].place(at: CGPoint(x: x, y: y + row.height - cache[i].height), proposal: .unspecified)
+                x += cache[i].width
             }
             y += row.height
         }
     }
 
-    private struct Row { var items: [Int] = []; var width: CGFloat = 0; var height: CGFloat = 0 }
+    struct Row: Equatable { var items: [Int] = []; var width: CGFloat = 0; var height: CGFloat = 0 }
 
-    private func arrange(width: CGFloat, subviews: Subviews) -> [Row] {
+    /// Greedy line breaking; an item wider than the line gets a line of its own.
+    nonisolated static func rows(width: CGFloat, sizes: [CGSize]) -> [Row] {
         var rows: [Row] = [Row()]
-        for i in subviews.indices {
-            let size = subviews[i].sizeThatFits(.unspecified)
+        for (i, size) in sizes.enumerated() {
             if rows[rows.count - 1].width + size.width > width, !rows[rows.count - 1].items.isEmpty { rows.append(Row()) }
             rows[rows.count - 1].items.append(i)
             rows[rows.count - 1].width += size.width

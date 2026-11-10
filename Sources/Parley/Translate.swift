@@ -134,6 +134,15 @@ enum ScreenRegion {
     private(set) var pairs: [Pair] = []
     private(set) var truncated = false
     private(set) var detected: Locale.Language?
+    /// Kana readings being prepared off the main actor (tests await it).
+    private(set) var readingsTask: Task<Void, Never>?
+    /// Japanese text longer than `Furigana.limit`: translated, but shown without readings.
+    private(set) var readingsSkipped = false
+
+    var hasReadings: Bool { pairs.contains { $0.ruby != nil } }
+
+    /// The readings to draw above a source paragraph: its own when the toggle is on, none otherwise.
+    nonisolated static func shownReading(_ pair: Pair, enabled: Bool) -> [RubySegment]? { enabled ? pair.ruby : nil }
     /// Set → `.translationTask` runs (and shows the system download sheet when a pack is missing).
     private(set) var config: TranslationSession.Configuration?
     /// Bumped per request, so a slower earlier request never writes into a newer one.
@@ -166,12 +175,26 @@ enum ScreenRegion {
         detected = source == nil ? from : nil
         guard let from else { return fail(Self.unknownLanguage) }
         guard from.languageCode != target.languageCode else { return fail(Self.sameLanguage) }
-        let japanese = from.languageCode == .japanese
-        pairs = prepared.paragraphs.enumerated().map { Pair(id: $0.offset, source: $0.element, ruby: japanese ? Furigana.segments($0.element) : nil) }
+        pairs = prepared.paragraphs.enumerated().map { Pair(id: $0.offset, source: $0.element) }
         truncated = prepared.truncated
+        prepareReadings(japanese: from.languageCode == .japanese, paragraphs: prepared.paragraphs)
         phase = .translating
         let next = TranslationSession.Configuration(source: from, target: target)
         if config?.source == next.source, config?.target == next.target { config?.invalidate() } else { config = next }
+    }
+
+    /// Kana readings for a Japanese source, computed off the main actor; dropped when a newer request started.
+    private func prepareReadings(japanese: Bool, paragraphs: [String]) {
+        readingsTask?.cancel()
+        readingsTask = nil
+        readingsSkipped = japanese && paragraphs.reduce(0) { $0 + $1.count } > Furigana.limit
+        guard japanese, !readingsSkipped else { return }
+        let mine = generation
+        readingsTask = Task {
+            let readings = await Task.detached(priority: .userInitiated) { paragraphs.map(Furigana.segments) }.value
+            guard mine == generation, readings.count == pairs.count else { return }
+            for i in pairs.indices { pairs[i].ruby = readings[i] }
+        }
     }
 
     /// Called by `.translationTask` with a session for `config`.
@@ -273,6 +296,8 @@ enum ScreenRegion {
 
     func clear() {
         generation += 1
+        readingsTask?.cancel()
+        readingsSkipped = false
         input = ""
         pairs = []
         truncated = false
@@ -324,9 +349,9 @@ struct TranslateScreen: View {
                     editor
                 }
                 TranscriptCard(title: Model.name(target), code: Model.code(target)) {
-                    if pad.pairs.contains(where: { $0.ruby != nil }) {
-                        Toggle("Hiện cách đọc", isOn: $showReadings)
-                            .toggleStyle(.button).buttonStyle(.borderless)
+                    if pad.hasReadings {
+                        Toggle("Cách đọc", isOn: $showReadings)
+                            .toggleStyle(.checkbox)
                             .help("Hiện cách đọc kana (furigana) gợi ý phía trên chữ Hán — theo từ điển của máy, đôi khi chưa chuẩn")
                     }
                     if pad.phase == .done, !pad.translation.isEmpty {
@@ -480,14 +505,18 @@ struct TranslateScreen: View {
             }
         default:
             ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
+                LazyVStack(alignment: .leading, spacing: 14) {
                     if pad.truncated {
                         Label("Văn bản quá dài — chỉ dịch \(TextTranslation.limit.formatted()) ký tự đầu.", systemImage: "scissors")
                             .font(.callout).foregroundStyle(.orange)
                     }
+                    if pad.readingsSkipped {
+                        Label("Văn bản dài — không hiện cách đọc (tối đa \(Furigana.limit.formatted()) ký tự).", systemImage: "textformat.size.smaller")
+                            .font(.callout).foregroundStyle(.secondary)
+                    }
                     ForEach(pad.pairs) { pair in
                         VStack(alignment: .leading, spacing: 4) {
-                            if showReadings, let ruby = pair.ruby {
+                            if let ruby = TranslatePad.shownReading(pair, enabled: showReadings) {
                                 RubyText(segments: ruby).foregroundStyle(.secondary)
                             } else {
                                 Text(pair.source).font(.callout).foregroundStyle(.secondary)
@@ -500,11 +529,20 @@ struct TranslateScreen: View {
                         }
                         .textSelection(.enabled)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .contextMenu { // readings are drawn word by word, so the source is copied from here
+                            Button("Sao chép câu gốc", systemImage: "doc.on.doc") { Self.copy(pair.source) }
+                            Button("Sao chép bản dịch", systemImage: "doc.on.doc") { Self.copy(pair.target) }.disabled(pair.target.isEmpty)
+                        }
                     }
                 }
                 .padding(18)
             }
         }
+    }
+
+    private static func copy(_ text: String) {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
     }
 
     private func paste() {
