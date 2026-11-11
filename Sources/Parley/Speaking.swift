@@ -1,4 +1,5 @@
 import AVFoundation
+import AppKit
 import Accelerate
 import SwiftUI
 import os
@@ -24,12 +25,22 @@ struct EndPointer: Equatable {
         self.quiet = quiet; self.noSpeech = noSpeech; self.cap = cap
     }
 
+    /// Below this a frame is a dropout (no buffer yet, the engine starting), not a quiet room.
+    nonisolated static let dropout: Float = -150
+    /// The floor follows a louder room slowly (dB per frame), so one quiet moment does not lower the bar for good.
+    nonisolated static let floorRise: Float = 0.3
+
     mutating func feed(level: Float, at t: Double) -> Stop? {
-        let base = min(floor ?? level, level)
+        guard level > Self.dropout else { return timeRule(at: t) } // no audio this frame: only the clock counts
+        let base = min((floor ?? level) + Self.floorRise, level)
         floor = base
         let speech = level > Self.loud || level > max(base + Self.margin, Self.minSpeech)
         run = speech ? run + 1 : 0
         if run >= 2 || (speech && heardSpeech) { heardSpeech = true; lastSpeech = t } // one frame alone: a click
+        return timeRule(at: t)
+    }
+
+    private func timeRule(at t: Double) -> Stop? {
         if t >= cap { return .cap }
         guard heardSpeech else { return t >= noSpeech ? .noSpeech : nil }
         return t - lastSpeech >= quiet ? .silence : nil
@@ -93,16 +104,18 @@ final class MicCheck {
     /// What to tell the learner after a stop: the recognizer's own error wins over "nothing heard".
     nonisolated static func emptyResultMessage(heard: String, error: String?) -> String? {
         guard heard.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
-        return error ?? "Chưa nghe thấy gì — kiểm tra micro (System Settings → Privacy & Security → Microphone) rồi thử lại."
+        return error ?? noSpeech
     }
 
     /// One press: listens until the speaker stops (`quiet` s of silence after speech), nothing is heard for 6 s, `cap`
     /// is reached, or `finish()` (a second press). Returns what was recognized ("" when nothing).
     func listen(language: String, cap: Double, quiet: Double = EndPointer.defaultQuiet) async -> String {
         guard !listening, !busy else { return "" }
-        stopMine()
-        Self.discard(recording)
-        recording = nil
+        reset()
+        var allowed = Self.permission(AVCaptureDevice.authorizationStatus(for: .audio))
+        if allowed == .ask { allowed = await AVCaptureDevice.requestAccess(for: .audio) ? .go : .refuse }
+        permissionDenied = allowed == .refuse
+        guard allowed == .go else { error = Self.denied; return "" }
         let url = Self.attemptURL()
         await start(language: language, recordTo: url)
         guard listening else { return "" }
@@ -121,7 +134,12 @@ final class MicCheck {
         }
         level = 0
         let text = await stop()
-        if reason == .noSpeech, text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { error = Self.noSpeech }
+        if text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            // nothing to replay or score: say why, keep no silent recording
+            Self.discard(recording)
+            recording = nil
+            if reason == .noSpeech || error == nil { error = Self.noSpeech }
+        }
         return text
     }
 
@@ -129,6 +147,33 @@ final class MicCheck {
     func finish() { finishRequested = true }
 
     nonisolated static let noSpeech = "Không nghe thấy tiếng — kiểm tra micro rồi thử lại."
+    nonisolated static let denied = "Parley chưa được dùng micro. Bật Parley trong Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Micro."
+
+    /// Microphone permission was refused: the learner needs "Mở Cài đặt", not "try again".
+    private(set) var permissionDenied = false
+
+    /// What to do before listening: ask once, go on when allowed, stop with `denied` otherwise.
+    enum Permission: Equatable { case ask, go, refuse }
+    nonisolated static func permission(_ status: AVAuthorizationStatus) -> Permission {
+        switch status {
+        case .authorized: .go
+        case .notDetermined: .ask
+        default: .refuse
+        }
+    }
+
+    /// A new card or word: forget the last attempt (its replay, text and message) and stop any playback.
+    func reset() {
+        stopMine()
+        Self.discard(recording)
+        recording = nil
+        heard = nil
+        error = nil
+    }
+
+    func openMicSettings() {
+        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!)
+    }
     /// Caps (seconds) for one word and for a conversation turn.
     nonisolated static let wordCap = 5.0, turnCap = 30.0, turnQuiet = 2.0
 
@@ -233,12 +278,14 @@ final class MicCheck {
 /// The level ring around a mic button: it grows with the voice, so the learner sees Parley hears them.
 struct MicLevel: ViewModifier {
     let mic: MicCheck
+    var active = true   // a list with one mic per row: only the row that is listening
     func body(content: Content) -> some View {
+        let on = mic.listening && active
         content.background {
-            Circle()
+            Capsule()
                 .fill(Color.parley.opacity(0.25))
-                .scaleEffect(mic.listening ? 1 + 0.6 * mic.level : 1)
-                .opacity(mic.listening ? 1 : 0)
+                .scaleEffect(on ? 1 + 0.6 * mic.level : 1)
+                .opacity(on ? 1 : 0)
                 .animation(.easeOut(duration: 0.12), value: mic.level)
                 .accessibilityHidden(true)
         }
@@ -246,14 +293,18 @@ struct MicLevel: ViewModifier {
 }
 
 extension View {
-    func micLevel(_ mic: MicCheck) -> some View { modifier(MicLevel(mic: mic)) }
+    func micLevel(_ mic: MicCheck, active: Bool = true) -> some View { modifier(MicLevel(mic: mic, active: active)) }
 }
 
 /// "Nghe lại giọng tôi" (⌥M): the learner's last attempt, to compare with "Nghe mẫu".
 struct MyVoiceButton: View {
     let mic: MicCheck
     var body: some View {
-        if mic.recording != nil, !mic.listening {
+        if mic.permissionDenied {
+            Button { mic.openMicSettings() } label: { Label("Mở Cài đặt", systemImage: "gear") }
+                .buttonStyle(.glass)
+                .help("Cho phép Parley dùng micro")
+        } else if mic.recording != nil, !mic.listening {
             Button { mic.playingMine ? mic.stopMine() : mic.playMine() } label: {
                 Label(mic.playingMine ? "Dừng" : "Nghe lại giọng tôi", systemImage: mic.playingMine ? "stop.fill" : "person.wave.2")
             }

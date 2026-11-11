@@ -57,6 +57,50 @@ struct EndPointerTests {
         #expect(stop == .cap && abs(t - 5) < 0.01)
     }
 
+    @Test func defaultsArePinned() {
+        // The owner's "nói xong là tự dừng": 1.2 s of quiet, 6 s with nothing, 12 dB over the room.
+        #expect(EndPointer.defaultQuiet == 1.2 && EndPointer.margin == 12 && EndPointer.minSpeech == -50 && EndPointer.loud == -30)
+        var end = EndPointer(cap: 30)
+        #expect(end.quiet == 1.2 && end.noSpeech == 6)
+        var t = 0.0
+        for level: Float in [-60, -60, -25, -25, -25] { t += 0.1; #expect(end.feed(level: level, at: t) == nil) }
+        var stop: EndPointer.Stop?
+        while stop == nil, t < 10 { t += 0.1; stop = end.feed(level: -60, at: t) }
+        #expect(stop == .silence && abs(t - 1.7) < 0.01)
+        #expect(MicCheck.wordCap == 5 && MicCheck.turnCap == 30 && MicCheck.turnQuiet == 2)
+    }
+
+    @Test func aDropoutDoesNotTurnARoomIntoSpeech() {
+        // Engine start: empty frames (−160) must not become the floor, or a −45 room counts as speech until the cap.
+        let levels = [Float](repeating: -160, count: 3) + [Float](repeating: -45, count: 70)
+        #expect(run(levels, cap: 30).0 == .noSpeech)
+        // A room that gets louder raises the floor slowly: a fan switching on is not a voice for long.
+        var end = EndPointer(cap: 60)
+        var t = 0.0
+        for _ in 0..<10 { t += 0.1; _ = end.feed(level: -70, at: t) }
+        var stop: EndPointer.Stop?
+        for _ in 0..<200 where stop == nil { t += 0.1; stop = end.feed(level: -45, at: t) }
+        #expect(stop == .silence) // heard as "speech" at first, then the floor catches up and it ends
+    }
+
+    @Test func micPermission() {
+        #expect(MicCheck.permission(.authorized) == .go)
+        #expect(MicCheck.permission(.notDetermined) == .ask)
+        #expect(MicCheck.permission(.denied) == .refuse && MicCheck.permission(.restricted) == .refuse)
+        #expect(MicCheck.denied.contains("Micro"))
+        #expect(MicCheck.emptyResultMessage(heard: " ", error: nil) == MicCheck.noSpeech)
+        #expect(MicCheck.emptyResultMessage(heard: "ship", error: nil) == nil)
+        #expect(MicCheck.emptyResultMessage(heard: "", error: "lỗi") == "lỗi")
+    }
+
+    @Test func resetForgetsTheLastAttempt() {
+        let mic = MicCheck()
+        mic.heard = "ship"
+        mic.error = "x"
+        mic.reset()
+        #expect(mic.heard == nil && mic.error == nil && mic.recording == nil && !mic.playingMine)
+    }
+
     @Test func levelsInDecibels() {
         let quiet = [Float](repeating: 0, count: 512), full = [Float](repeating: 1, count: 512)
         let tenth = (0..<4800).map { Float(0.1 * sin(Double($0) * 2 * .pi * 440 / 48_000)) }

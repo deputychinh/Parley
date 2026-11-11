@@ -529,7 +529,8 @@ struct ConversationSession: View {
                 .tint(mic.listening ? .red : .parley)
                 .micLevel(mic)
                 .disabled(model.thinking || mic.busy)
-                .help(mic.listening ? "Dừng và gửi" : "Nói câu trả lời")
+                .keyboardShortcut(.space, modifiers: .option) // Space types in the answer field
+                .help(mic.listening ? "Dừng và gửi (⌥Space)" : "Nói câu trả lời (⌥Space) — nói xong là tự gửi")
                 .accessibilityLabel(mic.listening ? "Dừng và gửi" : "Nói câu trả lời")
                 TextField(mic.listening ? "Đang nghe…" : "Gõ câu trả lời bằng tiếng Anh…", text: $draft, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
@@ -537,6 +538,7 @@ struct ConversationSession: View {
                     .focused($focused)
                     .disabled(model.thinking || mic.listening)
                     .onSubmit { Task { await send(draft, spoken: false) } }
+                MyVoiceButton(mic: mic).labelStyle(.iconOnly)
                 Button("Gửi") { Task { await send(draft, spoken: false) } }
                     .buttonStyle(.glassProminent)
                     .keyboardShortcut(.defaultAction)

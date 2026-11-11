@@ -463,6 +463,7 @@ struct ListeningSession: View {
                 }
                 .buttonStyle(.glassProminent)
                 .tint(mic.listening ? .red : .parley)
+                .micLevel(mic)
                 .keyboardShortcut(.defaultAction)
                 .disabled(mic.busy)
                 if mic.listening { Text("Đang nghe…").foregroundStyle(.secondary) }
@@ -545,8 +546,7 @@ struct ListeningSession: View {
         index += 1
         typed = ""
         result = nil
-        mic.heard = nil
-        mic.error = nil
+        mic.reset()
         if index < clips.count { player.play(clips[index], speed: speed) } else { player.stop() }
         focused = true
     }

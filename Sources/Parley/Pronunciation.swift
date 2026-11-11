@@ -171,6 +171,14 @@ struct PronunciationView: View {
         }
         .navigationTitle("Phát âm của tôi")
         .problemBanner(store.problem, vocab.problem)
+        // Space: the word being practised, else the one that needs it most (PARLEY-31)
+        .shortcut(.space) { if let w = keyWord { Task { await retry(w) } } }
+        .onDisappear { Task { _ = await mic.stop(); mic.reset() } }
+    }
+
+    /// The row Space and ⌥R act on.
+    private var keyWord: SpokenWord? {
+        store.needsWork.first { $0.word == active } ?? store.needsWork.first
     }
 
     private func row(_ w: SpokenWord) -> some View {
@@ -208,16 +216,16 @@ struct PronunciationView: View {
             }
             Spacer(minLength: 8)
             HStack(spacing: 8) {
-                SpeakButton { Speaker.speak(w.word, language: lang) }
+                SpeakButton(shortcut: keyWord?.word == w.word) { Speaker.speak(w.word, language: lang) }
                 Button { Task { await retry(w) } } label: {
                     Image(systemName: listening ? "stop.fill" : "mic.fill").font(.title2).frame(width: 44, height: 44)
                 }
                 .buttonStyle(.glassProminent)
                 .buttonBorderShape(.circle)
                 .tint(listening ? .red : .parley)
-                .micLevel(mic)
+                .micLevel(mic, active: listening)
                 .disabled((mic.listening && !listening) || mic.busy)
-                .help("Đọc lại để máy chấm — nói xong là tự dừng")
+                .help("Đọc lại để máy chấm (Space) — nói xong là tự dừng")
                 Menu {
                     Button("Thêm vào Từ vựng để luyện", systemImage: "plus") { Task { await addToVocabulary(w) } }
                         .disabled(vocab.contains(w.word))
@@ -237,6 +245,7 @@ struct PronunciationView: View {
 
     private func retry(_ w: SpokenWord) async {
         if mic.listening { return mic.finish() }
+        if active != w.word { mic.reset() } // another word: its replay is not this one
         active = w.word
         results[w.word] = nil
         let heard = await mic.listen(language: w.language, cap: MicCheck.wordCap)

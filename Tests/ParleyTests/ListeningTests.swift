@@ -185,7 +185,7 @@ import Testing
 
     @Test func recognizerErrorIsNotReplacedByNothingHeard() {
         #expect(MicCheck.emptyResultMessage(heard: "", error: "Nhận dạng giọng nói bị lỗi — thử nói lại.") == "Nhận dạng giọng nói bị lỗi — thử nói lại.")
-        #expect(MicCheck.emptyResultMessage(heard: "  ", error: nil)?.hasPrefix("Chưa nghe thấy gì") == true)
+        #expect(MicCheck.emptyResultMessage(heard: "  ", error: nil) == MicCheck.noSpeech)
         #expect(MicCheck.emptyResultMessage(heard: "hello", error: "x") == nil) // something was heard → grade it
     }
 

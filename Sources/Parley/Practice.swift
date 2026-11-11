@@ -326,6 +326,7 @@ struct PracticeSession: View {
             }
         }
         .animation(.smooth(duration: 0.35), value: index)
+        .onDisappear { Task { _ = await mic.stop(); mic.reset() } } // never keep listening on a closed session
         .task(id: index) {
             focused = true
             guard index < items.count, kinds[index] == .listen else { return }
@@ -493,7 +494,7 @@ struct PracticeSession: View {
             Text(item.term).font(.system(size: 40, weight: .bold)).multilineTextAlignment(.center)
             if let ipa = item.ipa { Text(ipa).font(.title3).foregroundStyle(.secondary) }
             HStack(spacing: 18) {
-                SpeakButton { speak(item) }
+                SpeakButton(shortcut: true) { speak(item) }
                 Button { Task { await toggleMic(item) } } label: {
                     Image(systemName: mic.listening ? "stop.fill" : "mic.fill")
                         .font(.system(size: 30))
@@ -678,8 +679,7 @@ struct PracticeSession: View {
         flipped = false
         hint = 0
         chosen = nil
-        mic.heard = nil
-        mic.error = nil
+        mic.reset()
     }
 }
 
@@ -779,6 +779,7 @@ extension View {
 }
 
 struct SpeakButton: View {
+    var shortcut = false   // ⌥R "Nghe mẫu" where only one model voice is on screen
     let action: () -> Void
     @State private var bounce = 0
 
@@ -788,7 +789,17 @@ struct SpeakButton: View {
         }
         .buttonStyle(.glass)
         .buttonBorderShape(.circle)
-        .help("Nghe phát âm")
+        .modifier(OptionalShortcut(on: shortcut, key: "r", modifiers: .option))
+        .help(shortcut ? "Nghe mẫu (⌥R)" : "Nghe phát âm")
+    }
+}
+
+struct OptionalShortcut: ViewModifier {
+    let on: Bool
+    let key: KeyEquivalent
+    let modifiers: EventModifiers
+    func body(content: Content) -> some View {
+        if on { content.keyboardShortcut(key, modifiers: modifiers) } else { content }
     }
 }
 
