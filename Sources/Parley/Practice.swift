@@ -503,10 +503,12 @@ struct PracticeSession: View {
                 .buttonStyle(.glassProminent)
                 .buttonBorderShape(.circle)
                 .tint(mic.listening ? .red : .parley)
-                .disabled(result != nil)
+                .micLevel(mic)
+                .disabled(result != nil || mic.busy)
                 .keyboardShortcut(.space, modifiers: [])
+                MyVoiceButton(mic: mic)
             }
-            Text(mic.listening ? "Đang nghe… đọc to từ trên (tự dừng sau 4 giây)" : (result == nil ? "Bấm micro (Space) rồi đọc to từ trên" : ""))
+            Text(mic.listening ? "Đang nghe… đọc to từ trên — nói xong là tự dừng" : (result == nil ? "Bấm micro (Space) rồi đọc to từ trên" : ""))
                 .foregroundStyle(.secondary)
             if let error = mic.error { Text(error).font(.callout).foregroundStyle(.red) }
         }
@@ -634,15 +636,10 @@ struct PracticeSession: View {
     }
 
     private func toggleMic(_ item: VocabItem) async {
-        if mic.listening { return await finishSpeaking(item) }
-        await mic.start(language: item.termLanguage)
-        try? await Task.sleep(for: .seconds(4))
-        if mic.listening { await finishSpeaking(item) }
-    }
-
-    private func finishSpeaking(_ item: VocabItem) async {
-        let heard = await mic.stop()
-        guard result == nil else { return }
+        if mic.listening { return mic.finish() }
+        let heard = await mic.listen(language: item.termLanguage, cap: MicCheck.wordCap)
+        guard result == nil, items.indices.contains(index), items[index].id == item.id else { return } // moved on
+        if let message = MicCheck.emptyResultMessage(heard: heard, error: mic.error) { mic.error = message; return }
         record(item, Answer.score(heard: heard, expected: item.term) >= 0.8)
     }
 
@@ -864,96 +861,3 @@ struct Feedback: View {
     }
 }
 
-/// Records the microphone and runs it through on-device speech recognition (pronunciation check).
-@Observable @MainActor
-final class MicCheck {
-    var listening = false
-    var starting = false   // while the recognizer and audio engine come up: a second tap does nothing
-    var stopping = false   // between "stop" and the recognizer's last result: buttons wait
-    var busy: Bool { starting || stopping }
-
-    enum StopAction: Equatable { case ignore, lastResult, stop }
-    /// What `stop()` does: nothing while starting or already stopping (never an older result), the last result when
-    /// not listening, otherwise a real stop.
-    nonisolated static func stopAction(listening: Bool, starting: Bool, stopping: Bool) -> StopAction {
-        if starting || stopping { return .ignore }
-        return listening ? .stop : .lastResult
-    }
-    var heard: String?
-    var error: String?
-    @ObservationIgnored private var failure: String?
-    @ObservationIgnored private var engine: AVAudioEngine?
-    @ObservationIgnored private var transcriber: Transcriber?
-    @ObservationIgnored private var collector: Task<String, Never>?
-
-    /// What to tell the learner after a stop: the recognizer's own error wins over "nothing heard".
-    nonisolated static func emptyResultMessage(heard: String, error: String?) -> String? {
-        guard heard.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
-        return error ?? "Chưa nghe thấy gì — kiểm tra micro (System Settings → Privacy & Security → Microphone) rồi thử lại."
-    }
-
-    func start(language: String) async {
-        guard !listening, !busy else { return }
-        starting = true
-        defer { starting = false }
-        heard = nil
-        error = nil
-        var started: Transcriber?
-        do {
-            let t = try await Transcriber.start(locale: Locale(identifier: language))
-            started = t
-            collector = Task {
-                var out: [String] = []
-                do {
-                    for try await r in t.module.results where r.isFinal { out.append(String(r.text.characters)) }
-                } catch {
-                    await MainActor.run { self.failure = "Nhận dạng giọng nói bị lỗi — thử nói lại." }
-                    print("mic:", error)
-                }
-                return out.joined(separator: " ")
-            }
-            let engine = AVAudioEngine()
-            let input = engine.inputNode
-            input.installTap(onBus: 0, bufferSize: 4096, format: input.outputFormat(forBus: 0), block: Self.tap(t))
-            try engine.start()
-            self.engine = engine
-            transcriber = t
-            listening = true
-        } catch {
-            // clean up what was started so nothing keeps running or leaks
-            collector?.cancel()
-            collector = nil
-            if let started { try? await started.finish() }
-            self.error = "Không mở được micro: \(error.localizedDescription)"
-        }
-    }
-
-    func stop() async -> String {
-        switch Self.stopAction(listening: listening, starting: starting, stopping: stopping) {
-        case .ignore: return ""
-        case .lastResult: return heard ?? ""
-        case .stop: break
-        }
-        stopping = true
-        defer { stopping = false }
-        engine?.inputNode.removeTap(onBus: 0)
-        engine?.stop()
-        engine = nil
-        listening = false
-        do { try await transcriber?.finish() } catch {
-            print("mic finish:", error)
-            failure = failure ?? "Nhận dạng giọng nói bị lỗi — thử nói lại."
-        }
-        transcriber = nil
-        let text = await collector?.value ?? ""
-        collector = nil
-        heard = text
-        if let failure { error = failure; self.failure = nil }
-        return text
-    }
-
-    /// Built outside the main actor: the tap runs on an audio thread.
-    private nonisolated static func tap(_ t: Transcriber) -> AVAudioNodeTapBlock {
-        { buffer, _ in t.feed(buffer) }
-    }
-}

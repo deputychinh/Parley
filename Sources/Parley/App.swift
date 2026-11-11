@@ -169,6 +169,7 @@ struct ParleyApp: App {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppDefaults.removeStaleSandboxDomains()
+        MicCheck.clearAttempts() // learner recordings never outlive the app (PARLEY-31)
         AppDefaults.cleanUpOnSIGTERM()
         Reminder.activity = activity
         activity.onGoalMet = { Reminder.reschedule() }
@@ -181,7 +182,10 @@ struct ParleyApp: App {
         Task.detached(priority: .utility) { _ = Pronunciation.ipa("a") } // warm the 135k-word dictionary off the main thread
     }
 
-    func applicationWillTerminate(_ notification: Notification) { AppDefaults.removeOwnSandboxDomain() }
+    func applicationWillTerminate(_ notification: Notification) {
+        AppDefaults.removeOwnSandboxDomain()
+        MicCheck.clearAttempts()
+    }
 
     // Keep running (and recording) when switching between the main and mini windows; ⌘Q quits.
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }

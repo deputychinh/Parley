@@ -15,7 +15,7 @@ build:            ## release build; warnings are errors (also concurrency warnin
 test:             ## unit tests (Swift Testing); default stores point at a temp folder, never ~/Documents/Parley
 	PARLEY_DATA_DIR="$$(mktemp -d "$${TMPDIR:-/tmp}/parley-test.XXXXXX")" swift test $(SWIFT_FLAGS)
 
-wiring-guard:     ## call sites use the tested decisions (PARLEY-20 pronunciation, PARLEY-21 translation end, PARLEY-22 readings, PARLEY-26 auto-translate)
+wiring-guard:     ## call sites use the tested decisions (PARLEY-20 pronunciation, PARLEY-21 translation end, PARLEY-22 readings, PARLEY-26 auto-translate, PARLEY-31 mic)
 	@grep -q 'if Self.recordsPronunciation(from: s, kept: kept, source: sourceLocale)' Sources/Parley/Model.swift || (echo "Model.start must gate pronunciation.record with recordsPronunciation"; exit 1)
 	@grep -q '            finish(for: mine)' Sources/Parley/Translate.swift && grep -q '                cancelled(for: mine)' Sources/Parley/Translate.swift || (echo "TranslatePad.run must end through finish(for:) / cancelled(for:) (PARLEY-21)"; exit 1)
 	@grep -q 'if let ruby = TranslatePad.shownReading(pair, enabled: showReadings)' Sources/Parley/Translate.swift || (echo "TranslateScreen must draw readings through TranslatePad.shownReading (PARLEY-22)"; exit 1)
@@ -23,6 +23,8 @@ wiring-guard:     ## call sites use the tested decisions (PARLEY-20 pronunciatio
 	@grep -q 'await pad.autoTranslate(after: TranslatePad.autoDelay, source: source, target: target, supported: supported,' Sources/Parley/Translate.swift && grep -q 'busy: pad.busy' Sources/Parley/Translate.swift || (echo "TranslateScreen must auto-translate through TranslatePad.autoTranslate, re-run when busy changes (PARLEY-26)"; exit 1)
 	@grep -q 'ready: { !Self.composing() })' Sources/Parley/Translate.swift || (echo "TranslateScreen must wait while an input method is converting (PARLEY-26)"; exit 1)
 	@grep -q 'Self.announcement(for: phase, automatic: pad.automatic)' Sources/Parley/Translate.swift || (echo "TranslateScreen must announce automatic requests quietly (PARLEY-26)"; exit 1)
+	@for f in Practice Pronunciation Listening Conversation; do grep -q 'await mic.listen(' Sources/Parley/$$f.swift || { echo "$$f.swift must use the one-press mic (mic.listen, PARLEY-31)"; exit 1; }; done
+	@! grep -n 'mic.start(\|Task.sleep(for: .seconds([34]))' Sources/Parley/Practice.swift Sources/Parley/Pronunciation.swift Sources/Parley/Listening.swift Sources/Parley/Conversation.swift || (echo "no fixed mic windows: use mic.listen (PARLEY-31)"; exit 1)
 
 offline-guard:    ## ADR 0001: no network code in the app
 	@! grep -rnE 'URLSession|NSURLConnection|CFNetwork|NWConnection|NWListener|URLRequest|import Network|https?://' Sources/ || (echo "network code found (ADR 0001)"; exit 1)

@@ -527,7 +527,8 @@ struct ConversationSession: View {
                 .buttonStyle(.glassProminent)
                 .buttonBorderShape(.circle)
                 .tint(mic.listening ? .red : .parley)
-                .disabled(model.thinking)
+                .micLevel(mic)
+                .disabled(model.thinking || mic.busy)
                 .help(mic.listening ? "Dừng và gửi" : "Nói câu trả lời")
                 .accessibilityLabel(mic.listening ? "Dừng và gửi" : "Nói câu trả lời")
                 TextField(mic.listening ? "Đang nghe…" : "Gõ câu trả lời bằng tiếng Anh…", text: $draft, axis: .vertical)
@@ -592,17 +593,15 @@ struct ConversationSession: View {
     }
 
     private func toggleMic() async {
-        if mic.listening {
-            let heard = await mic.stop()
-            if Coach.clean(heard) == nil {
-                mic.error = "Chưa nghe thấy gì — kiểm tra micro rồi thử lại."
-            } else {
-                await send(heard, spoken: true)
-            }
+        if mic.listening { return mic.finish() }
+        mic.error = nil
+        Speaker.stop()
+        // A turn ends after 2 s of quiet (room to think mid-sentence), or a second press.
+        let heard = await mic.listen(language: "en_US", cap: MicCheck.turnCap, quiet: MicCheck.turnQuiet)
+        if Coach.clean(heard) == nil {
+            if mic.error == nil { mic.error = MicCheck.noSpeech }
         } else {
-            mic.error = nil
-            Speaker.stop()
-            await mic.start(language: "en_US")
+            await send(heard, spoken: true)
         }
     }
 

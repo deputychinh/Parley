@@ -370,7 +370,6 @@ struct ListeningSession: View {
     @State private var typed = ""
     @State private var result: [WordDiff.Token]?
     @State private var run: ListeningRun
-    @State private var autoStop: Task<Void, Never>?
     @State private var player = ClipPlayer()
     @State private var mic = MicCheck()
     @FocusState private var focused: Bool
@@ -401,7 +400,6 @@ struct ListeningSession: View {
         }
         .onDisappear {
             player.stop()
-            autoStop?.cancel()
             Task { _ = await mic.stop() }
         }
     }
@@ -475,8 +473,9 @@ struct ListeningSession: View {
                     .disabled(mic.busy)
                     .help("Chuyển sang câu tiếp mà không chấm (khi micro không dùng được)")
             } else {
-                Button("Nói lại") { autoStop?.cancel(); result = nil; mic.heard = nil }
+                Button("Nói lại") { result = nil; mic.heard = nil }
                     .buttonStyle(.glass)
+                MyVoiceButton(mic: mic)
                 Button("Câu tiếp") { next() }
                     .buttonStyle(.glassProminent)
                     .keyboardShortcut(.defaultAction)
@@ -527,33 +526,21 @@ struct ListeningSession: View {
     }
 
     private func toggleMic(_ clip: Clip) async {
-        if mic.listening {
-            autoStop?.cancel()
-            let at = index
-            let heard = await mic.stop()
-            guard at == index, clips.indices.contains(at), clips[at] == clip else { return } // moved on meanwhile
-            if let message = MicCheck.emptyResultMessage(heard: heard, error: mic.error) {
-                mic.error = message
-            } else {
-                check(clip, heard)
-            }
-            return
-        }
+        if mic.listening { return mic.finish() }
         player.stop()
-        await mic.start(language: "en_US")
-        guard mic.listening else { return }
-        // Auto-stop after the sentence's length plus thinking time; cancelled by a manual stop, retry or next.
+        let at = index
+        // Stops when the learner stops talking; the sentence's length plus thinking time is only the cap.
         let limit = ListeningRun.listenLimit(clipDuration: clip.duration, words: clip.text.split(separator: " ").count)
-        autoStop?.cancel()
-        autoStop = Task {
-            try? await Task.sleep(for: .seconds(limit))
-            guard !Task.isCancelled, mic.listening else { return }
-            await toggleMic(clip)
+        let heard = await mic.listen(language: "en_US", cap: limit)
+        guard at == index, clips.indices.contains(at), clips[at] == clip else { return } // moved on meanwhile
+        if let message = MicCheck.emptyResultMessage(heard: heard, error: mic.error) {
+            mic.error = message
+        } else {
+            check(clip, heard)
         }
     }
 
     private func next() {
-        autoStop?.cancel()
         Task { _ = await mic.stop() }
         index += 1
         typed = ""

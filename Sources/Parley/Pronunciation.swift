@@ -204,6 +204,7 @@ struct PronunciationView: View {
                         .foregroundStyle(ok ? .green : .orange)
                 }
                 if let error = mic.error, active == w.word { Text(error).font(.callout).foregroundStyle(.red) }
+                if active == w.word { MyVoiceButton(mic: mic).controlSize(.small) }
             }
             Spacer(minLength: 8)
             HStack(spacing: 8) {
@@ -214,8 +215,9 @@ struct PronunciationView: View {
                 .buttonStyle(.glassProminent)
                 .buttonBorderShape(.circle)
                 .tint(listening ? .red : .parley)
-                .disabled(mic.listening && !listening)
-                .help("Đọc lại để máy chấm")
+                .micLevel(mic)
+                .disabled((mic.listening && !listening) || mic.busy)
+                .help("Đọc lại để máy chấm — nói xong là tự dừng")
                 Menu {
                     Button("Thêm vào Từ vựng để luyện", systemImage: "plus") { Task { await addToVocabulary(w) } }
                         .disabled(vocab.contains(w.word))
@@ -234,16 +236,16 @@ struct PronunciationView: View {
     }
 
     private func retry(_ w: SpokenWord) async {
-        if mic.listening { return await finish(w) }
+        if mic.listening { return mic.finish() }
         active = w.word
         results[w.word] = nil
-        await mic.start(language: w.language)
-        try? await Task.sleep(for: .seconds(3))
-        if mic.listening, active == w.word { await finish(w) }
+        let heard = await mic.listen(language: w.language, cap: MicCheck.wordCap)
+        guard active == w.word else { return }
+        if let message = MicCheck.emptyResultMessage(heard: heard, error: mic.error) { mic.error = message; return }
+        await finish(w, heard: heard)
     }
 
-    private func finish(_ w: SpokenWord) async {
-        let heard = await mic.stop()
+    private func finish(_ w: SpokenWord, heard: String) async {
         let ok = Answer.score(heard: heard, expected: w.word) >= 1
         if ok, (w.streak ?? 0) + 1 >= PronunciationStore.streakToClear {
             results[w.word] = true

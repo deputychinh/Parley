@@ -5,6 +5,7 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 ## [Unreleased]
 
 ### Added
+- One-press mic in every speaking exercise (Học tập, Phát âm của tôi, Nói theo, Hội thoại AI): it stops when you stop talking (1.2 s of quiet, 2 s in conversation), shows a level ring, says so when it hears nothing for 6 s, and "Nghe lại giọng tôi" (⌥M) replays your attempt next to the model; attempts live in a temp folder emptied at launch and quit. (PARLEY-31)
 - "Dịch văn bản & ảnh" translates on its own when text is pasted (⌘V) or typed and has settled for 0.6 s, or a language changes; "Tự dịch" turns it off. (PARLEY-26)
 - "Mỗi ngày": "Đã biết hết" (asks first) and "Học hết" decide every word left at once. (PARLEY-29)
 - "Học tập": ↩ triggers the main action — flip the card, "Đã nhớ", and "Tiếp" also after a typed answer (Space, 2 and ⌘N still work); grammar lessons start the exercises and close the result with ↩. (PARLEY-30)
