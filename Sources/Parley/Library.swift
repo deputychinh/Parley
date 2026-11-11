@@ -1045,6 +1045,8 @@ struct LessonView: View {
                     }
                     .buttonStyle(.glassProminent)
                     .controlSize(.large)
+                    .keyboardShortcut(.defaultAction)
+                    .help("Làm bài tập (↩)")
                 }
             }
             .padding(24)
@@ -1137,6 +1139,7 @@ struct GrammarQuiz: View {
                             .buttonStyle(.glass)
                         Button(action: onClose) { Label("Xem lại bài học", systemImage: "book") }
                             .buttonStyle(.glassProminent)
+                            .keyboardShortcut(.defaultAction)
                     }
                 }
                 .frame(maxWidth: .infinity)
