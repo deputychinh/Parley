@@ -25,6 +25,8 @@ wiring-guard:     ## call sites use the tested decisions (PARLEY-20 pronunciatio
 	@grep -q 'Self.announcement(for: phase, automatic: pad.automatic)' Sources/Parley/Translate.swift || (echo "TranslateScreen must announce automatic requests quietly (PARLEY-26)"; exit 1)
 	@for f in Practice Pronunciation Listening Conversation; do grep -q 'await mic.listen(' Sources/Parley/$$f.swift || { echo "$$f.swift must use the one-press mic (mic.listen, PARLEY-31)"; exit 1; }; done
 	@for f in Practice Pronunciation Listening Conversation; do grep -q '.micLevel(mic' Sources/Parley/$$f.swift && grep -q 'MyVoiceButton(mic: mic)' Sources/Parley/$$f.swift || { echo "$$f.swift: level ring and own-voice replay on every mic (PARLEY-31)"; exit 1; }; done
+	@grep -q 'cap: MicCheck.wordCap' Sources/Parley/Practice.swift && grep -q 'cap: MicCheck.wordCap' Sources/Parley/Pronunciation.swift && grep -q '.micLevel(mic, active: listening)' Sources/Parley/Pronunciation.swift && grep -q 'mic.reset()' Sources/Parley/Practice.swift && grep -q 'if mic.permissionDenied { MyVoiceButton(mic: mic) }' Sources/Parley/Listening.swift || (echo "mic caps, per-row ring, per-card reset and 'Mở Cài đặt' before a result (PARLEY-31)"; exit 1)
+	@[ "$$(grep -c 'MicCheck.clearAttempts()' Sources/Parley/App.swift)" = 2 ] || (echo "App.swift must clear learner recordings at launch and quit (PARLEY-31)"; exit 1)
 	@! grep -n 'mic.start(\|Task.sleep(for: .seconds([34]))' Sources/Parley/Practice.swift Sources/Parley/Pronunciation.swift Sources/Parley/Listening.swift Sources/Parley/Conversation.swift || (echo "no fixed mic windows: use mic.listen (PARLEY-31)"; exit 1)
 
 offline-guard:    ## ADR 0001: no network code in the app

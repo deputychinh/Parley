@@ -32,9 +32,10 @@ struct EndPointer: Equatable {
 
     mutating func feed(level: Float, at t: Double) -> Stop? {
         guard level > Self.dropout else { return timeRule(at: t) } // no audio this frame: only the clock counts
-        let base = min((floor ?? level) + Self.floorRise, level)
-        floor = base
+        let base = min(floor ?? level, level)
         let speech = level > Self.loud || level > max(base + Self.margin, Self.minSpeech)
+        // The floor follows a louder room only on frames that are not speech: a long, quiet sentence is never cut.
+        floor = speech ? base : min(base + Self.floorRise, level)
         run = speech ? run + 1 : 0
         if run >= 2 || (speech && heardSpeech) { heardSpeech = true; lastSpeech = t } // one frame alone: a click
         return timeRule(at: t)
@@ -91,7 +92,7 @@ final class MicCheck {
     /// 0…1 for the level ring while listening.
     var level: Double = 0
     /// The last attempt's audio ("Nghe lại giọng tôi"); deleted when the next attempt starts and at launch / quit.
-    private(set) var recording: URL?
+    var recording: URL?
     var playingMine = false
     @ObservationIgnored private var failure: String?
     @ObservationIgnored private var finishRequested = false
@@ -134,13 +135,16 @@ final class MicCheck {
         }
         level = 0
         let text = await stop()
-        if text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            // nothing to replay or score: say why, keep no silent recording
-            Self.discard(recording)
-            recording = nil
-            if reason == .noSpeech || error == nil { error = Self.noSpeech }
-        }
+        let outcome = Self.ended(text: text, error: error)
+        if !outcome.keep { Self.discard(recording); recording = nil }
+        error = outcome.error
         return text
+    }
+
+    /// After an attempt: nothing recognized → keep no (silent) recording and say why; a recognizer error wins.
+    nonisolated static func ended(text: String, error: String?) -> (keep: Bool, error: String?) {
+        guard text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return (true, error) }
+        return (false, error ?? noSpeech)
     }
 
     /// A second press while listening: end now and score what was said.

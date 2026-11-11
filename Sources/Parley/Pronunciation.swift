@@ -244,6 +244,7 @@ struct PronunciationView: View {
     }
 
     private func retry(_ w: SpokenWord) async {
+        guard !mic.busy else { return } // Space while the mic starts or stops: nothing, never a false "nothing heard"
         if mic.listening { return mic.finish() }
         if active != w.word { mic.reset() } // another word: its replay is not this one
         active = w.word

@@ -468,6 +468,7 @@ struct ListeningSession: View {
                 .disabled(mic.busy)
                 if mic.listening { Text("Đang nghe…").foregroundStyle(.secondary) }
                 if mic.stopping { ProgressView().controlSize(.small) }
+                if mic.permissionDenied { MyVoiceButton(mic: mic) } // "Mở Cài đặt" before any result
                 Spacer()
                 Button("Bỏ qua câu này") { next() }
                     .buttonStyle(.borderless)

@@ -24,13 +24,20 @@ model.
   new card or word, dropout frames skipped and a slowly rising floor, ring only on the listening row, ⌥R / Space /
   ⌥Space, stop on close, wiring guard checks the ring and replay on every screen.
 
+- Round 2 (same reviewer): 8.0 — "Mở Cài đặt" unreachable in Nói theo before a result; the floor rose during speech
+  and cut a steady quiet voice at ~5 s; Space while the mic was busy gave a false "nothing heard". Fixed: the denied
+  button before a result, the floor rises only on non-speech frames (a fan that starts at once runs to the cap — the
+  trade for never cutting a long quiet sentence), `retry` ignores Space while busy, `MicCheck.ended` decides keep /
+  message, tests with a real file and a 10 s quiet sentence, wiring guard for caps, per-row ring, per-card reset,
+  denied button and `clearAttempts` at launch and quit.
+
 ## QA
 | AC | Evidence |
 | --- | --- |
-| AC1 one control, auto-stop, ring | `EndPointerTests.stopsAfterQuietOnceSpeechWasHeard`, `pausesShorterThanQuietDoNotStop`, `speakingFromTheFirstFrameCounts`, `quietVoiceInAQuietRoomCounts`, `defaultsArePinned`, `aDropoutDoesNotTurnARoomIntoSpeech`; `make wiring-guard` (mic.listen, `.micLevel`, `MyVoiceButton` in all four screens) |
+| AC1 one control, auto-stop, ring | `aLongQuietSentenceIsNotCut`, `EndPointerTests.stopsAfterQuietOnceSpeechWasHeard`, `pausesShorterThanQuietDoNotStop`, `speakingFromTheFirstFrameCounts`, `quietVoiceInAQuietRoomCounts`, `defaultsArePinned`, `aDropoutDoesNotTurnARoomIntoSpeech`; `make wiring-guard` (mic.listen, `.micLevel`, `MyVoiceButton` in all four screens) |
 | AC2 nothing in 6 s | `nothingHeardStopsAtSixSeconds`, `oneClickIsNotSpeech`, `micPermission` (message) |
 | AC3 cap | `capEndsALongTurn`, `defaultsArePinned` (5 s / 30 s / 2 s) |
-| AC4 own voice, temp only | `attemptsLiveInOneTempFolderAndAreCleared`, `resetForgetsTheLastAttempt` |
+| AC4 own voice, temp only | `attemptsLiveInOneTempFolderAndAreCleared`, `resetForgetsTheLastAttempt` (real file deleted), `anEmptyAttemptKeepsNoRecordingAndSaysWhy`; `make wiring-guard` (clearAttempts ×2) |
 | AC5 permission | `micPermission` (status → ask / go / refuse) |
 | AC6 pure rules | the tests above; `levelsInDecibels` |
 | Not verified live | a real attempt with the owner's voice — the screen was locked and the sandbox app's mic prompt pending |

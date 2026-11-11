@@ -74,13 +74,17 @@ struct EndPointerTests {
         // Engine start: empty frames (−160) must not become the floor, or a −45 room counts as speech until the cap.
         let levels = [Float](repeating: -160, count: 3) + [Float](repeating: -45, count: 70)
         #expect(run(levels, cap: 30).0 == .noSpeech)
-        // A room that gets louder raises the floor slowly: a fan switching on is not a voice for long.
+        // The floor rises only between words: a room that gets a little louder is followed…
         var end = EndPointer(cap: 60)
         var t = 0.0
         for _ in 0..<10 { t += 0.1; _ = end.feed(level: -70, at: t) }
+        for _ in 0..<5 { t += 0.1; _ = end.feed(level: -61, at: t) } // 9 dB up: not speech, the floor climbs
+        #expect((end.floor ?? -99) > -70)
+        // …while a steady loud sound that starts at once (a fan) counts as a voice and only the cap ends it —
+        // the trade for never cutting a long, quiet sentence (aLongQuietSentenceIsNotCut).
         var stop: EndPointer.Stop?
-        for _ in 0..<200 where stop == nil { t += 0.1; stop = end.feed(level: -45, at: t) }
-        #expect(stop == .silence) // heard as "speech" at first, then the floor catches up and it ends
+        for _ in 0..<700 where stop == nil { t += 0.1; stop = end.feed(level: -45, at: t) }
+        #expect(stop == .cap)
     }
 
     @Test func micPermission() {
@@ -93,12 +97,34 @@ struct EndPointerTests {
         #expect(MicCheck.emptyResultMessage(heard: "", error: "lỗi") == "lỗi")
     }
 
-    @Test func resetForgetsTheLastAttempt() {
+    @Test func resetForgetsTheLastAttempt() throws {
+        let folder = FileManager.default.temporaryDirectory.appending(path: "parley-attempts-test-\(UUID().uuidString)")
+        let file = MicCheck.attemptURL(in: folder)
+        try Data([1, 2, 3]).write(to: file)
         let mic = MicCheck()
+        mic.recording = file
         mic.heard = "ship"
         mic.error = "x"
         mic.reset()
         #expect(mic.heard == nil && mic.error == nil && mic.recording == nil && !mic.playingMine)
+        #expect(!FileManager.default.fileExists(atPath: file.path)) // the old attempt is gone, not just forgotten
+        MicCheck.clearAttempts(in: folder)
+    }
+
+    @Test func anEmptyAttemptKeepsNoRecordingAndSaysWhy() {
+        #expect(MicCheck.ended(text: " ", error: nil) == (false, MicCheck.noSpeech))
+        #expect(MicCheck.ended(text: "", error: "Nhận dạng lỗi") == (false, "Nhận dạng lỗi"))
+        #expect(MicCheck.ended(text: "ship", error: nil) == (true, nil))
+    }
+
+    @Test func aLongQuietSentenceIsNotCut() {
+        // A steady −42 dBFS voice in a −65 room for 10 s: the floor must not climb under the voice.
+        let levels = [Float](repeating: -65, count: 5) + [Float](repeating: -42, count: 100) + [Float](repeating: -65, count: 20)
+        let (stop, t) = run(levels)
+        #expect(stop == .silence && abs(t - 11.7) < 0.01) // last speech at 10.5 s + 1.2 s
+        // 12 dB over the room is the line: 11 dB over a −70 room (and under −50) is not speech; 13 dB is.
+        #expect(run([Float](repeating: -70, count: 5) + [Float](repeating: -59, count: 70)).0 == .noSpeech)
+        #expect(run([Float](repeating: -62, count: 5) + [Float](repeating: -49, count: 10) + [Float](repeating: -62, count: 20)).0 == .silence)
     }
 
     @Test func levelsInDecibels() {
