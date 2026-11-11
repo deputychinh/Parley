@@ -1,6 +1,6 @@
 # Backlog
 
-Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [001-learning-suite](delivery/001-learning-suite/plan.md), [002-japanese-translate](delivery/002-japanese-translate/plan.md).
+Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [001-learning-suite](delivery/001-learning-suite/plan.md), [002-japanese-translate](delivery/002-japanese-translate/plan.md), [003-speaking-method](delivery/003-speaking-method/plan.md).
 
 | ID | Release | Item | Size | Status |
 | --- | --- | --- | --- | --- |
@@ -34,3 +34,11 @@ Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [00
 | PARLEY-28 | v0.3.1 | Debt from PARLEY-26: screenshots of the empty state with "Tự dịch" on/off and a finished narrow shot, a manual pass with the Japanese input method, a test for the Mini note above 200 lines | S | done (IME pass left to the owner) |
 | PARLEY-29 | v0.3.1 | "Mỗi ngày": decide all words left at once ("Đã biết hết" with a confirmation, "Học hết" for words whose meaning is ready) | XS | done |
 | PARLEY-30 | v0.3.1 | "Học tập": ↩ for the main action (flip, "Đã nhớ", "Tiếp" after typed answers; grammar lesson start and result). Other screens checked: they already have ↩ or have no step-by-step flow | XS | done |
+| PARLEY-31 | v0.4.0 | One-press mic everywhere (auto-stop on silence, level meter) + "Nghe lại giọng tôi" | M | todo |
+| PARLEY-32 | v0.4.0 | "Âm tiếng Anh": IPA chart and a lesson per sound (how to make it, examples, confused with) | M | todo |
+| PARLEY-33 | v0.4.0 | "Luyện âm": minimal pairs for Vietnamese speakers — hear (several voices), then say in a carrier, sound-level feedback | M | todo |
+| PARLEY-34 | v0.4.1 | Sounds and words to review from every speaking drill, spaced (Leitner) | S | todo |
+| PARLEY-35 | v0.4.1 | "Luyện nói hôm nay": the daily routine in method order + "Vì sao" panel; speaking breakdown in Tiến độ | S | todo |
+| PARLEY-36 | v0.4.1 | Stress and intonation: pitch contour over the model, stressed syllable check | M | todo |
+| PARLEY-37 | v0.4.1 | Conversation: unclear spoken words flagged and replayable; accent setting instead of hard-coded en_US | S | todo |
+| PARLEY-38 | later | "Mọi thứ về tiếng Anh": a full course path (grammar, vocabulary, reading, writing) on the same method | L | todo |
