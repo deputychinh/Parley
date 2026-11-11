@@ -50,6 +50,7 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 
 - 2026-11-12 triage — Full (light discover), 2 slices.
 - 2026-11-12 owner added: IPA lessons, "mọi thứ về tiếng Anh" (→ PARLEY-38, later delivery), simplify the mic.
+- 2026-11-12 PARLEY-31 one-press mic — shipped 7.0 under the round-3 rule (6.0 → 8.0 → 7.5 → 7.0), debt PARLEY-39.
 
 ## Rulings (decisions taken without asking)
 

@@ -31,6 +31,30 @@ model.
   message, tests with a real file and a 10 s quiet sentence, wiring guard for caps, per-row ring, per-card reset,
   denied button and `clearAttempts` at launch and quit.
 
+- Round 3 (fresh reviewer, final gate): 7.5 — a skip mid-listen put "nothing heard" on the next sentence; a second
+  press during the permission prompt; the model voice could be recorded; voices overlapped; image-only mic buttons.
+  Fixed (5c0ee92, 86d6989): attempt ids (`reset()` makes a running attempt stale), `pending` during the prompt,
+  `Speaker.stop()` before recording, "Nghe mẫu" stops the replay, Vietnamese labels, pure `finish` / `gate`.
+  5c0ee92 alone broke the mic (start() refused its own pending listen) — fixed in 86d6989 and pinned in the guard.
+- Re-score of round 3: **7.0** — new: a screen closed while the recognizer starts left the mic on (fixed right after,
+  outside the rounds: `listen` stops a mic it opened for a stale attempt; End in Hội thoại resets; guarded).
+  Shipped under the round-3 rule (requirements fit 1, security 0.5, nothing at 0); the rest is PARLEY-39.
+- Scope note: AC1's "new sound lab" uses this mic in PARLEY-33.
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Tests | 0.5 (`listen()` itself has no test seam → PARLEY-39) |
+| 3 | Reliability | 0.5 (open-mic bug fixed after the score) |
+| 4 | Security | 0.5 (same) |
+| 5 | Maintainability | 0.5 |
+| 6 | UX | 1 |
+| 7 | Accessibility | 1 |
+| 8 | Performance | 1 |
+| 9 | Docs | 0.5 |
+| 10 | Delivery | 0.5 (5c0ee92 pushed with a mic that never opened) |
+| | **Total** | **7.0** |
+
 ## QA
 | AC | Evidence |
 | --- | --- |
@@ -38,6 +62,7 @@ model.
 | AC2 nothing in 6 s | `nothingHeardStopsAtSixSeconds`, `oneClickIsNotSpeech`, `micPermission` (message) |
 | AC3 cap | `capEndsALongTurn`, `defaultsArePinned` (5 s / 30 s / 2 s) |
 | AC4 own voice, temp only | `attemptsLiveInOneTempFolderAndAreCleared`, `resetForgetsTheLastAttempt` (real file deleted), `anEmptyAttemptKeepsNoRecordingAndSaysWhy`; `make wiring-guard` (clearAttempts ×2) |
-| AC5 permission | `micPermission` (status → ask / go / refuse) |
+| AC5 permission | `micPermission` (status → ask / go / refuse), `refusedPermissionNeedsSettings`; `make wiring-guard` (gate, denied button before a result) |
+| Skip / reset mid-attempt | `anAbandonedAttemptReportsNothing`; `make wiring-guard` (attempt ids, stale-attempt mic closed, reset on End) |
 | AC6 pure rules | the tests above; `levelsInDecibels` |
 | Not verified live | a real attempt with the owner's voice — the screen was locked and the sandbox app's mic prompt pending |

@@ -132,7 +132,12 @@ final class MicCheck {
         let url = Self.attemptURL()
         await start(language: language, recordTo: url, context: context)
         pending = false
-        guard listening, mine == attempt else { Self.discard(url); return "" }
+        guard listening, mine == attempt else {
+            // closed or skipped while the recognizer was starting: never leave the mic on with nobody listening
+            if listening { _ = await stop() }
+            Self.discard(url)
+            return ""
+        }
         recording = url
         finishRequested = false
         var end = EndPointer(quiet: quiet, cap: cap)

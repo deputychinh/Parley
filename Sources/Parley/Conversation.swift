@@ -405,6 +405,7 @@ struct ConversationSession: View {
     private var header: some View {
         HStack(spacing: 12) {
             Button {
+                mic.reset() // a turn still being recognized must not be sent after the end
                 Task { _ = await mic.stop() }
                 model.end()
                 Speaker.stop()
