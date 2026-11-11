@@ -32,3 +32,5 @@ Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [00
 | PARLEY-26 | v0.3.1 | Translate on paste and typing ("Tự dịch", 0.6 s after the text settles), no retry of the same request | S | done (9.5) |
 | PARLEY-27 | v0.3.1 | Bug: the Mini window could not scroll back down to the last line after scrolling up, and kept only 40 lines | S | done |
 | PARLEY-28 | v0.3.1 | Debt from PARLEY-26: screenshots of the empty state with "Tự dịch" on/off and a finished narrow shot, a manual pass with the Japanese input method, a test for the Mini note above 200 lines | S | todo |
+| PARLEY-29 | v0.3.1 | "Mỗi ngày": decide all words left at once ("Đã biết hết" with a confirmation, "Học hết" for words whose meaning is ready) | XS | done |
+| PARLEY-30 | v0.3.1 | "Học tập": ↩ for the main action (flip, "Đã nhớ", "Tiếp" after typed answers) | XS | done |

@@ -232,7 +232,18 @@ final class StudyStore {
         return (out, c)
     }
 
-    func resolve(_ term: String, learned: Bool, vocab: VocabStore) {
+    /// Today's undecided words; for "Học" only those whose meaning is ready (like the card's own button).
+    func undecided(learnable: Bool) -> [String] {
+        data.batch.filter { data.done[$0] == nil && (!learnable || data.cards[$0]?.meaning != nil) }
+    }
+
+    /// "Đã biết hết" / "Học hết": resolves every undecided word at once, saved once.
+    func resolveAll(learned: Bool, vocab: VocabStore) {
+        for term in undecided(learnable: learned) { resolve(term, learned: learned, vocab: vocab, saving: false) }
+        save()
+    }
+
+    func resolve(_ term: String, learned: Bool, vocab: VocabStore, saving: Bool = true) {
         guard data.done[term] == nil else { return }
         if learned {
             let c = data.cards[term]
@@ -249,7 +260,7 @@ final class StudyStore {
             data.streak = data.lastCompleted == yesterday ? data.streak + 1 : 1
             data.lastCompleted = data.day
         }
-        save()
+        if saving { save() }
     }
 
     /// Meanings (offline translation) and example sentences (curated, else on-device AI) for today's words.
@@ -376,6 +387,7 @@ struct DailyView: View {
     let vocab: VocabStore
     @AppStorage("dailyGoal", store: AppDefaults.store) private var goal = 20
     @AppStorage("startRank", store: AppDefaults.store) private var startRank = 0
+    @State private var confirmKnown = false
 
     var body: some View {
         ScrollView {
@@ -402,7 +414,7 @@ struct DailyView: View {
                         .foregroundStyle(.secondary)
                         .symbolEffect(.pulse)
                 }
-                if study.completedToday { completeBanner }
+                if study.completedToday { completeBanner } else if study.remainingToday > 1 { bulkBar }
                 ForEach(study.data.batch, id: \.self) { term in
                     DailyWordCard(term: term, card: study.data.cards[term], state: study.data.done[term]) { learned in
                         withAnimation(.smooth) { study.resolve(term, learned: learned, vocab: vocab) }
@@ -455,6 +467,29 @@ struct DailyView: View {
         .background(LinearGradient(colors: [Color.parley.opacity(0.14), Color.pink.opacity(0.08)], startPoint: .topLeading, endPoint: .bottomTrailing),
                     in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(Color.parley.opacity(0.2)))
+    }
+
+    /// Deciding 20–50 cards one by one is slow: one click for all that are left.
+    private var bulkBar: some View {
+        let learnable = study.undecided(learnable: true).count
+        return HStack(spacing: 12) {
+            Text("Còn \(study.remainingToday) từ").font(.headline)
+            Spacer()
+            Button { confirmKnown = true } label: { Label("Đã biết hết", systemImage: "checkmark") }
+                .buttonStyle(.glass)
+                .help("Đánh dấu mọi từ còn lại là đã biết — chúng sẽ không xuất hiện lại")
+            Button { withAnimation(.smooth) { study.resolveAll(learned: true, vocab: vocab) } } label: {
+                Label(learnable < study.remainingToday ? "Học hết (\(learnable) từ đã có nghĩa)" : "Học hết", systemImage: "plus")
+            }
+            .buttonStyle(.glassProminent)
+            .disabled(learnable == 0)
+            .help("Thêm mọi từ còn lại vào Học tập")
+        }
+        .confirmationDialog("Đánh dấu \(study.remainingToday) từ còn lại là đã biết?", isPresented: $confirmKnown) {
+            Button("Đã biết hết") { withAnimation(.smooth) { study.resolveAll(learned: false, vocab: vocab) } }
+        } message: {
+            Text("Các từ này sẽ không xuất hiện lại trong Mỗi ngày.")
+        }
     }
 
     private var completeBanner: some View {

@@ -94,6 +94,26 @@ import Testing
         #expect(a.data.days[today] == ["grammar": 12, "vocabulary": 5])
     }
 
+    /// PARLEY-29: one click resolves every undecided word; "Học hết" skips words whose meaning is not ready.
+    @Test func dailyWordsResolveAllAtOnce() throws {
+        var seed = StudyData()
+        seed.day = StudyStore.day(.now)
+        seed.batch = ["agenda", "leak", "deploy", "the"]
+        seed.cards = ["agenda": DailyCard(meaning: "chương trình"), "leak": DailyCard(meaning: "rò rỉ"), "the": DailyCard(meaning: "")]
+        let url = TestData.file("study.json")
+        try JSONEncoder().encode(seed).write(to: url)
+        let s = StudyStore(file: url)
+        let v = VocabStore(file: TestData.file("v-all.json"))
+        s.resolve("agenda", learned: false, vocab: v) // already decided: left alone
+        #expect(s.undecided(learnable: true) == ["leak", "the"])
+        s.resolveAll(learned: true, vocab: v)
+        #expect(Set(v.items.map(\.term)) == ["leak", "the"] && s.data.done == ["agenda": false, "leak": true, "the": true])
+        #expect(!s.completedToday) // "deploy" has no meaning yet
+        s.resolveAll(learned: false, vocab: v)
+        #expect(s.completedToday && s.data.known == ["agenda", "deploy"] && s.data.streak == 1)
+        #expect(StudyStore(file: url).data.done.count == 4) // saved
+    }
+
     @Test func pronunciationRetryLogsXP() {
         let a = fresh()
         let p = PronunciationStore(file: TestData.file("pron.json"), activity: a)

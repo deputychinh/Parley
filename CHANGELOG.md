@@ -6,6 +6,8 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 
 ### Added
 - "Dịch văn bản & ảnh" translates on its own when text is pasted (⌘V) or typed and has settled for 0.6 s, or a language changes; "Tự dịch" turns it off. (PARLEY-26)
+- "Mỗi ngày": "Đã biết hết" (asks first) and "Học hết" decide every word left at once. (PARLEY-29)
+- "Học tập": ↩ triggers the main action — flip the card, "Đã nhớ", and "Tiếp" also after a typed answer (Space, 2 and ⌘N still work). (PARLEY-30)
 
 ### Fixed
 - The Mini window scrolls all the way back to the last line after scrolling up (its rows were lazily estimated), and keeps the last 200 lines instead of 40, with a note when older lines are only in the main window. (PARLEY-27)

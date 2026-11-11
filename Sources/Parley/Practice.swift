@@ -356,8 +356,9 @@ struct PracticeSession: View {
                     Button { next() } label: { Label("Tiếp", systemImage: "arrow.right") }
                         .buttonStyle(.glassProminent)
                         .controlSize(.large)
-                        .keyboardShortcut(kind.typed ? .init("n", modifiers: .command) : .defaultAction)
-                        .help(kind.typed ? "Tiếp (↩ hoặc ⌘N)" : "Tiếp (↩)")
+                        .keyboardShortcut(.defaultAction)
+                        .shortcut("n", modifiers: .command) { next() }
+                        .help("Tiếp (↩ hoặc ⌘N)")
                 }
             }
         }
@@ -435,16 +436,18 @@ struct PracticeSession: View {
                     Button { rate(item, false) } label: { Label("Chưa nhớ", systemImage: "arrow.uturn.backward").frame(maxWidth: .infinity) }
                         .buttonStyle(.glass).tint(.red).keyboardShortcut("1", modifiers: [])
                     Button { rate(item, true) } label: { Label("Đã nhớ", systemImage: "checkmark").frame(maxWidth: .infinity) }
-                        .buttonStyle(.glassProminent).tint(.green).keyboardShortcut("2", modifiers: [])
+                        .buttonStyle(.glassProminent).tint(.green).keyboardShortcut(.defaultAction)
+                        .shortcut("2") { rate(item, true) }
                 }
                 .controlSize(.large)
-                Text("Phím tắt: 1 = chưa nhớ · 2 = đã nhớ").font(.caption).foregroundStyle(.tertiary).frame(maxWidth: .infinity)
+                Text("Phím tắt: 1 = chưa nhớ · 2 hoặc ↩ = đã nhớ").font(.caption).foregroundStyle(.tertiary).frame(maxWidth: .infinity)
             } else {
                 Button { flipped = true } label: { Label("Lật thẻ", systemImage: "arrow.trianglehead.2.clockwise.rotate.90").frame(maxWidth: .infinity) }
                     .buttonStyle(.glassProminent)
                     .controlSize(.large)
-                    .keyboardShortcut(.space, modifiers: [])
-                Text("Phím tắt: Space").font(.caption).foregroundStyle(.tertiary).frame(maxWidth: .infinity)
+                    .keyboardShortcut(.defaultAction)
+                    .shortcut(.space) { flipped = true }
+                Text("Phím tắt: ↩ hoặc Space").font(.caption).foregroundStyle(.tertiary).frame(maxWidth: .infinity)
             }
         }
     }
@@ -765,6 +768,16 @@ struct Shake: GeometryEffect {
     }
     func effectValue(size: CGSize) -> ProjectionTransform {
         ProjectionTransform(CGAffineTransform(translationX: 8 * sin(shakes * .pi * 4), y: 0))
+    }
+}
+
+extension View {
+    /// A second keyboard shortcut for the same action (a Button takes only one), e.g. ↩ and Space.
+    func shortcut(_ key: KeyEquivalent, modifiers: EventModifiers = [], action: @escaping () -> Void) -> some View {
+        background {
+            Button("", action: action).keyboardShortcut(key, modifiers: modifiers)
+                .opacity(0).frame(width: 0, height: 0).accessibilityHidden(true)
+        }
     }
 }
 
