@@ -47,8 +47,9 @@ offline. All ACs `[macOS]`.
 4. Nothing heard in the slot / carrier not recognized → "Chưa nghe rõ — nói lại cả câu “I said ship again.”", no score.
 5. Results per contrast (trials, correct, last date) persist in `sounds.json` (atomic, unreadable file moved aside);
    XP goes to speaking (10 right, 2 attempt, as other drills).
-6. `Parley --sound-eval`: every pair word said in the carrier by each installed English `say` voice must come back as
-   itself ≥ 90% (CLI, prints misses; like `--ai-eval`, not in CI).
+6. `Parley --sound-eval`: every word "Nói" can ask for, said in the carrier by the installed US and UK `say` voices
+   (Samantha, Daniel), must come back as itself ≥ 90% (CLI, prints misses; other accents reported for information;
+   like `--ai-eval`, not in CI). Words the recognizer always hears as their common partner stay in "Nghe" only.
 
 ## Slice 2 — review, routine, rhythm, use
 
@@ -83,7 +84,7 @@ offline. All ACs `[macOS]`.
 ## Quality targets
 
 - Mic stop → score shown: ≤ 1.5 s p50 on this Mac (M-series), 10 timed sound-lab attempts (debug log timings).
-- `--sound-eval`: ≥ 90% of pair words recognized as themselves per installed voice.
+- `--sound-eval`: ≥ 90% of sayable pair words recognized as themselves for the US and UK model voices.
 - No network code (offline guard); learner audio stays in the temp folder and is deleted after the next attempt.
 
 ## Non-goals

@@ -133,6 +133,17 @@ enum Speaker {
     static func stop() { synth.stopSpeaking(at: .immediate) }
     static var isSpeaking: Bool { synth.isSpeaking }
 
+    /// A chosen voice (several accents in "Luyện âm"); nil = the default English voice.
+    static func speak(_ text: String, voice: AVSpeechSynthesisVoice?) {
+        guard let voice else { return speak(text, language: Locale.Language(identifier: "en-US")) }
+        synth.stopSpeaking(at: .immediate)
+        let u = AVSpeechUtterance(string: text)
+        u.voice = voice
+        let rate = AppDefaults.store.object(forKey: "speechRate") as? Double ?? 0.85
+        u.rate = AVSpeechUtteranceDefaultSpeechRate * Float(rate)
+        synth.speak(u)
+    }
+
     /// `speed` multiplies the user's reading rate (Settings), e.g. 0.75 in listening practice.
     static func speak(_ text: String, language: Locale.Language, speed: Double = 1) {
         synth.stopSpeaking(at: .immediate)

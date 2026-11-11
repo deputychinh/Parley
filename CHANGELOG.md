@@ -5,6 +5,8 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 ## [Unreleased]
 
 ### Added
+- "Âm tiếng Anh": a chart of the 41 sounds on Parley's word cards, each with how to make it (in Vietnamese), what Vietnamese speakers say instead and four examples; sounds that most hurt being understood are marked "Ưu tiên". (PARLEY-32)
+- "Luyện âm": minimal pairs for Vietnamese speakers in priority order (final consonants, -s/-ed, clusters, /s/–/ʃ/, /i/–/ɪ/ … /θ/, /ð/ last) — hear which word several voices say, then say each word in "I said ___ again."; Parley names the sound that changed ("âm /ʃ/ thành /s/", "thiếu âm /t/") and links its lesson. `Parley --sound-eval` checks the recognizer keeps every pair apart. (PARLEY-33)
 - One-press mic in every speaking exercise (Học tập, Phát âm của tôi, Nói theo, Hội thoại AI): it stops when you stop talking (1.2 s of quiet, 2 s in conversation), shows a level ring, says so when it hears nothing for 6 s, and "Nghe lại giọng tôi" (⌥M) replays your attempt next to the model; attempts live in a temp folder emptied at launch and quit. (PARLEY-31)
 - "Dịch văn bản & ảnh" translates on its own when text is pasted (⌘V) or typed and has settled for 0.6 s, or a language changes; "Tự dịch" turns it off. (PARLEY-26)
 - "Mỗi ngày": "Đã biết hết" (asks first) and "Học hết" decide every word left at once. (PARLEY-29)

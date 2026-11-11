@@ -25,6 +25,13 @@ enum Main {
             }
             dispatchMain()
         }
+        if args.contains("--sound-eval") { // PARLEY-33: the recognizer keeps every minimal pair apart (not in CI)
+            Task {
+                do { exit(try await SoundEval.run(only: DebugArgs.value("--sound-eval")) ? 0 : 1) }
+                catch { print("FAIL:", error.localizedDescription); exit(1) }
+            }
+            dispatchMain()
+        }
         if args.contains("--print-data-dir") { // tests: proves `--data-dir` / PARLEY_DATA_DIR reach the app
             print(Model.dataDir.path)
             exit(0)
@@ -121,7 +128,7 @@ struct ParleyApp: App {
 
     var body: some Scene {
         Window(Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Parley", id: "main") {
-            ContentView(model: delegate.model, vocab: delegate.vocab, study: delegate.study, writing: delegate.writing, reading: delegate.reading)
+            ContentView(model: delegate.model, vocab: delegate.vocab, study: delegate.study, writing: delegate.writing, reading: delegate.reading, sounds: delegate.sounds)
                 .environment(delegate.activity)
                 .defaultAppStorage(AppDefaults.store)
                 .frame(minWidth: 480, minHeight: 320)
@@ -155,6 +162,7 @@ struct ParleyApp: App {
     let study: StudyStore
     let writing: WritingStore
     let reading: ReadingStore
+    let sounds: SoundStore
 
     override init() {
         let activity = ActivityStore() // every store logs XP into it
@@ -164,6 +172,7 @@ struct ParleyApp: App {
         study = StudyStore(activity: activity)
         writing = WritingStore(activity: activity)
         reading = ReadingStore(activity: activity)
+        sounds = SoundStore(activity: activity)
         super.init()
     }
 

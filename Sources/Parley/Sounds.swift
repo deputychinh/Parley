@@ -187,19 +187,72 @@ struct IPASound: Identifiable, Hashable {
 // MARK: - Screen "Âm tiếng Anh"
 
 struct SoundsView: View {
+    let store: SoundStore
     @State private var open: IPASound?
+    @State private var lab: ContrastSet?
 
     var body: some View {
         Group {
-            if let open {
-                SoundLesson(sound: open) { withAnimation(.smooth) { self.open = nil } }
-                    .transition(.move(edge: .trailing).combined(with: .opacity))
+            if let lab {
+                SoundLabView(set: lab, store: store, openLesson: { s in withAnimation(.smooth) { self.lab = nil; open = s } }) {
+                    withAnimation(.smooth) { self.lab = nil }
+                }
+                .transition(.move(edge: .trailing).combined(with: .opacity))
+            } else if let open {
+                SoundLesson(sound: open, practise: { set in withAnimation(.smooth) { self.open = nil; lab = set } }) {
+                    withAnimation(.smooth) { self.open = nil }
+                }
+                .transition(.move(edge: .trailing).combined(with: .opacity))
             } else {
                 chart.transition(.opacity)
             }
         }
-        .navigationTitle(open.map { "Âm /\($0.symbol)/" } ?? "Âm tiếng Anh")
-        .task { if let id = DebugArgs.value("--open") { open = IPASound.sound(id) } }
+        .navigationTitle(lab.map { "Luyện âm: \($0.title)" } ?? open.map { "Âm /\($0.symbol)/" } ?? "Âm tiếng Anh")
+        .problemBanner(store.problem)
+        .task {
+            guard let id = DebugArgs.value("--open") else { return }
+            open = IPASound.sound(id)
+            lab = ContrastSet.set(id)
+        }
+    }
+
+    private var practice: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Luyện âm — nghe rồi nói").font(.title3.weight(.semibold))
+                Spacer()
+                if let next = store.next {
+                    Button { withAnimation(.smooth) { lab = next } } label: { Label("Luyện tiếp: \(next.title)", systemImage: "play.fill") }
+                        .buttonStyle(.glassProminent)
+                }
+            }
+            Text("Mỗi lượt: 10 câu nghe phân biệt (nhiều giọng) rồi 10 câu nói. Đạt khi nói đúng từ 80% sau ít nhất 10 lần.")
+                .font(.callout).foregroundStyle(.secondary)
+            ForEach(ContrastSet.all) { set in
+                let s = store.stats[set.id]
+                Button { withAnimation(.smooth) { lab = set } } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: s?.passed == true ? "checkmark.seal.fill" : set.priority == .high ? "star.fill" : "circle")
+                            .foregroundStyle(s?.passed == true ? .green : set.priority == .high ? .orange : .secondary)
+                            .frame(width: 22)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(set.title).font(.headline)
+                            Text(set.why).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                        }
+                        Spacer()
+                        if let s, s.said > 0 {
+                            Text("nói đúng \(Int((s.saidRate * 100).rounded()))%").font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                        }
+                        Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                    }
+                    .padding(12)
+                    .background(.background, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color.primary.opacity(0.08)))
+                    .contentShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 
     private var chart: some View {
@@ -210,6 +263,7 @@ struct SoundsView: View {
                     Text("Ký hiệu IPA ở đây giống hệt ký hiệu trên thẻ từ. Học các âm “Ưu tiên” trước: đó là những âm người Việt hay nói sai nhất và làm người nghe khó hiểu nhất.")
                         .foregroundStyle(.secondary)
                 }
+                practice
                 ForEach(IPASound.Group.allCases) { group in
                     VStack(alignment: .leading, spacing: 10) {
                         Text(group.rawValue).font(.title3.weight(.semibold))
@@ -249,6 +303,7 @@ struct SoundsView: View {
 
 struct SoundLesson: View {
     let sound: IPASound
+    var practise: (ContrastSet) -> Void = { _ in }
     let back: () -> Void
 
     var body: some View {
@@ -271,6 +326,11 @@ struct SoundLesson: View {
                         Label("Người Việt hay nhầm", systemImage: "exclamationmark.triangle").font(.headline).foregroundStyle(.orange)
                         Text(sound.confusedWith)
                     }
+                }
+                if let set = ContrastSet.sets(for: sound.id).first {
+                    Button { practise(set) } label: { Label("Luyện âm này: \(set.title)", systemImage: "mic.fill") }
+                        .buttonStyle(.glassProminent)
+                        .controlSize(.large)
                 }
                 Text("Ví dụ").font(.title3.weight(.semibold))
                 ForEach(sound.examples, id: \.self) { word in

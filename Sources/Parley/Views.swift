@@ -41,6 +41,7 @@ struct ContentView: View {
     let study: StudyStore
     let writing: WritingStore
     let reading: ReadingStore
+    let sounds: SoundStore
     @State private var route: Route? = .live
     @State private var translatePad = TranslatePad() // kept while switching screens
     @State private var columns = NavigationSplitViewVisibility.all
@@ -70,7 +71,7 @@ struct ContentView: View {
                 case .writing: WritingView(store: writing)
                 case .reading: ReadingView(store: reading, vocab: vocab)
                 case .pronunciation: PronunciationView(store: model.pronunciation, vocab: vocab, target: model.target)
-                case .sounds: SoundsView()
+                case .sounds: SoundsView(store: sounds)
                 case .session(let url): SessionView(url: url, vocab: vocab).id(url)
                 }
             }
