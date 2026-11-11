@@ -18,8 +18,9 @@ final class Transcriber: @unchecked Sendable {
 
     /// `recordTo`: also save the raw audio as AAC (.m4a).
     /// `confidence`: tag each word with the recognizer's confidence (used to spot words the user pronounced unclearly).
+    /// `context`: words the speaker may say (a minimal pair: both words, so neither is favoured over the other).
     static func start(locale wanted: Locale = Locale(identifier: "en_US"), recordTo recordURL: URL? = nil,
-                      confidence: Bool = false) async throws -> Transcriber {
+                      confidence: Bool = false, context: [String] = []) async throws -> Transcriber {
         guard let locale = await SpeechTranscriber.supportedLocale(equivalentTo: wanted) else {
             throw Err("Máy không hỗ trợ nhận giọng nói offline cho ngôn ngữ này")
         }
@@ -35,6 +36,11 @@ final class Transcriber: @unchecked Sendable {
         }
         let analyzer = SpeechAnalyzer(modules: [module])
         let (stream, input) = AsyncStream<AnalyzerInput>.makeStream()
+        if !context.isEmpty {
+            let hints = AnalysisContext()
+            hints.contextualStrings[.general] = context
+            try await analyzer.setContext(hints)
+        }
         try await analyzer.start(inputSequence: stream)
         return Transcriber(module: module, analyzer: analyzer, format: format, input: input, recordURL: recordURL)
     }

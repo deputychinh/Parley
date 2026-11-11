@@ -114,7 +114,7 @@ final class MicCheck {
 
     /// One press: listens until the speaker stops (`quiet` s of silence after speech), nothing is heard for 6 s, `cap`
     /// is reached, or `finish()` (a second press). Returns what was recognized ("" when nothing).
-    func listen(language: String, cap: Double, quiet: Double = EndPointer.defaultQuiet) async -> String {
+    func listen(language: String, cap: Double, quiet: Double = EndPointer.defaultQuiet, context: [String] = []) async -> String {
         guard !listening, !busy else { return "" }
         reset()
         Speaker.stop() // the model voice must never be recorded and scored
@@ -130,7 +130,7 @@ final class MicCheck {
             return ""
         }
         let url = Self.attemptURL()
-        await start(language: language, recordTo: url)
+        await start(language: language, recordTo: url, context: context)
         pending = false
         guard listening, mine == attempt else { Self.discard(url); return "" }
         recording = url
@@ -243,15 +243,15 @@ final class MicCheck {
     /// At launch and quit: no attempt outlives the app.
     nonisolated static func clearAttempts(in folder: URL = attemptsFolder) { try? FileManager.default.removeItem(at: folder) }
 
-    func start(language: String, recordTo: URL? = nil) async {
-        guard !listening, !busy else { return }
+    func start(language: String, recordTo: URL? = nil, context: [String] = []) async {
+        guard !listening, !starting, !stopping else { return } // `pending` is listen() itself: go on
         starting = true
         defer { starting = false }
         heard = nil
         error = nil
         var started: Transcriber?
         do {
-            let t = try await Transcriber.start(locale: Locale(identifier: language), recordTo: recordTo)
+            let t = try await Transcriber.start(locale: Locale(identifier: language), recordTo: recordTo, context: context)
             started = t
             collector = Task {
                 var out: [String] = []
