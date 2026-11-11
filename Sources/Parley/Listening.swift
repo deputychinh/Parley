@@ -408,7 +408,7 @@ struct ListeningSession: View {
         Card(padding: 24) {
             VStack(alignment: .leading, spacing: 18) {
                 HStack(spacing: 14) {
-                    Button { player.play(clip, speed: speed) } label: {
+                    Button { mic.stopMine(); player.play(clip, speed: speed) } label: {
                         Image(systemName: player.playing ? "speaker.wave.3.fill" : "play.fill")
                             .font(.title)
                             .frame(width: 44, height: 44)

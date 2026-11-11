@@ -216,7 +216,7 @@ struct PronunciationView: View {
             }
             Spacer(minLength: 8)
             HStack(spacing: 8) {
-                SpeakButton(shortcut: keyWord?.word == w.word) { Speaker.speak(w.word, language: lang) }
+                SpeakButton(shortcut: keyWord?.word == w.word, mic: mic) { Speaker.speak(w.word, language: lang) }
                 Button { Task { await retry(w) } } label: {
                     Image(systemName: listening ? "stop.fill" : "mic.fill").font(.title2).frame(width: 44, height: 44)
                 }
@@ -226,6 +226,7 @@ struct PronunciationView: View {
                 .micLevel(mic, active: listening)
                 .disabled((mic.listening && !listening) || mic.busy)
                 .help("Đọc lại để máy chấm (Space) — nói xong là tự dừng")
+                .accessibilityLabel(listening ? "Dừng" : "Nói “\(w.word)”")
                 Menu {
                     Button("Thêm vào Từ vựng để luyện", systemImage: "plus") { Task { await addToVocabulary(w) } }
                         .disabled(vocab.contains(w.word))

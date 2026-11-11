@@ -78,7 +78,9 @@ final class MicCheck {
     var listening = false
     var starting = false   // while the recognizer and audio engine come up: a second tap does nothing
     var stopping = false   // between "stop" and the recognizer's last result: buttons wait
-    var busy: Bool { starting || stopping }
+    var busy: Bool { starting || stopping || pending }
+    /// From the press until the recognizer runs (the permission prompt included): a second press does nothing.
+    var pending = false
 
     enum StopAction: Equatable { case ignore, lastResult, stop }
     /// What `stop()` does: nothing while starting or already stopping (never an older result), the last result when
@@ -96,6 +98,8 @@ final class MicCheck {
     var playingMine = false
     @ObservationIgnored private var failure: String?
     @ObservationIgnored private var finishRequested = false
+    /// Bumped by `reset()`; `listen` reports only if it is still the current attempt.
+    @ObservationIgnored private(set) var attempt = 0
     @ObservationIgnored private let meter = LevelMeter()
     @ObservationIgnored private var player: AVAudioPlayer?
     @ObservationIgnored private var engine: AVAudioEngine?
@@ -113,13 +117,22 @@ final class MicCheck {
     func listen(language: String, cap: Double, quiet: Double = EndPointer.defaultQuiet) async -> String {
         guard !listening, !busy else { return "" }
         reset()
+        Speaker.stop() // the model voice must never be recorded and scored
+        pending = true
+        let mine = attempt
         var allowed = Self.permission(AVCaptureDevice.authorizationStatus(for: .audio))
         if allowed == .ask { allowed = await AVCaptureDevice.requestAccess(for: .audio) ? .go : .refuse }
-        permissionDenied = allowed == .refuse
-        guard allowed == .go else { error = Self.denied; return "" }
+        let gate = Self.gate(allowed)
+        permissionDenied = gate.denied
+        guard gate.go, mine == attempt else {
+            pending = false
+            if mine == attempt { error = gate.error }
+            return ""
+        }
         let url = Self.attemptURL()
         await start(language: language, recordTo: url)
-        guard listening else { return "" }
+        pending = false
+        guard listening, mine == attempt else { Self.discard(url); return "" }
         recording = url
         finishRequested = false
         var end = EndPointer(quiet: quiet, cap: cap)
@@ -135,10 +148,29 @@ final class MicCheck {
         }
         level = 0
         let text = await stop()
-        let outcome = Self.ended(text: text, error: error)
-        if !outcome.keep { Self.discard(recording); recording = nil }
-        error = outcome.error
+        let plan = Self.finish(text: text, error: error, current: mine == attempt)
+        guard plan.report else { return "" } // skipped or reset meanwhile: say nothing about the next item
+        if plan.discardRecording { Self.discard(recording); recording = nil }
+        error = plan.error
         return text
+    }
+
+    /// What `listen` does once the mic stopped. `current` = no reset / skip happened during the attempt.
+    struct Finish: Equatable {
+        var report: Bool            // false: the attempt was abandoned; touch nothing, return ""
+        var discardRecording: Bool  // nothing recognized: keep no silent recording
+        var error: String?
+    }
+
+    nonisolated static func finish(text: String, error: String?, current: Bool) -> Finish {
+        guard current else { return Finish(report: false, discardRecording: false, error: nil) }
+        let end = ended(text: text, error: error)
+        return Finish(report: true, discardRecording: !end.keep, error: end.error)
+    }
+
+    /// Permission → may we listen, is "Mở Cài đặt" needed, what to say.
+    nonisolated static func gate(_ p: Permission) -> (go: Bool, denied: Bool, error: String?) {
+        p == .go ? (true, false, nil) : (false, true, denied)
     }
 
     /// After an attempt: nothing recognized → keep no (silent) recording and say why; a recognizer error wins.
@@ -168,6 +200,7 @@ final class MicCheck {
 
     /// A new card or word: forget the last attempt (its replay, text and message) and stop any playback.
     func reset() {
+        attempt += 1 // an attempt still finishing belongs to the previous card: it must not report
         stopMine()
         Self.discard(recording)
         recording = nil

@@ -494,7 +494,7 @@ struct PracticeSession: View {
             Text(item.term).font(.system(size: 40, weight: .bold)).multilineTextAlignment(.center)
             if let ipa = item.ipa { Text(ipa).font(.title3).foregroundStyle(.secondary) }
             HStack(spacing: 18) {
-                SpeakButton(shortcut: true) { speak(item) }
+                SpeakButton(shortcut: true, mic: mic) { speak(item) }
                 Button { Task { await toggleMic(item) } } label: {
                     Image(systemName: mic.listening ? "stop.fill" : "mic.fill")
                         .font(.system(size: 30))
@@ -507,6 +507,7 @@ struct PracticeSession: View {
                 .micLevel(mic)
                 .disabled(result != nil || mic.busy)
                 .keyboardShortcut(.space, modifiers: [])
+                .accessibilityLabel(mic.listening ? "Dừng" : "Nói")
                 MyVoiceButton(mic: mic)
             }
             Text(mic.listening ? "Đang nghe… đọc to từ trên — nói xong là tự dừng" : (result == nil ? "Bấm micro (Space) rồi đọc to từ trên" : ""))
@@ -780,11 +781,12 @@ extension View {
 
 struct SpeakButton: View {
     var shortcut = false   // ⌥R "Nghe mẫu" where only one model voice is on screen
+    var mic: MicCheck?     // its "Nghe lại giọng tôi" stops first, so two voices never overlap
     let action: () -> Void
     @State private var bounce = 0
 
     var body: some View {
-        Button { bounce += 1; action() } label: {
+        Button { bounce += 1; mic?.stopMine(); action() } label: {
             Image(systemName: "speaker.wave.2.fill").font(.title2).symbolEffect(.bounce, value: bounce).frame(width: 44, height: 44)
         }
         .buttonStyle(.glass)

@@ -111,6 +111,22 @@ struct EndPointerTests {
         MicCheck.clearAttempts(in: folder)
     }
 
+    @Test func anAbandonedAttemptReportsNothing() {
+        // "Bỏ qua câu này" mid-listen: the attempt ends after the next sentence is on screen — no message there.
+        #expect(MicCheck.finish(text: "", error: nil, current: false) == .init(report: false, discardRecording: false, error: nil))
+        #expect(MicCheck.finish(text: "", error: nil, current: true) == .init(report: true, discardRecording: true, error: MicCheck.noSpeech))
+        #expect(MicCheck.finish(text: "ship", error: nil, current: true) == .init(report: true, discardRecording: false, error: nil))
+        let mic = MicCheck()
+        let before = mic.attempt
+        mic.reset()
+        #expect(mic.attempt == before + 1) // a reset makes any running attempt stale
+    }
+
+    @Test func refusedPermissionNeedsSettings() {
+        #expect(MicCheck.gate(.go) == (true, false, nil))
+        #expect(MicCheck.gate(.refuse) == (false, true, MicCheck.denied))
+    }
+
     @Test func anEmptyAttemptKeepsNoRecordingAndSaysWhy() {
         #expect(MicCheck.ended(text: " ", error: nil) == (false, MicCheck.noSpeech))
         #expect(MicCheck.ended(text: "", error: "Nhận dạng lỗi") == (false, "Nhận dạng lỗi"))
