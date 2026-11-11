@@ -195,6 +195,21 @@ enum Pronunciation {
         return "/" + out.joined(separator: " ") + "/"
     }
 
+    /// CMUdict phones of one word, ARPAbet with stress digits ("SHIH1P"→ ["SH", "IH1", "P"]); nil when unknown.
+    static func phones(_ word: String) -> [String]? {
+        dict[word.lowercased()].map { $0.split(separator: " ").map(String.init) }
+    }
+
+    /// One ARPAbet phone ("AH0", "SH") as IPA ("ə", "ʃ"), the way `ipa(_:)` writes it.
+    static func symbol(_ phone: String) -> String {
+        var base = phone
+        let stress = base.last.flatMap { $0.isNumber ? $0 : nil }
+        if stress != nil { base.removeLast() }
+        if stress == "0", base == "AH" { return "ə" }
+        if stress == "0", base == "ER" { return "ɚ" }
+        return map[base] ?? base.lowercased()
+    }
+
     private static let map: [String: String] = [
         "AA": "ɑ", "AE": "æ", "AH": "ʌ", "AO": "ɔ", "AW": "aʊ", "AY": "aɪ", "B": "b", "CH": "tʃ", "D": "d", "DH": "ð",
         "EH": "ɛ", "ER": "ɝ", "EY": "eɪ", "F": "f", "G": "ɡ", "HH": "h", "IH": "ɪ", "IY": "i", "JH": "dʒ", "K": "k",
