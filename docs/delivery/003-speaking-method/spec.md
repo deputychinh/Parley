@@ -10,8 +10,8 @@ offline. All ACs `[macOS]`.
 ### PARLEY-31 — One-press mic, everywhere, with "Nghe lại giọng tôi"
 
 1. Every speaking exercise (Học tập "Luyện phát âm" and the speak step of "Thử thách", "Phát âm của tôi", Luyện nghe
-   "Nói theo", Hội thoại AI, and the new sound lab) uses one mic control: press it or Space (↩ where Space types) to
-   start; it stops by itself after ~1.2 s of silence once speech was heard, or when pressed again; a level meter shows it
+   "Nói theo", Hội thoại AI, and the new sound lab) uses one mic control: press it or Space (⌥Space in Hội thoại, where Space types; ↩ in
+   "Nói theo") to start; it stops by itself after ~1.2 s of silence once speech was heard, or when pressed again; a level meter shows it
    hears you.
 2. No speech within 6 s → stops with "Không nghe thấy tiếng — kiểm tra micro rồi thử lại" (no score, no XP).
 3. A hard cap per exercise (word ≈ 5 s, sentence = existing `listenLimit`, conversation 30 s) still ends it.

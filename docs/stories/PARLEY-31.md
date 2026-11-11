@@ -16,3 +16,21 @@ model.
   `tmp/parley-attempts/<uuid>.m4a`; the previous one is deleted; the folder is emptied at launch and quit.
 - Views: the mic buttons get a level ring (`.micLevel(mic)`), `MyVoiceButton` ("Nghe lại giọng tôi", ⌥M) after an attempt.
 - Caps: word 5 s (Học tập, Phát âm của tôi), sentence `ListeningRun.listenLimit`, conversation 30 s with 2 s quiet.
+
+## Review rounds
+- Round 1 (independent): 6.0 — AC5 (permission) missing; no ring on "Nói theo", no keys on two screens, ⌥R only on
+  one; the noise floor could sink for good after an empty frame; the previous card's voice replayed on the next;
+  mic kept running after closing a session. Fixed (e145bb9): permission check with "Mở Cài đặt", `reset()` on every
+  new card or word, dropout frames skipped and a slowly rising floor, ring only on the listening row, ⌥R / Space /
+  ⌥Space, stop on close, wiring guard checks the ring and replay on every screen.
+
+## QA
+| AC | Evidence |
+| --- | --- |
+| AC1 one control, auto-stop, ring | `EndPointerTests.stopsAfterQuietOnceSpeechWasHeard`, `pausesShorterThanQuietDoNotStop`, `speakingFromTheFirstFrameCounts`, `quietVoiceInAQuietRoomCounts`, `defaultsArePinned`, `aDropoutDoesNotTurnARoomIntoSpeech`; `make wiring-guard` (mic.listen, `.micLevel`, `MyVoiceButton` in all four screens) |
+| AC2 nothing in 6 s | `nothingHeardStopsAtSixSeconds`, `oneClickIsNotSpeech`, `micPermission` (message) |
+| AC3 cap | `capEndsALongTurn`, `defaultsArePinned` (5 s / 30 s / 2 s) |
+| AC4 own voice, temp only | `attemptsLiveInOneTempFolderAndAreCleared`, `resetForgetsTheLastAttempt` |
+| AC5 permission | `micPermission` (status → ask / go / refuse) |
+| AC6 pure rules | the tests above; `levelsInDecibels` |
+| Not verified live | a real attempt with the owner's voice — the screen was locked and the sandbox app's mic prompt pending |
