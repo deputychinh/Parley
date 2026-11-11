@@ -99,6 +99,7 @@ struct ContentView: View {
                 openSettings()
                 dismissWindow(id: "main")
             }
+            // Put `--mini` last: followed by a flag with a value (`--mini --mini-sample 250`) macOS opens no window at all.
             if DebugArgs.has("--mini") {
                 try? await Task.sleep(for: .seconds(1)) // scenes aren't ready on the very first frame
                 openWindow(id: "mini")
@@ -132,6 +133,12 @@ struct ContentView: View {
                let url = Model.history().first(where: { FileManager.default.fileExists(atPath: Model.media($0, "screen.mov").path) }) {
                 route = .session(url)
             }
+            if let keys = DebugArgs.value("--keys") { // checks: `--keys return,space,2` pressed 2 s apart, as the owner would
+                for key in keys.split(separator: ",") {
+                    try? await Task.sleep(for: .seconds(2))
+                    Self.press(String(key))
+                }
+            }
             guard CommandLine.arguments.contains("--autostart") else { return }
             model.recordScreen = CommandLine.arguments.contains("--record-screen")
             await model.start()
@@ -154,6 +161,21 @@ struct ContentView: View {
         if let s = view as? NSScrollView { return s }
         for sub in view.subviews { if let s = scrollView(in: sub) { return s } }
         return nil
+    }
+
+    /// Debug (`--keys`): one key press sent through the app, as from the keyboard (synthetic events from another
+    /// process need Accessibility access and reach whichever Parley is in front).
+    private static func press(_ name: String) {
+        let keys: [String: (String, UInt16)] = ["return": ("\r", 36), "space": (" ", 49), "escape": ("\u{1b}", 53),
+                                                "1": ("1", 18), "2": ("2", 19), "3": ("3", 20), "4": ("4", 21)]
+        guard let (chars, code) = keys[name],
+              let window = NSApp.windows.first(where: { $0.identifier?.rawValue.hasPrefix("main") == true }) else { return }
+        window.makeKeyAndOrderFront(nil)
+        for type in [NSEvent.EventType.keyDown, .keyUp] {
+            if let e = NSEvent.keyEvent(with: type, location: .zero, modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime,
+                                        windowNumber: window.windowNumber, context: nil, characters: chars,
+                                        charactersIgnoringModifiers: chars, isARepeat: false, keyCode: code) { NSApp.sendEvent(e) }
+        }
     }
 
     /// Debug: the clip-view origin that shows the top or the bottom of the document.

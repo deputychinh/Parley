@@ -9,6 +9,9 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 - "Mỗi ngày": "Đã biết hết" (asks first) and "Học hết" decide every word left at once. (PARLEY-29)
 - "Học tập": ↩ triggers the main action — flip the card, "Đã nhớ", and "Tiếp" also after a typed answer (Space, 2 and ⌘N still work); grammar lessons start the exercises and close the result with ↩. (PARLEY-30)
 
+### Changed
+- Debug flag `--keys return,space,2` presses keys inside the app (screenshot and shortcut checks). (PARLEY-28)
+
 ### Fixed
 - The Mini window scrolls all the way back to the last line after scrolling up (its rows were lazily estimated), and keeps the last 200 lines instead of 40, with a note when older lines are only in the main window. (PARLEY-27)
 

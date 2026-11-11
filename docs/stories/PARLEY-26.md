@@ -34,8 +34,9 @@ As the owner, I paste (⌘V) or type Japanese into "Dịch văn bản & ảnh" a
   (`manualReadsAreAnnouncedAfterAnAutomaticRequest`), the wait repeats while an input method is converting (confirmed
   kana that leave the text unchanged are still translated), the quiet path keeps `detected` and the readings,
   `make wiring-guard` checks `ready: { !Self.composing() }`.
-- Not done: screenshots of the empty state with "Tự dịch" on/off and a finished `translate-narrow.png` (screen locked
-  during the work); a manual pass with the Japanese input method → PARLEY-28.
+- PARLEY-28: `translate-empty.png` (on), `translate-empty-manual.png` (off, "Nhấn ⌘↩ để dịch"), finished
+  `translate-narrow.png`; the Mini note checked at 250 lines ("50 câu cũ hơn…", line 51 at the top, 250 at the bottom).
+  Left to the owner: a pass with the Japanese input method (synthetic keys cannot drive an input method).
 
 | # | Criterion | Score |
 | --- | --- | --- |
