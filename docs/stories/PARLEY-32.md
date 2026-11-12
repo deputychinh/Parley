@@ -24,3 +24,18 @@ Owner: "tôi cần học về các âm IPA".
   /s/ had no middle example; G "normal" among high final stops; AH and IY confusion texts. Fixed: the pair group lays
   out voiceless + voiced side by side (`IPASound.pairs`), chart first and practice after it, "basic", G high, texts;
   tests `examplesShowWhereTheSoundSits`, `pairsSitSideBySide`, P/B/G in the priority test.
+- Round 2 (same reviewer): **9.5 — ship.** Open: retake `sounds.png` with the chart when the screen is unlocked.
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Tests | 1 |
+| 3 | Reliability | 1 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 1 |
+| 6 | UX | 1 |
+| 7 | Accessibility | 1 |
+| 8 | Performance | 1 |
+| 9 | Docs | 0.5 (`sounds.png` predates the new layout) |
+| 10 | Delivery | 1 |
+| | **Total** | **9.5** |
