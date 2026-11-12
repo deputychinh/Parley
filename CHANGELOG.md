@@ -4,6 +4,8 @@ All notable changes to Parley. Format: [Keep a Changelog](https://keepachangelog
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-12
+
 ### Added
 - "Âm tiếng Anh": a chart of the 41 sounds on Parley's word cards, each with how to make it (in Vietnamese), what Vietnamese speakers say instead and four examples; sounds that most hurt being understood are marked "Ưu tiên". (PARLEY-32)
 - "Luyện âm": minimal pairs for Vietnamese speakers in priority order (final consonants, -s/-ed, clusters, /s/–/ʃ/, /i/–/ɪ/ … /θ/, /ð/ last) — hear which word several voices say, then say each word in "I said ___ again."; Parley names the sound that changed ("âm /ʃ/ thành /s/", "thiếu âm /t/") and links its lesson. `Parley --sound-eval` checks the recognizer keeps every pair apart. (PARLEY-33)
