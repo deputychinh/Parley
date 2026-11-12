@@ -43,7 +43,7 @@ struct ContrastSet: Identifiable, Hashable {
         .init(id: "s-sh", title: "/s/ – /ʃ/", why: "“x” tiếng Việt nằm giữa hai âm này; nhầm là thành từ khác: sip – ship.",
               sounds: ["S", "SH"], priority: .high,
               items: [["sip", "ship"], ["see", "she"], ["sell", "shell"], ["sort", "short"], ["save", "shave"], ["seat", "sheet"]]),
-        .init(id: "i-length", title: "/i/ dài – /ɪ/ ngắn", why: "Độ dài nguyên âm đổi nghĩa: leave – live, feel – fill.",
+        .init(id: "i-length", title: "/i/ dài – /ɪ/ ngắn", why: "Độ dài nguyên âm đổi nghĩa: seat – sit, feel – fill.",
               sounds: ["IY", "IH"], priority: .high,
               items: [["sheep", "ship"], ["seat", "sit"], ["least", "list"], ["feel", "fill"], ["heat", "hit"], ["eat", "it"]]),
         .init(id: "l-n", title: "/l/ – /n/", why: "Một số vùng ở Việt Nam lẫn “l” và “n”: light – night.",
@@ -266,6 +266,7 @@ struct SoundLabView: View {
     @State private var outcome: SoundDiff.Result?
     @State private var hearRight = 0
     @State private var sayRight = 0
+    @State private var skipped = 0
     @State private var mic = MicCheck()
     @State private var lesson: IPASound?       // "Xem cách phát âm": a sheet, so the round is kept
     @State private var voices: [AVSpeechSynthesisVoice]
@@ -423,7 +424,7 @@ struct SoundLabView: View {
                 HStack {
                     Spacer()
                     // a denied mic or a carrier never heard must not trap the learner: skip, nothing is scored
-                    Button { advance() } label: { Label("Bỏ qua", systemImage: "forward") }
+                    Button { skipped += 1; advance() } label: { Label("Bỏ qua", systemImage: "forward") }
                         .buttonStyle(.glass)
                         .keyboardShortcut(.rightArrow, modifiers: [])
                         .disabled(mic.listening || mic.busy)
@@ -507,10 +508,11 @@ struct SoundLabView: View {
 
     private var summary: some View {
         VStack(spacing: 14) {
-            Image(systemName: sayRight >= 8 ? "trophy.fill" : "checkmark.seal.fill").font(.system(size: 56))
+            let good = Self.strong(right: sayRight, skipped: skipped)
+            Image(systemName: good ? "trophy.fill" : "checkmark.seal.fill").font(.system(size: 56))
                 .foregroundStyle(Color.parley.gradient)
-            Text("Nghe đúng \(hearRight)/\(LabRound.length) · Nói đúng \(sayRight)/\(LabRound.length)").font(.title2.weight(.bold))
-            Text(sayRight >= 8 ? "Tốt lắm! Nhóm âm này đã khá chắc." : "Xem lại cách phát âm rồi luyện thêm một lượt — nghe “Nghe lại giọng tôi” để so với giọng mẫu.")
+            Text(Self.summary(heard: hearRight, said: sayRight, skipped: skipped)).font(.title2.weight(.bold))
+            Text(good ? "Tốt lắm! Nhóm âm này đã khá chắc." : "Xem lại cách phát âm rồi luyện thêm một lượt — nghe “Nghe lại giọng tôi” để so với giọng mẫu.")
                 .foregroundStyle(.secondary).multilineTextAlignment(.center)
             HStack {
                 Button { restart() } label: { Label("Luyện lại", systemImage: "arrow.clockwise") }.buttonStyle(.glass)
@@ -526,7 +528,22 @@ struct SoundLabView: View {
         round = LabRound.make(set, voices: voices.count, using: &rng)
         hearRight = 0
         sayRight = 0
+        skipped = 0
         step = .hear(0)
+    }
+
+    /// "Nghe đúng 8/10 · Nói đúng 6/8 · bỏ qua 2": skipped words are not counted as said.
+    nonisolated static func summary(heard: Int, said: Int, skipped: Int) -> String {
+        let spoken = LabRound.length - skipped
+        var text = "Nghe đúng \(heard)/\(LabRound.length) · Nói đúng \(said)/\(spoken)"
+        if skipped > 0 { text += " · bỏ qua \(skipped)" }
+        return text
+    }
+
+    /// The trophy: at least 80 % of the words actually said, and at least half the round said.
+    nonisolated static func strong(right: Int, skipped: Int) -> Bool {
+        let spoken = LabRound.length - skipped
+        return spoken * 2 >= LabRound.length && right * 5 >= spoken * 4
     }
 }
 
@@ -535,6 +552,10 @@ struct SoundLabView: View {
 /// Says every pair word in the carrier with each installed system voice (`/usr/bin/say`, fixed path, no shell) and
 /// checks the on-device recognizer writes it back as itself. Gate: ≥ 90 % for the model accents (US, GB); other
 /// accents are reported for information (the recognizer is en_US; a learner aims at a US or UK model).
+extension Duration {
+    var seconds: Double { Double(components.seconds) + Double(components.attoseconds) / 1e18 }
+}
+
 enum SoundEval {
     /// Human English voices the eval tries, when installed (one per accent); the first two gate.
     nonisolated static let voices = ["Samantha", "Daniel", "Karen", "Moira", "Rishi", "Tessa"]
@@ -550,14 +571,17 @@ enum SoundEval {
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: dir) }
         var ok = true
+        var latencies: [Double] = []
         for voice in use {
             var right = 0
             var misses: [String] = []
             for (set, word) in words {
                 let file = dir.appending(path: "\(voice)-\(set.id)-\(word).aiff")
                 try say(ContrastSet.carrier(word), voice: voice, to: file)
-                let heard = try await transcribe(file, context: set.context(for: word))
-                if SoundDiff.compare(target: word, said: heard).same { right += 1 } else { misses.append("\(word) → “\(heard)”") }
+                let (heard, end) = try await transcribe(file, context: set.context(for: word))
+                let same = SoundDiff.compare(target: word, said: heard).same
+                latencies.append(end.duration(to: .now).seconds) // audio ended → score shown
+                if same { right += 1 } else { misses.append("\(word) → “\(heard)”") }
             }
             let rate = Double(right) / Double(max(words.count, 1))
             let gates = gating.contains(voice)
@@ -565,7 +589,10 @@ enum SoundEval {
             for m in misses { print("  miss:", m) }
             if gates, rate < 0.9 { ok = false }
         }
-        print(ok ? "sound-eval: ok" : "sound-eval: FAIL (< 90% for a US/GB voice)")
+        let p50 = SoundEval.percentile(latencies, 0.5), p90 = SoundEval.percentile(latencies, 0.9)
+        print(String(format: "stop → score: p50 %.2f s, p90 %.2f s over %d attempts (target p50 ≤ 1.5 s)", p50, p90, latencies.count))
+        if p50 > 1.5 { ok = false }
+        print(ok ? "sound-eval: ok" : "sound-eval: FAIL (< 90% for a US/GB voice, or too slow)")
         return ok
     }
 
@@ -591,7 +618,14 @@ enum SoundEval {
         return String(decoding: data, as: UTF8.self)
     }
 
-    private static func transcribe(_ file: URL, context: [String]) async throws -> String {
+    nonisolated static func percentile(_ values: [Double], _ p: Double) -> Double {
+        guard !values.isEmpty else { return 0 }
+        let sorted = values.sorted()
+        return sorted[min(sorted.count - 1, Int((Double(sorted.count - 1) * p).rounded()))]
+    }
+
+    /// The text and the instant the audio ended (like the mic stopping).
+    private static func transcribe(_ file: URL, context: [String]) async throws -> (String, ContinuousClock.Instant) {
         let t = try await Transcriber.start(locale: Locale(identifier: "en_US"), context: context)
         let collector = Task {
             var out: [String] = []
@@ -604,7 +638,8 @@ enum SoundEval {
             try audio.read(into: buf)
             t.feed(buf)
         }
+        let end = ContinuousClock.now
         try await t.finish()
-        return try await collector.value.trimmingCharacters(in: .whitespaces)
+        return (try await collector.value.trimmingCharacters(in: .whitespaces), end)
     }
 }

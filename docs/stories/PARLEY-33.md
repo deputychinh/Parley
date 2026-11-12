@@ -24,6 +24,7 @@ Owner: "nên có các bài luyện tập như vậy" (hear, then say, sound-leve
 | 1 plain | 87 % | 93 % | 87 % | 90 % | 81 % | 79 % |
 | 2 + pair hints (`AnalysisContext`), digits → words | 88 % | 94 % | 88 % | 91 % | 82 % | 81 % |
 | 3 + rare words heard only, need → help | **92 %** | **98 %** | 91 % | 93 % | 85 % | 84 % |
+| 4 + least/list, each set's own hints (115 words) | **92 %** | **98 %** | 90 % | 90 % | 84 % | 83 % |
 
 Ruling: the gate is the US and UK model voices (the learner's targets; the recognizer is en_US). den, doze, dare,
 dough and berry are always heard as then, those, there, go, very — `ContrastSet.hearOnly` keeps them in "Nghe" only,
@@ -54,3 +55,8 @@ so a right sound is never marked wrong. "needed" came back as "need it" → the 
   unknown words are misses; changes keep stress (/ə/); no carrier → no score; "Bỏ qua" (→); spec updated; lessons
   open in a sheet; one voices lookup per lab; the eval says each word with its own set's hints; set rows labelled.
 - Not verified: screenshots of "Nói" and the summary (screen locked during the round; `--keys` captures failed).
+- Round 2 (same reviewer): 8.5 — summary counted skipped words as said; "leave – live" still in the set's text; the
+  stop → score target not measured; no story row for least/list. Fixed: "Nói đúng x/y · bỏ qua z" and the trophy
+  only on words said (`summaryCountsOnlyWordsSaid`); text "seat – sit"; `--sound-eval` times audio end → score:
+  **p50 0.05 s, p90 0.05 s over 690 attempts** (target ≤ 1.5 s). With a live mic the end-pointer's 1.2 s of quiet
+  comes first — by design (PARLEY-31), not processing time.

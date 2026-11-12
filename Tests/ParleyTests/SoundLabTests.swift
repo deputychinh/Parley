@@ -88,6 +88,14 @@ struct SoundLabTests {
         #expect(set.context(for: "nothing-here") == ["nothing-here", "I said nothing-here again."])
     }
 
+    @Test func summaryCountsOnlyWordsSaid() {
+        #expect(SoundLabView.summary(heard: 8, said: 6, skipped: 2) == "Nghe đúng 8/10 · Nói đúng 6/8 · bỏ qua 2")
+        #expect(SoundLabView.summary(heard: 10, said: 9, skipped: 0) == "Nghe đúng 10/10 · Nói đúng 9/10")
+        #expect(SoundLabView.strong(right: 8, skipped: 0) && !SoundLabView.strong(right: 7, skipped: 0))
+        #expect(SoundLabView.strong(right: 4, skipped: 5) && !SoundLabView.strong(right: 3, skipped: 6)) // half said at least
+        #expect(SoundEval.percentile([0.4, 0.9, 0.5, 2.0, 0.6], 0.5) == 0.6 && SoundEval.percentile([], 0.5) == 0)
+    }
+
     @Test func unknownWordsNeverPass() {
         let r = SoundDiff.compare(target: "ship", said: "I said ship xyzzyq again")
         #expect(!r.same && r.heard == "ship xyzzyq")
