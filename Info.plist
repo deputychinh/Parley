@@ -2,20 +2,35 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleExecutable</key><string>Parley</string>
-    <key>CFBundleIdentifier</key><string>com.david.parley</string>
-    <key>CFBundleIconFile</key><string>AppIcon</string>
-    <key>CFBundleIconName</key><string>AppIcon</string>
-    <key>CFBundleName</key><string>Parley</string>
-    <key>CFBundleDisplayName</key><string>Parley</string>
-    <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>0.3</string>
-    <key>CFBundleVersion</key><string>3</string>
-    <key>LSApplicationCategoryType</key><string>public.app-category.productivity</string>
-    <key>LSMinimumSystemVersion</key><string>26.0</string>
-    <key>NSHighResolutionCapable</key><true/>
-    <key>NSHumanReadableCopyright</key><string>Pronunciations: CMU Pronouncing Dictionary © Carnegie Mellon University (BSD).</string>
-    <key>NSMicrophoneUsageDescription</key><string>Ghi âm và dịch giọng nói của bạn từ micro.</string>
-    <key>NSSpeechRecognitionUsageDescription</key><string>Nhận giọng nói tiếng Anh ngay trên máy để dịch sang tiếng Việt.</string>
+	<key>CFBundleDisplayName</key>
+	<string>Parley</string>
+	<key>CFBundleExecutable</key>
+	<string>Parley</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.david.parley</string>
+	<key>CFBundleName</key>
+	<string>Parley</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.4.0</string>
+	<key>CFBundleVersion</key>
+	<string>4</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>26.0</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>Pronunciations: CMU Pronouncing Dictionary © Carnegie Mellon University (BSD).</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Ghi âm và dịch giọng nói của bạn từ micro.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Nhận giọng nói tiếng Anh ngay trên máy để dịch sang tiếng Việt.</string>
 </dict>
 </plist>

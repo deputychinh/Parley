@@ -3,3 +3,4 @@ build/
 .DS_Store
 *.m4a
 *.mov
+dist/

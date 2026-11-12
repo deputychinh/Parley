@@ -19,8 +19,9 @@ xcrun actool AppIcon.icon --compile "$APP/Contents/Resources" --platform macosx 
   --app-icon AppIcon --output-partial-info-plist .build/icon-partial.plist >/dev/null
 cp Info.plist "$APP/Contents/"
 # A stable identity keeps macOS privacy permissions across rebuilds; ad-hoc (-) loses them on every build.
-ID="LiveTranslate Local Signing"
-security find-identity -p codesigning | grep -q "$ID" || ID=-
+# PARLEY_SIGN=- (scripts/release.sh): ad-hoc, so no local certificate ends up in a public download.
+ID="${PARLEY_SIGN:-LiveTranslate Local Signing}"
+[ "$ID" = "-" ] || security find-identity -p codesigning | grep -q "$ID" || ID=-
 codesign --force -s "$ID" "$APP"
 echo "Signed with: $ID"
 echo "Built $APP"

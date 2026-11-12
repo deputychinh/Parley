@@ -66,12 +66,54 @@ Phiên dịch realtime mọi âm thanh trên máy Mac (Zoom/Meet/Teams, YouTube,
 - **Lịch sử**: mỗi phiên lưu `<ngày-giờ>.md` (song ngữ) + `-may.m4a` / `-mic.m4a` (ghi âm) + `-screen.mov` (nếu bật Quay màn hình). Chuột phải → Hiện trong Finder / Chuyển vào Thùng rác.
 - **Cửa sổ mini** (⌘⇧P): luôn nổi trên cùng ở góc màn hình, hợp khi đang họp; ⌘⇧0 về cửa sổ đầy đủ.
 
-## Yêu cầu
-- **macOS 26 (Tahoe) trở lên**, máy Mac Apple Silicon.
-- **Xcode 26+** (bản đầy đủ, không chỉ Command Line Tools — cần các macro plugin của SwiftUI / FoundationModels).
-- Câu ví dụ tạo bằng AI cần bật **Apple Intelligence** (không bắt buộc; các tính năng khác vẫn chạy).
+## Tải về và cài đặt
 
-## Cài đặt
+### Máy cần có
+
+| | Tối thiểu | Ghi chú |
+|---|---|---|
+| Máy Mac | **Apple Silicon** (M1, M2, M3, M4 trở lên) | Không chạy trên Mac chip Intel. Kiểm tra:  → *Giới thiệu về máy Mac này* → *Chip*. |
+| Hệ điều hành | **macOS 26 Tahoe** trở lên | Phiên dịch, đọc chữ trong ảnh, nhận giọng nói đều dùng thư viện có sẵn của macOS 26. |
+| Bộ nhớ | 8 GB RAM; trống khoảng **3 GB** | App chỉ 14 MB; phần còn lại là mô hình nhận giọng nói và gói dịch macOS tự tải (mỗi ngôn ngữ vài trăm MB). |
+| Apple Intelligence | Không bắt buộc | Cần cho Hội thoại AI, Luyện viết, câu ví dụ và bài đọc tạo bằng AI (*Cài đặt hệ thống → Apple Intelligence & Siri*, cần thêm ~7 GB). Mọi tính năng khác chạy không cần. |
+| Mạng | Chỉ lần đầu | Để macOS tải mô hình giọng nói và gói dịch. Sau đó Parley chạy **hoàn toàn offline** — không gửi âm thanh hay chữ đi đâu. |
+| Micro, loa / tai nghe | Micro trong máy là đủ | Tai nghe giúp micro không thu lại tiếng loa khi phiên dịch. |
+
+### Cài trong 4 bước
+
+1. **Tải về**: mở [trang Releases](https://github.com/deputychinh/Parley/releases/latest) và tải file
+   `Parley-<phiên-bản>-macOS-arm64.zip` (mục *Assets*).
+2. **Giải nén** (bấm đúp file zip) rồi **kéo `Parley.app` vào thư mục *Applications***.
+3. **Mở lần đầu**: macOS sẽ báo *“Apple không thể kiểm tra Parley…”* vì app chưa được Apple công chứng (notarize —
+   việc này cần tài khoản nhà phát triển trả phí; mã nguồn app nằm công khai ngay tại đây). Cách mở:
+   - Bấm **Xong**, vào ** → Cài đặt hệ thống → Quyền riêng tư & Bảo mật**, kéo xuống mục *Bảo mật*, bấm
+     **Vẫn mở** (*Open Anyway*) cạnh dòng “Parley đã bị chặn”, nhập mật khẩu máy, rồi bấm **Mở**.
+   - Hoặc trong Terminal: `xattr -dr com.apple.quarantine /Applications/Parley.app` rồi mở app như bình thường.
+
+   Chỉ cần làm một lần.
+4. **Cấp quyền** khi app hỏi (hoặc trong *Cài đặt hệ thống → Quyền riêng tư & Bảo mật*):
+   - **Ghi màn hình & âm thanh hệ thống** — để nghe âm thanh cuộc họp / video. Bật xong, mở lại app.
+   - **Micro** — để dịch giọng bạn và chấm phát âm.
+   - Lần đầu chọn một cặp ngôn ngữ, bấm **Tải gói dịch** khi app nhắc.
+
+### Kiểm tra file tải về (không bắt buộc)
+
+Mỗi bản phát hành có file `.sha256` đi kèm. Trong Terminal, ở thư mục chứa file zip:
+```bash
+shasum -a 256 -c Parley-<phiên-bản>-macOS-arm64.zip.sha256
+```
+
+### Cập nhật và gỡ cài đặt
+
+- **Cập nhật**: tải bản mới, kéo đè `Parley.app` vào *Applications*. Dữ liệu học và lịch sử vẫn giữ nguyên.
+- **Dữ liệu** nằm ở `~/Documents/Parley` (từ vựng, tiến độ, phiên đã lưu — đổi được trong *Cài đặt*).
+- **Gỡ**: kéo `Parley.app` vào Thùng rác; xoá thêm `~/Documents/Parley` nếu không cần dữ liệu nữa.
+
+## Build từ mã nguồn (cho lập trình viên)
+
+Cần thêm **Xcode 26+** (bản đầy đủ, không chỉ Command Line Tools — cần các macro plugin của SwiftUI /
+FoundationModels).
+
 ```bash
 git clone https://github.com/deputychinh/Parley.git
 cd Parley
