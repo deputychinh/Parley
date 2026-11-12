@@ -3,7 +3,7 @@ export DEVELOPER_DIR ?= /Applications/Xcode.app/Contents/Developer
 # GNU Make 3.81 does not pass exported variables to $(shell): name the Xcode explicitly.
 SWIFT_FLAGS := -Xswiftc -warnings-as-errors $(shell DEVELOPER_DIR=$(DEVELOPER_DIR) scripts/link-flags.sh)
 
-.PHONY: release-zip build test ci offline-guard defaults-guard wiring-guard sandbox-app app run install pipeline ai-eval bench shot shot-test
+.PHONY: tiktok release-zip build test ci offline-guard defaults-guard wiring-guard sandbox-app app run install pipeline ai-eval bench shot shot-test
 
 SHELL := /bin/bash
 build:            ## release build; warnings are errors (also concurrency warnings the flag lets through)
@@ -52,6 +52,9 @@ run: app
 
 release-zip:      ## make release-zip VERSION=0.4.0 → dist/Parley-0.4.0-macOS-arm64.zip + .sha256 (ad-hoc signed)
 	scripts/release.sh $(VERSION)
+
+tiktok: app       ## docs/video/parley_tiktok.mp4 + .srt: 1080×1920 intro, Vietnamese voice "Linh" (needs ffmpeg, Pillow)
+	python3 scripts/video/tiktok.py
 
 install:          ## replace /Applications/Parley.app and launch it
 	./build.sh install

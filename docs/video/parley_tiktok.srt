@@ -1,0 +1,31 @@
+1
+00:00:00,300 --> 00:00:06,728
+Parley: Họp tiếng Anh mà nghe không kịp? Nói ra thì người ta không hiểu? Để Parley lo cho nha!
+
+2
+00:00:07,728 --> 00:00:15,570
+Parley: Mình là Parley, phiên dịch và luyện nói tiếng Anh ngay trên máy Mac. Không cần mạng, không gửi dữ liệu đi đâu.
+
+3
+00:00:16,570 --> 00:00:25,039
+Parley: Mọi âm thanh trên máy, từ Zoom, Meet tới YouTube, được dịch song song theo thời gian thực. Họp xong vẫn xem lại được.
+
+4
+00:00:26,039 --> 00:00:32,756
+Parley: Dán chữ hay chụp một vùng màn hình, kể cả tiếng Nhật, Parley tự nhận ngôn ngữ và dịch ngay.
+
+5
+00:00:33,756 --> 00:00:42,489
+Parley: Phát âm sai? Học đủ bốn mươi mốt âm tiếng Anh, có hướng dẫn đặt môi lưỡi bằng tiếng Việt, ưu tiên những âm người Việt hay sai.
+
+6
+00:00:43,489 --> 00:00:51,976
+Parley: Luyện cặp âm dễ nhầm, nghe nhiều giọng khác nhau rồi tự nói. Nói ship thành sip, Parley chỉ ra ngay âm nào bị đổi.
+
+7
+00:00:52,976 --> 00:01:00,436
+Parley: Thêm thẻ từ, ngữ pháp và hội thoại với trí tuệ nhân tạo chạy ngay trên máy. Mỗi ngày mười phút là đủ.
+
+8
+00:01:01,436 --> 00:01:06,223
+Parley: Parley. Nghe kịp, nói rõ. Tải miễn phí trên GitHub nha!
