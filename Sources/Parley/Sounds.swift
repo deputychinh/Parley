@@ -37,6 +37,21 @@ struct IPASound: Identifiable, Hashable {
 
     static let all: [IPASound] = vowels + diphthongs + pairs + others
 
+    /// The pair group as (voiceless, voiced) tuples, in table order.
+    static func pairs(_ sounds: [IPASound]) -> [(IPASound, IPASound)] {
+        stride(from: 0, to: sounds.count - 1, by: 2).map { (sounds[$0], sounds[$0 + 1]) }
+    }
+
+    /// Where the sound sits in an example word: "start", "middle", "end".
+    func positions(in word: String) -> Set<String> {
+        let phones = Pronunciation.phones(word) ?? []
+        var out = Set<String>()
+        for (i, p) in phones.enumerated() where matches(p) {
+            out.insert(i == 0 ? "start" : i == phones.count - 1 ? "end" : "middle")
+        }
+        return out
+    }
+
     static func sound(_ id: String) -> IPASound? { all.first { $0.id == id } }
 
     /// The sound a CMUdict phone belongs to.
@@ -46,7 +61,7 @@ struct IPASound: Identifiable, Hashable {
     static let vowels: [IPASound] = [
         .init(id: "IY", group: .longVowel, priority: .high,
               howTo: "Âm “i” kéo dài, môi bành sang hai bên như đang cười, lưỡi cao và căng.",
-              confusedWith: "Đọc ngắn thành /ɪ/: sheep → ship, leave → live.", examples: ["see", "eat", "team", "machine"]),
+              confusedWith: "Đọc ngắn thành /ɪ/: sheep → ship, seat → sit.", examples: ["see", "eat", "team", "machine"]),
         .init(id: "IH", group: .shortVowel, priority: .high,
               howTo: "Âm “i” ngắn và lỏng: miệng thả lỏng, lưỡi thấp hơn /i/ một chút, nghe hơi ngả về “ê”.",
               confusedWith: "Kéo dài thành /i/: ship → sheep, sit → seat.", examples: ["it", "sit", "finish", "women"]),
@@ -58,7 +73,7 @@ struct IPASound: Identifiable, Hashable {
               confusedWith: "Đọc thành “e” hay “a” tiếng Việt: bad → bed.", examples: ["cat", "bad", "apple", "plan"]),
         .init(id: "AH", group: .shortVowel, priority: .normal,
               howTo: "Như “ă/â” ngắn, miệng mở vừa, lưỡi ở giữa; âm này có trọng âm.",
-              confusedWith: "Đọc thành “a” dài: cup → cap, but → bat.", examples: ["cup", "love", "money", "but"]),
+              confusedWith: "Mở miệng quá rộng thành /æ/ hoặc đọc “a” dài: cup → cap, but → bat.", examples: ["cup", "love", "money", "but"]),
         .init(id: "AH0", group: .shortVowel, priority: .high,
               howTo: "Schwa — âm yếu nhất tiếng Anh: “ơ” rất nhẹ và ngắn, miệng thả lỏng hoàn toàn. Chỉ có ở âm tiết KHÔNG nhấn.",
               confusedWith: "Đọc rõ từng chữ cái (a-bao, ba-na-na) làm mất nhịp; người nghe khó tìm âm tiết chính.",
@@ -118,7 +133,7 @@ struct IPASound: Identifiable, Hashable {
         .init(id: "K", group: .pair, priority: .high,
               howTo: "Cuống lưỡi chạm vòm mềm rồi bật hơi; cuối từ phải nghe ra “k”.",
               confusedWith: "Nuốt âm cuối: bike → bai, book → bu.", examples: ["key", "school", "book", "bike"]),
-        .init(id: "G", group: .pair, priority: .normal,
+        .init(id: "G", group: .pair, priority: .high,
               howTo: "Như /k/ nhưng rung, không bật hơi.", confusedWith: "Cuối từ đọc thành /k/ hoặc bỏ: dog → dock.",
               examples: ["go", "again", "big", "dog"]),
         .init(id: "F", group: .pair, priority: .high,
@@ -137,7 +152,7 @@ struct IPASound: Identifiable, Hashable {
               examples: ["this", "they", "mother", "with"]),
         .init(id: "S", group: .pair, priority: .high,
               howTo: "Đầu lưỡi gần lợi trên, thổi hơi xì qua khe hẹp, môi bành. Cực quan trọng ở cuối từ: số nhiều, ngôi thứ ba (works).",
-              confusedWith: "Bỏ “s” cuối: works → work; đọc thành /ʃ/: see → she.", examples: ["see", "bus", "works", "nice"]),
+              confusedWith: "Bỏ “s” cuối: works → work; đọc thành /ʃ/: see → she.", examples: ["see", "basic", "bus", "works"]),
         .init(id: "Z", group: .pair, priority: .high,
               howTo: "Như /s/ nhưng rung, như tiếng ong vo ve. Đuôi -s sau âm hữu thanh đọc /z/: dogs, plays.",
               confusedWith: "Đọc thành /s/ hoặc bỏ: dogs → dog, is → ít.", examples: ["zoo", "easy", "is", "dogs"]),
@@ -194,9 +209,7 @@ struct SoundsView: View {
     var body: some View {
         Group {
             if let lab {
-                SoundLabView(set: lab, store: store, openLesson: { s in withAnimation(.smooth) { self.lab = nil; open = s } }) {
-                    withAnimation(.smooth) { self.lab = nil }
-                }
+                SoundLabView(set: lab, store: store) { withAnimation(.smooth) { self.lab = nil } }
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             } else if let open {
                 SoundLesson(sound: open, practise: { set in withAnimation(.smooth) { self.open = nil; lab = set } }) {
@@ -251,6 +264,8 @@ struct SoundsView: View {
                     .contentShape(RoundedRectangle(cornerRadius: 12))
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("\(set.title)\(s?.passed == true ? ", đã đạt" : set.priority == .high ? ", ưu tiên" : "")")
+                .accessibilityHint(set.why)
             }
         }
     }
@@ -263,15 +278,30 @@ struct SoundsView: View {
                     Text("Ký hiệu IPA ở đây giống hệt ký hiệu trên thẻ từ. Học các âm “Ưu tiên” trước: đó là những âm người Việt hay nói sai nhất và làm người nghe khó hiểu nhất.")
                         .foregroundStyle(.secondary)
                 }
-                practice
+                if let next = store.next {
+                    Button { withAnimation(.smooth) { lab = next } } label: { Label("Luyện âm tiếp: \(next.title)", systemImage: "play.fill") }
+                        .buttonStyle(.glassProminent)
+                }
                 ForEach(IPASound.Group.allCases) { group in
                     VStack(alignment: .leading, spacing: 10) {
                         Text(group.rawValue).font(.title3.weight(.semibold))
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 128), spacing: 10)], spacing: 10) {
-                            ForEach(IPASound.all.filter { $0.group == group }) { sound in tile(sound) }
+                        let sounds = IPASound.all.filter { $0.group == group }
+                        if group == .pair {
+                            // voiceless and voiced side by side, always: /p/ /b/, /t/ /d/ …
+                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 270), spacing: 14)], spacing: 10) {
+                                ForEach(IPASound.pairs(sounds), id: \.0.id) { a, b in
+                                    HStack(spacing: 6) { tile(a); tile(b) }
+                                        .accessibilityElement(children: .contain)
+                                }
+                            }
+                        } else {
+                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 128), spacing: 10)], spacing: 10) {
+                                ForEach(sounds) { sound in tile(sound) }
+                            }
                         }
                     }
                 }
+                practice
             }
             .padding(24)
             .frame(maxWidth: 900, alignment: .leading)
@@ -303,13 +333,14 @@ struct SoundsView: View {
 
 struct SoundLesson: View {
     let sound: IPASound
-    var practise: (ContrastSet) -> Void = { _ in }
+    var practise: ((ContrastSet) -> Void)?   // nil inside the lab's sheet
+    var backTitle = "Tất cả các âm"
     let back: () -> Void
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                BackButton(title: "Tất cả các âm", action: back)
+                BackButton(title: backTitle, action: back)
                 HStack(alignment: .center, spacing: 18) {
                     Text("/\(sound.symbol)/").font(.system(size: 64, weight: .semibold, design: .serif))
                     VStack(alignment: .leading, spacing: 6) {
@@ -327,7 +358,7 @@ struct SoundLesson: View {
                         Text(sound.confusedWith)
                     }
                 }
-                if let set = ContrastSet.sets(for: sound.id).first {
+                if let practise, let set = ContrastSet.sets(for: sound.id).first {
                     Button { practise(set) } label: { Label("Luyện âm này: \(set.title)", systemImage: "mic.fill") }
                         .buttonStyle(.glassProminent)
                         .controlSize(.large)

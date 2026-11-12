@@ -169,7 +169,8 @@ struct ContentView: View {
     /// process need Accessibility access and reach whichever Parley is in front).
     private static func press(_ name: String) {
         let keys: [String: (String, UInt16)] = ["return": ("\r", 36), "space": (" ", 49), "escape": ("\u{1b}", 53),
-                                                "1": ("1", 18), "2": ("2", 19), "3": ("3", 20), "4": ("4", 21)]
+                                                "1": ("1", 18), "2": ("2", 19), "3": ("3", 20), "4": ("4", 21),
+                                                "right": (String(UnicodeScalar(UInt16(NSRightArrowFunctionKey))!), 124)]
         guard let (chars, code) = keys[name],
               let window = NSApp.windows.first(where: { $0.identifier?.rawValue.hasPrefix("main") == true }) else { return }
         window.makeKeyAndOrderFront(nil)

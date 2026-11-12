@@ -11,8 +11,21 @@ struct SoundLabTests {
             for item in set.items {
                 #expect((2...3).contains(item.count))
                 for w in item { #expect(Pronunciation.phones(w) != nil, "\(w)") }
-                // the words of an item really differ in sound
+                // the words of an item differ, and only in the sounds this set trains (CMUdict's first entry)
                 #expect(Set(item.map { SoundDiff.bare(Pronunciation.phones($0) ?? []) }).count == item.count, "\(item)")
+                for other in item.dropFirst() {
+                    for c in SoundDiff.align(Pronunciation.phones(item[0]) ?? [], Pronunciation.phones(other) ?? []) {
+                        let phones: [String] = switch c {
+                        case .swapped(let a, let b): [a, b]
+                        case .missing(let a): [a]
+                        case .extra(let b): [b]
+                        }
+                        for p in phones {
+                            #expect(set.sounds.contains { IPASound.sound($0)?.matches(p) == true },
+                                    "\(set.id): \(item[0]) → \(other) changes /\(Pronunciation.symbol(p))/")
+                        }
+                    }
+                }
             }
             for id in set.sounds { #expect(IPASound.sound(id) != nil, "\(set.id): \(id)") }
         }
@@ -32,7 +45,7 @@ struct SoundLabTests {
         #expect(SoundDiff.compare(target: "buy", said: "I said bye again.").same)      // homophones (spike: buy → "bye")
         #expect(SoundDiff.compare(target: "right", said: "I said write again.").same)
         #expect(SoundDiff.compare(target: "ship", said: "I said ship again.").same)
-        #expect(SoundDiff.compare(target: "ship", said: "Ship.").same)                // the word alone is fine too
+        #expect(SoundDiff.compare(target: "ship", said: "Ship.").heard == nil)        // no carrier: no score (AC4)
     }
 
     @Test func missesNameTheSound() {
@@ -46,7 +59,9 @@ struct SoundLabTests {
         #expect(works.changes == [.extra("S")] && SoundDiff.describe(works.changes) == "thừa âm /s/")
         #expect(SoundLabView.lesson(for: works.changes) == nil)
         let sheep = SoundDiff.compare(target: "sheep", said: "I said ship again.")
-        #expect(sheep.changes == [.swapped("IY", "IH")] && SoundDiff.describe(sheep.changes) == "âm /i/ thành /ɪ/")
+        #expect(sheep.changes == [.swapped("IY1", "IH1")] && SoundDiff.describe(sheep.changes) == "âm /i/ thành /ɪ/")
+        let a = SoundDiff.compare(target: "bike", said: "I said a bike again.")
+        #expect(a.changes == [.extra("AH0")] && SoundDiff.describe(a.changes) == "thừa âm /ə/") // schwa stays schwa
     }
 
     @Test func sayOnlyWordsTheRecognizerKeeps() {
@@ -64,12 +79,19 @@ struct SoundLabTests {
         #expect(SoundDiff.compare(target: "nine", said: "I said 9 again.").same)
         #expect(SoundDiff.compare(target: "three", said: "I said 3 again.").same)
         #expect(SoundDiff.compare(target: "tree", said: "I said 3 again.").changes == [.swapped("T", "TH")])
+        #expect(SoundDiff.slot(in: "I said that I said ship again") == "ship") // the last "said" opens the slot
     }
 
     @Test func hintsAreTheWholePair() {
         let set = ContrastSet.set("dh-d")!
         #expect(set.context(for: "den") == ["then", "I said then again.", "den", "I said den again."])
         #expect(set.context(for: "nothing-here") == ["nothing-here", "I said nothing-here again."])
+    }
+
+    @Test func unknownWordsNeverPass() {
+        let r = SoundDiff.compare(target: "ship", said: "I said ship xyzzyq again")
+        #expect(!r.same && r.heard == "ship xyzzyq")
+        #expect(!SoundDiff.compare(target: "ship", said: "I said qwzx again").same)
     }
 
     @Test func noCarrierMeansSayItAgain() {

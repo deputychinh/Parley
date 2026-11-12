@@ -45,7 +45,7 @@ struct ContrastSet: Identifiable, Hashable {
               items: [["sip", "ship"], ["see", "she"], ["sell", "shell"], ["sort", "short"], ["save", "shave"], ["seat", "sheet"]]),
         .init(id: "i-length", title: "/i/ dài – /ɪ/ ngắn", why: "Độ dài nguyên âm đổi nghĩa: leave – live, feel – fill.",
               sounds: ["IY", "IH"], priority: .high,
-              items: [["sheep", "ship"], ["seat", "sit"], ["leave", "live"], ["feel", "fill"], ["heat", "hit"], ["eat", "it"]]),
+              items: [["sheep", "ship"], ["seat", "sit"], ["least", "list"], ["feel", "fill"], ["heat", "hit"], ["eat", "it"]]),
         .init(id: "l-n", title: "/l/ – /n/", why: "Một số vùng ở Việt Nam lẫn “l” và “n”: light – night.",
               sounds: ["L", "N"], priority: .normal,
               items: [["light", "night"], ["low", "no"], ["lot", "not"], ["line", "nine"], ["lock", "knock"], ["lap", "nap"]]),
@@ -107,42 +107,42 @@ enum SoundDiff {
     nonisolated static func bare(_ phones: [String]) -> [String] { phones.map { $0.filter { !$0.isNumber } } }
 
     /// Same sounds = right, even when spelled otherwise (bye = buy, write = right).
+    /// No carrier heard → no score (AC4): a word alone is misrecognized too often to judge (spike 2026-11-12).
     static func compare(target: String, said text: String) -> Result {
-        guard let slot = slot(in: text) else {
-            // No carrier recognized: accept only the word itself said alone.
-            let words = words(text)
-            if words.count == 1, let w = words.first { return compare(target: target, slot: w) }
-            return Result(heard: nil, same: false, changes: [])
-        }
+        guard let slot = slot(in: text) else { return Result(heard: nil, same: false, changes: []) }
         return compare(target: target, slot: slot)
     }
 
     static func compare(target: String, slot: String) -> Result {
-        let want = bare(Pronunciation.phones(target) ?? [])
-        let got = bare(slot.split(separator: " ").flatMap { Pronunciation.phones(String($0)) ?? [] })
-        if !want.isEmpty, want == got { return Result(heard: slot, same: true, changes: []) }
-        if slot == target.lowercased() { return Result(heard: slot, same: true, changes: []) }
+        let want = Pronunciation.phones(target) ?? []
+        let pieces = slot.split(separator: " ").map { Pronunciation.phones(String($0)) }
+        // a word the dictionary does not know is not the target: never a pass by being skipped
+        guard !pieces.contains(where: { $0 == nil }) else { return Result(heard: slot, same: false, changes: []) }
+        let got = pieces.flatMap { $0 ?? [] }
+        if !want.isEmpty, bare(want) == bare(got) { return Result(heard: slot, same: true, changes: []) }
         return Result(heard: slot, same: false, changes: got.isEmpty ? [] : align(want, got))
     }
 
-    /// Edit script from `a` (target) to `b` (heard), substitutions preferred over a missing + extra pair.
+    /// Edit script from `a` (target) to `b` (heard), substitutions preferred over a missing + extra pair. Phones are
+    /// equal when their sounds are (stress aside); the changes keep stress so /ə/ stays /ə/.
     nonisolated static func align(_ a: [String], _ b: [String]) -> [Change] {
         let n = a.count, m = b.count
+        let a0 = bare(a), b0 = bare(b)
         var d = Array(repeating: Array(repeating: 0, count: m + 1), count: n + 1)
         for i in 0...n { d[i][0] = i }
         for j in 0...m { d[0][j] = j }
         if n > 0, m > 0 {
             for i in 1...n {
                 for j in 1...m {
-                    d[i][j] = min(d[i - 1][j - 1] + (a[i - 1] == b[j - 1] ? 0 : 1), d[i - 1][j] + 1, d[i][j - 1] + 1)
+                    d[i][j] = min(d[i - 1][j - 1] + (a0[i - 1] == b0[j - 1] ? 0 : 1), d[i - 1][j] + 1, d[i][j - 1] + 1)
                 }
             }
         }
         var out: [Change] = []
         var i = n, j = m
         while i > 0 || j > 0 {
-            if i > 0, j > 0, d[i][j] == d[i - 1][j - 1] + (a[i - 1] == b[j - 1] ? 0 : 1) {
-                if a[i - 1] != b[j - 1] { out.append(.swapped(a[i - 1], b[j - 1])) }
+            if i > 0, j > 0, d[i][j] == d[i - 1][j - 1] + (a0[i - 1] == b0[j - 1] ? 0 : 1) {
+                if a0[i - 1] != b0[j - 1] { out.append(.swapped(a[i - 1], b[j - 1])) }
                 i -= 1; j -= 1
             } else if i > 0, d[i][j] == d[i - 1][j] + 1 {
                 out.append(.missing(a[i - 1])); i -= 1
@@ -157,9 +157,9 @@ enum SoundDiff {
     nonisolated static func describe(_ changes: [Change]) -> String {
         changes.map {
             switch $0 {
-            case .swapped(let a, let b): "âm /\(Pronunciation.symbol(a + "1"))/ thành /\(Pronunciation.symbol(b + "1"))/"
-            case .missing(let a): "thiếu âm /\(Pronunciation.symbol(a + "1"))/"
-            case .extra(let b): "thừa âm /\(Pronunciation.symbol(b + "1"))/"
+            case .swapped(let a, let b): "âm /\(Pronunciation.symbol(a))/ thành /\(Pronunciation.symbol(b))/"
+            case .missing(let a): "thiếu âm /\(Pronunciation.symbol(a))/"
+            case .extra(let b): "thừa âm /\(Pronunciation.symbol(b))/"
             }
         }
         .joined(separator: " · ")
@@ -257,7 +257,6 @@ struct LabRound: Equatable {
 struct SoundLabView: View {
     let set: ContrastSet
     let store: SoundStore
-    let openLesson: (IPASound) -> Void
     let back: () -> Void
 
     private enum Step: Equatable { case hear(Int), say(Int), done }
@@ -268,15 +267,17 @@ struct SoundLabView: View {
     @State private var hearRight = 0
     @State private var sayRight = 0
     @State private var mic = MicCheck()
-    private let voices = ModelVoices.english()
+    @State private var lesson: IPASound?       // "Xem cách phát âm": a sheet, so the round is kept
+    @State private var voices: [AVSpeechSynthesisVoice]
 
-    init(set: ContrastSet, store: SoundStore, openLesson: @escaping (IPASound) -> Void, back: @escaping () -> Void) {
+    init(set: ContrastSet, store: SoundStore, back: @escaping () -> Void) {
         self.set = set
         self.store = store
-        self.openLesson = openLesson
         self.back = back
+        let found = ModelVoices.english()
         var rng = SystemRandomNumberGenerator()
-        _round = State(initialValue: LabRound.make(set, voices: ModelVoices.english().count, using: &rng))
+        _voices = State(initialValue: found)
+        _round = State(initialValue: LabRound.make(set, voices: found.count, using: &rng))
     }
 
     var body: some View {
@@ -307,6 +308,10 @@ struct SoundLabView: View {
         }
         .task(id: step) { if case .hear(let i) = step { try? await Task.sleep(for: .milliseconds(300)); play(round.hear[i]) } }
         .onDisappear { Task { _ = await mic.stop(); mic.reset() } }
+        .sheet(item: $lesson) { sound in
+            SoundLesson(sound: sound, backTitle: "Quay lại bài luyện") { lesson = nil }
+                .frame(minWidth: 560, minHeight: 520)
+        }
     }
 
     private var progress: Double {
@@ -412,7 +417,19 @@ struct SoundLabView: View {
             }
             if mic.listening { Text("Đang nghe… nói “\(ContrastSet.carrier(word))”").foregroundStyle(.secondary) }
             if let error = mic.error { Text(error).font(.callout).foregroundStyle(.red) }
-            if let outcome { feedback(outcome, word) }
+            if let outcome {
+                feedback(outcome, word)
+            } else {
+                HStack {
+                    Spacer()
+                    // a denied mic or a carrier never heard must not trap the learner: skip, nothing is scored
+                    Button { advance() } label: { Label("Bỏ qua", systemImage: "forward") }
+                        .buttonStyle(.glass)
+                        .keyboardShortcut(.rightArrow, modifiers: [])
+                        .disabled(mic.listening || mic.busy)
+                        .help("Bỏ qua từ này, không tính điểm (→)")
+                }
+            }
         }
     }
 
@@ -425,7 +442,7 @@ struct SoundLabView: View {
                     .font(.headline).foregroundStyle(.red)
                 if !r.changes.isEmpty { Text(SoundDiff.describe(r.changes).prefix(1).uppercased() + SoundDiff.describe(r.changes).dropFirst()) }
                 if let lesson = Self.lesson(for: r.changes) {
-                    Button { openLesson(lesson) } label: { Label("Xem cách phát âm /\(lesson.symbol)/", systemImage: "mouth") }
+                    Button { self.lesson = lesson } label: { Label("Xem cách phát âm /\(lesson.symbol)/", systemImage: "mouth") }
                         .buttonStyle(.glass)
                 }
             }
@@ -527,7 +544,8 @@ enum SoundEval {
         let installed = try sayVoices()
         let use = voices.filter(installed.contains)
         guard !use.isEmpty else { throw Err("no English say voice installed") }
-        let words = Array(Set((set.flatMap(ContrastSet.set).map { [$0] } ?? ContrastSet.all).flatMap(\.sayable))).sorted()
+        let sets = set.flatMap(ContrastSet.set).map { [$0] } ?? ContrastSet.all
+        let words = sets.flatMap { s in s.sayable.map { (s, $0) } } // a word in two sets is said with each set's hints
         let dir = FileManager.default.temporaryDirectory.appending(path: "parley-sound-eval-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: dir) }
@@ -535,11 +553,10 @@ enum SoundEval {
         for voice in use {
             var right = 0
             var misses: [String] = []
-            for word in words {
-                let file = dir.appending(path: "\(voice)-\(word).aiff")
+            for (set, word) in words {
+                let file = dir.appending(path: "\(voice)-\(set.id)-\(word).aiff")
                 try say(ContrastSet.carrier(word), voice: voice, to: file)
-                let set = ContrastSet.all.first { $0.words.contains(word) }
-                let heard = try await transcribe(file, context: set?.context(for: word) ?? [])
+                let heard = try await transcribe(file, context: set.context(for: word))
                 if SoundDiff.compare(target: word, said: heard).same { right += 1 } else { misses.append("\(word) → “\(heard)”") }
             }
             let rate = Double(right) / Double(max(words.count, 1))

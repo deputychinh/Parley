@@ -30,9 +30,25 @@ struct SoundsTests {
         #expect(IPASound.sound("SH")?.symbol == "ʃ" && IPASound.sound("IY")?.symbol == "i" && IPASound.sound("AH")?.symbol == "ʌ")
     }
 
+    @Test func examplesShowWhereTheSoundSits() {
+        // Consonants that English allows anywhere: an example at the start, in the middle and at the end.
+        let limited: [String: Set<String>] = ["HH": ["start", "middle"], "W": ["start", "middle"], "Y": ["start", "middle"],
+                                              "NG": ["middle", "end"], "ZH": ["middle"]]
+        for sound in IPASound.all where !"AEIOU".contains(sound.id.first!) {
+            let seen = sound.examples.reduce(into: Set<String>()) { $0.formUnion(sound.positions(in: $1)) }
+            #expect(seen.isSuperset(of: limited[sound.id] ?? ["start", "middle", "end"]), "\(sound.id): \(seen)")
+        }
+        #expect(IPASound.sound("S")?.positions(in: "basic") == ["middle"])
+    }
+
+    @Test func pairsSitSideBySide() {
+        let pairs = IPASound.pairs(IPASound.all.filter { $0.group == .pair })
+        #expect(pairs.map { "\($0.0.id)/\($0.1.id)" } == ["P/B", "T/D", "K/G", "F/V", "TH/DH", "S/Z", "SH/ZH", "CH/JH"])
+    }
+
     @Test func prioritiesFollowTheMethod() {
         // brief.md: finals, -s/-ed, vowel length, s–ʃ first; θ/ð last.
-        for id in ["T", "D", "K", "S", "Z", "V", "F", "L", "SH", "IY", "IH"] { #expect(IPASound.sound(id)?.priority == .high, "\(id)") }
+        for id in ["P", "B", "T", "D", "K", "G", "S", "Z", "V", "F", "L", "SH", "IY", "IH"] { #expect(IPASound.sound(id)?.priority == .high, "\(id)") }
         for id in ["TH", "DH"] { #expect(IPASound.sound(id)?.priority == .low, "\(id)") }
     }
 

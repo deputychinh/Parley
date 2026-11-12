@@ -18,3 +18,9 @@ Owner: "tôi cần học về các âm IPA".
 | AC2 lesson | `docs/screenshots/sound-sh.png`; `lessonHighlightsOnlyTheSound` |
 | AC3 priorities | `prioritiesFollowTheMethod` |
 | AC4 examples contain their sound | `everyExampleContainsItsSound` (caught "around" = ER0 AW1 N D and "beyond" — replaced) |
+
+## Review rounds
+- Round 1 (independent, with PARLEY-33): 8.0 — pairs could split across rows; the chart sat below the practice list;
+  /s/ had no middle example; G "normal" among high final stops; AH and IY confusion texts. Fixed: the pair group lays
+  out voiceless + voiced side by side (`IPASound.pairs`), chart first and practice after it, "basic", G high, texts;
+  tests `examplesShowWhereTheSoundSits`, `pairsSitSideBySide`, P/B/G in the priority test.

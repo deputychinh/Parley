@@ -39,3 +39,18 @@ so a right sound is never marked wrong. "needed" came back as "need it" → the 
 | AC5 store, XP | `storeKeepsResultsAndLogsXP` |
 | AC6 eval | `Parley --sound-eval`: run 3 above, `sound-eval: ok` |
 | Not verified live | "Nói" with the owner's voice (screen locked, the sandbox app's mic prompt pending) → PARLEY-39 |
+
+## Limits (said plainly)
+- `hearOnly` words (den, doze, dare, dough, berry) are never asked for in "Nói". The other side of that coin: a learner
+  who says "den" for "then" or "berry" for "very" is heard as the target and passes — the recognizer cannot tell. The
+  hearing step still trains those contrasts.
+- The recognizer, not a phoneme model, decides; a sound heard right in context can still be a weak sound.
+
+## Review rounds
+- Round 1 (independent): 6.0 — leave/live used CMUdict's /laɪv/ (feedback "âm /aɪ/ thành /i/"); an unknown word in
+  the slot was skipped and passed; schwa described as /ʌ/; a word without the carrier was scored (AC4); no way out of
+  "Nói" with a refused mic; spec silent on l–n, listening XP and voice rotation; the lesson link lost the round; the
+  eval used other sets' hints. Fixed: least/list and a test that every item differs only in the set's sounds;
+  unknown words are misses; changes keep stress (/ə/); no carrier → no score; "Bỏ qua" (→); spec updated; lessons
+  open in a sheet; one voices lookup per lab; the eval says each word with its own set's hints; set rows labelled.
+- Not verified: screenshots of "Nói" and the summary (screen locked during the round; `--keys` captures failed).

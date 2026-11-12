@@ -25,7 +25,8 @@ offline. All ACs `[macOS]`.
 1. A sidebar row "Âm tiếng Anh" (under Học) shows the US English sounds as a chart: short vowels, long vowels,
    diphthongs, consonants (voiceless/voiced pairs side by side) — all symbols CMUdict produces (`Pronunciation.ipa`).
 2. Each sound opens a lesson: symbol, how to make it in Vietnamese (lips, tongue, voice, length), the Vietnamese sound
-   it is confused with, 4–6 example words with the sound in start, middle and end position (IPA highlighted), each
+   it is confused with, 4–6 example words with the sound in start, middle and end position where English allows
+   it (consonants; /h/ /w/ /j/ never end a word, /ŋ/ never starts one, /ʒ/ sits in the middle) (IPA highlighted), each
    playable; a "Luyện âm này" button opens its minimal pairs (PARLEY-33).
 3. Sounds that matter most for Vietnamese speakers carry a badge "Ưu tiên" (final consonants, -s/-ed, clusters, vowel
    length, /s/–/ʃ/; /θ/ /ð/ marked lower priority with the reason).
@@ -36,17 +37,20 @@ offline. All ACs `[macOS]`.
 ### PARLEY-33 — "Luyện âm": minimal pairs, hear then say
 
 1. Contrast sets for Vietnamese speakers, ordered by priority: final stops (bye/bite/bike, see/seat/seed, …), -s/-ed
-   endings (work/works/worked), clusters (pay/play, …), /s/–/ʃ/, /iː/–/ɪ/, /l/–/r/ … /θ/–/s/, /ð/–/d/ last. Each set
-   ≥ 6 pairs; every word has a CMUdict pronunciation (unit test).
-2. Nghe: 10 trials; a word from the set is spoken by a randomly chosen installed English voice (≥ 2 voices when
-   installed, else the default voice with a note); the learner picks which word (keys 1/2/3); feedback right/wrong with
-   both words replayable. Score kept per set.
+   endings (work/works/worked), clusters with /l/ and /r/ (pay/play, bed/bread …), /s/–/ʃ/, /iː/–/ɪ/, /l/–/n/
+   (the merger in some Vietnamese dialects), /v/–/b/–/w/ … /θ/–/s/, /ð/–/d/ last. Each set ≥ 6 items; every word
+   has a CMUdict pronunciation and the words of an item differ only in the set's sounds (unit tests).
+2. Nghe: 10 trials; a word from the set is spoken by the installed English voices in turn, one per accent (every voice
+   heard in a round; else the default voice with a note); the learner picks which word (keys 1/2/3); feedback
+   right/wrong with both words replayable. Score kept per set.
 3. Nói: the learner says the shown word in the carrier "I said ___ again." (shown); the recognized word in the slot is
    compared by CMUdict pronunciation (homophones pass: bye = buy); a miss shows what was heard and the sounds that
    differ, e.g. "Máy nghe ra **sip** /sɪp/ — âm /ʃ/ thành /s/", with the lesson link (PARLEY-32).
-4. Nothing heard in the slot / carrier not recognized → "Chưa nghe rõ — nói lại cả câu “I said ship again.”", no score.
+4. Nothing heard in the slot / carrier not recognized → "Chưa nghe rõ — nói lại cả câu “I said ship again.”", no score;
+   a word the dictionary does not know is a miss, never skipped. "Bỏ qua" (→) moves on without a score, so a refused
+   mic or a carrier never heard cannot trap the learner.
 5. Results per contrast (trials, correct, last date) persist in `sounds.json` (atomic, unreadable file moved aside);
-   XP goes to speaking (10 right, 2 attempt, as other drills).
+   saying → speaking XP, hearing → listening XP (10 right, 2 attempt, as other drills).
 6. `Parley --sound-eval`: every word "Nói" can ask for, said in the carrier by the installed US and UK `say` voices
    (Samantha, Daniel), must come back as itself ≥ 90% (CLI, prints misses; other accents reported for information;
    like `--ai-eval`, not in CI). Words the recognizer always hears as their common partner stay in "Nghe" only.
