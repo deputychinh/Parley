@@ -93,7 +93,9 @@ struct SoundLabTests {
         #expect(SoundLabView.summary(heard: 10, said: 9, skipped: 0) == "Nghe đúng 10/10 · Nói đúng 9/10")
         #expect(SoundLabView.strong(right: 8, skipped: 0) && !SoundLabView.strong(right: 7, skipped: 0))
         #expect(SoundLabView.strong(right: 4, skipped: 5) && !SoundLabView.strong(right: 3, skipped: 6)) // half said at least
+        #expect(!SoundLabView.strong(right: 4, skipped: 6)) // 4/4 said, but under half the round
         #expect(SoundEval.percentile([0.4, 0.9, 0.5, 2.0, 0.6], 0.5) == 0.6 && SoundEval.percentile([], 0.5) == 0)
+        #expect(SoundEval.percentile([1, 2, 3, 4], 0.5) == 3) // index 1.5 rounds to the nearest, not down
     }
 
     @Test func unknownWordsNeverPass() {

@@ -36,10 +36,10 @@ Status: todo · doing · done · debt · blocked. Prefix `PARLEY`. Delivery: [00
 | PARLEY-30 | v0.3.1 | "Học tập": ↩ for the main action (flip, "Đã nhớ", "Tiếp" after typed answers; grammar lesson start and result). Other screens checked: they already have ↩ or have no step-by-step flow | XS | done |
 | PARLEY-31 | v0.4.0 | One-press mic everywhere (auto-stop on silence, level meter) + "Nghe lại giọng tôi" | M | done (7.0, round-3 rule → PARLEY-39) |
 | PARLEY-32 | v0.4.0 | "Âm tiếng Anh": IPA chart and a lesson per sound (how to make it, examples, confused with) | M | done (9.5) |
-| PARLEY-33 | v0.4.0 | "Luyện âm": minimal pairs for Vietnamese speakers — hear (several voices), then say in a carrier, sound-level feedback | M | doing |
+| PARLEY-33 | v0.4.0 | "Luyện âm": minimal pairs for Vietnamese speakers — hear (several voices), then say in a carrier, sound-level feedback | M | done (9.0) |
 | PARLEY-34 | v0.4.1 | Sounds and words to review from every speaking drill, spaced (Leitner) | S | todo |
 | PARLEY-35 | v0.4.1 | "Luyện nói hôm nay": the daily routine in method order + "Vì sao" panel; speaking breakdown in Tiến độ | S | todo |
 | PARLEY-36 | v0.4.1 | Stress and intonation: pitch contour over the model, stressed syllable check | M | todo |
 | PARLEY-37 | v0.4.1 | Conversation: unclear spoken words flagged and replayable; accent setting instead of hard-coded en_US | S | todo |
 | PARLEY-38 | later | "Mọi thứ về tiếng Anh": a full course path (grammar, vocabulary, reading, writing) on the same method | L | todo |
-| PARLEY-39 | v0.4.0 | Debt from PARLEY-31: a test seam for `MicCheck.listen` (fake recognizer + engine: start/stop, reset during start → mic closed, refused permission, double press); one empty-result helper instead of three; a real-voice pass with the owner | S | todo |
+| PARLEY-39 | v0.4.0 | Debt from PARLEY-31: a test seam for `MicCheck.listen` (fake recognizer + engine: start/stop, reset during start → mic closed, refused permission, double press); one empty-result helper instead of three; a real-voice pass with the owner; screenshots of the "Luyện âm" say step, skip and summary; a fresh `sounds.png` | S | todo |

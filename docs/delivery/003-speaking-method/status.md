@@ -52,6 +52,7 @@ Resume: re-invoke `ship`; "Where am I?" reads this file and does the Next action
 - 2026-11-12 owner added: IPA lessons, "mọi thứ về tiếng Anh" (→ PARLEY-38, later delivery), simplify the mic.
 - 2026-11-12 PARLEY-31 one-press mic — shipped 7.0 under the round-3 rule (6.0 → 8.0 → 7.5 → 7.0), debt PARLEY-39.
 - 2026-11-12 PARLEY-32 "Âm tiếng Anh" — shipped 9.5 (8.0 → 9.5).
+- 2026-11-12 PARLEY-33 "Luyện âm" — shipped 9.0 (6.0 → 8.5 → 9.0). Slice 1 done → v0.4.0.
 
 ## Rulings (decisions taken without asking)
 

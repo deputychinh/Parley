@@ -60,3 +60,20 @@ so a right sound is never marked wrong. "needed" came back as "need it" → the 
   only on words said (`summaryCountsOnlyWordsSaid`); text "seat – sit"; `--sound-eval` times audio end → score:
   **p50 0.05 s, p90 0.05 s over 690 attempts** (target ≤ 1.5 s). With a live mic the end-pointer's 1.2 s of quiet
   comes first — by design (PARLEY-31), not processing time.
+- Round 3 (same reviewer): **9.0 — ship.** M23 (half-round trophy rule) and M25 (percentile rounding) pinned right
+  after. Open → PARLEY-39: screenshots of "Nói", feedback, "Bỏ qua" and the summary, and a live run with the owner's
+  voice (UX and tests at 0.5 until then).
+
+| # | Criterion | Score |
+| --- | --- | --- |
+| 1 | Requirements fit | 1 |
+| 2 | Tests | 0.5 (no UI test or screenshot of the say flow) |
+| 3 | Reliability | 1 |
+| 4 | Security | 1 |
+| 5 | Maintainability | 1 |
+| 6 | UX | 0.5 (say flow never seen live) |
+| 7 | Accessibility | 1 |
+| 8 | Performance | 1 |
+| 9 | Docs | 1 |
+| 10 | Delivery | 1 |
+| | **Total** | **9.0** |
